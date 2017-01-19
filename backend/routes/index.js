@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
+var userControl = require('../controllers/user.js');
 var User = require('../models/user.js');
+
+var passport = require('passport');
 // on routes that end in /users
 // ----------------------------------------------------
 router.route('/users')
@@ -12,7 +15,7 @@ router.route('/users')
 
 	var user = User.build({ username: username, password: password });
 
-	user.add(function(success){
+	userControl.add(user, function(success){
 		res.json({ message: 'User created!' });
 	},
 	function(err) {
@@ -24,14 +27,14 @@ router.route('/users')
 .get(function(req, res) {
 	var user = User.build();
 
-	user.retrieveAll(function(users) {
+	userControl.retrieveAll(function(users) {
 		if (users) {
 		  res.json(users);
 		} else {
 		  res.send(401, "User not found");
 		}
-	  }, function(error) {
-		res.send("User not found");
+		}, function(error) {
+			res.send("User not found");
 	  });
 });
 
@@ -47,7 +50,7 @@ router.route('/users/:user_id')
 	user.username = req.body.username;
 	user.password = req.body.password;
 
-	user.updateById(req.params.user_id, function(success) {
+	userControl.updateById(user, req.params.user_id, function(success) {
 		console.log(success);
 		if (success) {
 			res.json({ message: 'User updated!' });
@@ -63,7 +66,7 @@ router.route('/users/:user_id')
 .get(function(req, res) {
 	var user = User.build();
 
-	user.retrieveById(req.params.user_id, function(users) {
+	userControl.retrieveById(req.params.user_id, function(users) {
 		if (users) {
 		  res.json(users);
 		} else {
@@ -87,6 +90,10 @@ router.route('/users/:user_id')
 	  }, function(error) {
 		res.send("User not found");
 	  });
+});
+
+router.post('/users/login', passport.authenticate('local'), function(req, res) {
+  res.send(req.body.username + 'login successful!');
 });
 
 module.exports = router;

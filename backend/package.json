@@ -1,12 +1,17 @@
 {
-	"name": "node-api",
-	"main": "server.js",
-	"dependencies": {
-		"express": "~4.0.0",
-		"body-parser": "~1.0.1",
-		"mysql": "~2.5.0",
-		"sequelize": "~2.0.0",
-		"crypto": "~0.0.3",
-		"morgan": "~1.7.0"
-	}
+  "name": "node-api",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "~1.0.1",
+    "cookie-parser": "^1.4.3",
+    "crypto": "~0.0.3",
+    "express": "~4.0.0",
+    "express-session": "^1.14.2",
+    "morgan": "~1.7.0",
+    "mysql": "~2.5.0",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
+    "sequelize": "~2.0.0",
+    "uuid": "^3.0.1"
+  }
 }
