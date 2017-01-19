@@ -12,6 +12,9 @@ class Extractor:
       'trakt-api-key': '411a8f0219456de5e3e10596486c545359a919b6ebb10950fa86896c1a8ac99b'
     }
 
+    content_type = "json"
+    plot = "full"
+
     def __init__(self):
         pass
 
@@ -22,8 +25,12 @@ class Extractor:
         pass
 
     def extract_omdb(self):
-        api_call_result = request.urlopen("http://www.omdbapi.com/?i=tt4972582&plot=full&r=json")
-        print(api_call_result.read().decode("utf-8"))
+        imdb_id = "tt4972582"
+        api_call_result = request.urlopen(
+            "http://www.omdbapi.com/?i={}&plot={}&r={}".format(imdb_id, self.plot, self.content_type))
+        text_result = api_call_result.read().decode("utf-8")
+        json_result = json.dump(text_result)
+        print(json_result["Title"])
 
     def extract_imdb(self):
         pass
