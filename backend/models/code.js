@@ -1,0 +1,14 @@
+// Load required packages
+var sequelize = require('./db.js');
+var DataTypes = require("sequelize");
+
+// Define our token schema
+var Code  = sequelize.define('code', {
+  value: DataTypes.STRING,
+  redirectUri: DataTypes.STRING,
+  userId: DataTypes.STRING,
+  clientId: DataTypes.STRING
+});
+
+// Export the Mongoose model
+module.exports = Code;

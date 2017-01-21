@@ -3,6 +3,8 @@ var router = express.Router();
 var userControl = require('../controllers/user.js');
 var User = require('../models/user.js');
 var authController = require('../controllers/auth');
+var oauth2Controller = require('../controllers/oauth2');
+var clientController = require('../controllers/client');
 
 var passport = require('passport');
 // on routes that end in /users
@@ -104,15 +106,22 @@ router.post('/users/login', passport.authenticate('local'),
 	}
 );
 */
-router.post('/users/login', function(req, res, next) {
-  passport.authenticate('local', function(err, user, info) {
-    if (err) { return next(err); }
-    if (!user) { return res.send('login fail'); }
-    req.logIn(user, function(err) {
-      if (err) { return next(err); }
-      return res.send(user.username + 'login successful');
-    });
-  })(req, res, next);
+router.post('/users/login', authController.isAuthenticated, function(req, res) {
+      return res.send('login successful');
 });
+
+// Create endpoint handlers for /clients
+router.route('/clients')
+  .post(authController.isAuthenticated, clientController.postClients)
+  .get(authController.isAuthenticated, clientController.getClients);
+
+// Create endpoint handlers for oauth2 authorize
+router.route('/oauth2/authorize')
+  .get(authController.isAuthenticated, oauth2Controller.authorization)
+  .post(authController.isAuthenticated, oauth2Controller.decision);
+
+// Create endpoint handlers for oauth2 token
+router.route('/oauth2/token')
+  .post(authController.isClientAuthenticated, oauth2Controller.token);
 
 module.exports = router;
