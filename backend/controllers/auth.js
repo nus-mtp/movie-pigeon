@@ -8,7 +8,7 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  db.User.findOne(id).then(function(user){
+  User.findOne(id).then(function(user){
     done(null, user);
   }).error(function(err){
     done(err, null);
@@ -19,7 +19,7 @@ passport.deserializeUser(function(id, done) {
 passport.use(new LocalStrategy({
     usernameField: 'username'
   },
-  function(email, password, done) {
+  function(username, password, done) {
 
     User.find({ where: { username : username } }).then(function (user) {
       if (!user) {
@@ -32,3 +32,5 @@ passport.use(new LocalStrategy({
     });
   }
 ));
+
+exports.isAuthenticated = passport.authenticate('local', { session : false });

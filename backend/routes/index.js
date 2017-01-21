@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var userControl = require('../controllers/user.js');
 var User = require('../models/user.js');
+var authController = require('../controllers/auth');
 
 var passport = require('passport');
 // on routes that end in /users
@@ -24,7 +25,7 @@ router.route('/users')
 })
 
 // get all the users (accessed at GET http://localhost:8080/api/users)
-.get(function(req, res) {
+.get(authController.isAuthenticated, function(req, res) {
 	var user = User.build();
 
 	userControl.retrieveAll(function(users) {
@@ -44,7 +45,7 @@ router.route('/users')
 router.route('/users/:user_id')
 
 // update a user (accessed at PUT http://localhost:8080/api/users/:user_id)
-.put(function(req, res) {
+.put(authController.isAuthenticated, function(req, res) {
 	var user = User.build();
 
 	user.username = req.body.username;
@@ -63,7 +64,7 @@ router.route('/users/:user_id')
 })
 
 // get a user by id(accessed at GET http://localhost:8080/api/users/:user_id)
-.get(function(req, res) {
+.get(authController.isAuthenticated, function(req, res) {
 	var user = User.build();
 
 	userControl.retrieveById(req.params.user_id, function(users) {
@@ -78,7 +79,7 @@ router.route('/users/:user_id')
 })
 
 // delete a user by id (accessed at DELETE http://localhost:port/api/users/:user_id)
-.delete(function(req, res) {
+.delete(authController.isAuthenticated, function(req, res) {
 	var user = User.build();
 
 	user.removeById(req.params.user_id, function(users) {
@@ -92,8 +93,26 @@ router.route('/users/:user_id')
 	  });
 });
 
-router.post('/users/login', passport.authenticate('local'), function(req, res) {
-  res.send(req.body.username + 'login successful!');
+/*
+router.post('/users/login', passport.authenticate('local'),
+	function(req, res) {
+  	res.send(req.body.username + 'login successful!');
+	},
+	function(err, req, res, next) {
+		// handle error
+		if (req.xhr) { return res.json(err); }
+	}
+);
+*/
+router.post('/users/login', function(req, res, next) {
+  passport.authenticate('local', function(err, user, info) {
+    if (err) { return next(err); }
+    if (!user) { return res.send('login fail'); }
+    req.logIn(user, function(err) {
+      if (err) { return next(err); }
+      return res.send(user.username + 'login successful');
+    });
+  })(req, res, next);
 });
 
 module.exports = router;

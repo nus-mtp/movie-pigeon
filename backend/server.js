@@ -27,40 +27,6 @@ app.use(passport.session());
 
 var env = app.get('env') == 'development' ? 'dev' : app.get('env');
 
-// Serialize sessions
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
-});
-
-passport.deserializeUser(function(id, done) {
-  User.findOne(id).then(function(user){
-    done(null, user);
-  }).error(function(err){
-    done(err, null);
-  });
-});
-
-// Use local strategy to create user account
-passport.use(new LocalStrategy({
-    usernameField: 'username'
-  },
-  function(username, password, done) {
-
-    User.findOne({ where: { 'username' : username } }).then(function (user) {
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username.' });
-      }
-      if (!user.validPassword(password)) {
-				console.log('here');
-        return done(null, false, { message: 'Incorrect password.' });
-      }
-			console.log('right');
-      return done(null, user);
-    });
-  }
-));
-
-
 // IMPORT ROUTES
 // =============================================================================
 var router = require('./routes/index.js');
