@@ -8,7 +8,6 @@ var db = require('../models/db');
 
 passport.use('basic', new BasicStrategy(
   function(username, password, done) {
-    console.log(username);
     User.find({ where: { username : username } }).then(function (user) {
       if (!user) {
         return done(null, false, { message: 'Incorrect email address.' });
@@ -23,9 +22,7 @@ passport.use('basic', new BasicStrategy(
 
 passport.use('client-basic', new BasicStrategy(
   function(username, password, callback) {
-    Client.findOne({ id: username }, function (err, client) {
-      if (err) { return callback(err); }
-
+    Client.findOne({ where: {id: username }}).then(function(client) {
       // No client found with that id or bad password
       if (!client || client.secret !== password) { return callback(null, false); }
 
@@ -37,15 +34,11 @@ passport.use('client-basic', new BasicStrategy(
 
 passport.use('bearer', new BearerStrategy(
   function(accessToken, callback) {
-    Token.findOne({value: accessToken }, function (err, token) {
-      if (err) { return callback(err); }
-
+    Token.findOne( {where: {value: accessToken }}).then(function(token) {
       // No token found
       if (!token) { return callback(null, false); }
 
-      User.findOne({ _id: token.userId }, function (err, user) {
-        if (err) { return callback(err); }
-
+      User.findOne({ where: {id: token.userId }}).then(function (user) {
         // No user found
         if (!user) { return callback(null, false); }
 

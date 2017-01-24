@@ -3,7 +3,7 @@ var sequelize = require('./db.js');
 var DataTypes = require("sequelize");
 
 // Define our token schema
-var Code  = sequelize.define('code', {
+var Code  = sequelize.define('codes', {
   value: DataTypes.STRING,
   redirectUri: DataTypes.STRING,
   userId: DataTypes.STRING,

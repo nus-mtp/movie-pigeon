@@ -7,10 +7,12 @@ var uuid = require('uuid');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var User = require('./models/user.js');
+var ejs = require('ejs');
+var path = require('path');
 
 var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
-app.set('port', process.env.PORT || 3154);
+app.set('port', process.env.PORT || 3000);
 app.use(logger('dev'));
 app.use(cookieParser());
 app.use(session({
@@ -24,6 +26,10 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+var path = require ('path');
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname + '/views'));
 
 var env = app.get('env') == 'development' ? 'dev' : app.get('env');
 
