@@ -3,10 +3,18 @@ var crypto = require('crypto');
 var DataTypes = require("sequelize");
 
 var client = sequelize.define('clients', {
-    name: DataTypes.STRING,
-    id: DataTypes.STRING,
-    secret: DataTypes.STRING,
-    userId: DataTypes.STRING
+    name: {
+      type: DataTypes.STRING
+    },
+    id: {
+      type: DataTypes.STRING
+    },
+    secret: {
+      type: DataTypes.STRING
+    },
+    userId: {
+      type: DataTypes.STRING
+    }
 },
 {
   instanceMethods: {
@@ -19,5 +27,7 @@ var client = sequelize.define('clients', {
   }
 }
 );
+
+sequelize.sync({});
 
 module.exports = client;

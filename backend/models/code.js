@@ -4,11 +4,21 @@ var DataTypes = require("sequelize");
 
 // Define our token schema
 var Code  = sequelize.define('codes', {
-  value: DataTypes.STRING,
-  redirectUri: DataTypes.STRING,
-  userId: DataTypes.STRING,
-  clientId: DataTypes.STRING
+  value: {
+    type: DataTypes.STRING
+  },
+  redirectUri: {
+    type: DataTypes.STRING
+  },
+  userId: {
+    type: DataTypes.STRING,
+  },
+  clientId: {
+    type: DataTypes.STRING
+  }
 });
+
+sequelize.sync({});
 
 // Export the Mongoose model
 module.exports = Code;

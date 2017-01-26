@@ -3,8 +3,14 @@ var crypto = require('crypto');
 var DataTypes = require("sequelize");
 
 var User = sequelize.define('users', {
-    username: DataTypes.STRING,
-    password: DataTypes.STRING
+    username: {
+      type: DataTypes.STRING,
+      unique: true,
+      primaryKey: true
+    },
+    password: {
+      type: DataTypes.STRING
+    }
 },
 {
   instanceMethods: {
@@ -17,5 +23,7 @@ var User = sequelize.define('users', {
   }
 }
 );
+
+sequelize.sync({});
 
 module.exports = User;
