@@ -1,8 +1,8 @@
 from urllib import request
 
-import requests
 import logging
 import json
+
 
 class Extractor:
 
@@ -24,20 +24,15 @@ class Extractor:
         logging.warning("haha")
         pass
 
-    def extract_omdb(self):
+    def extract_omdb(self, imdb_id):
         """
-        extract omdb data
-        :return:
+        :param imdb_id: a given imdb id
+        :return: json result of its movie data
         """
-        imdb_prefix = "tt"
-        imdb_number = "0000001"
-        imdb_id = imdb_prefix + imdb_number
         api_call_result = request.urlopen(
             "http://www.omdbapi.com/?i={}&plot={}&r={}".format(imdb_id, self.plot, self.content_type))
         text_result = api_call_result.read().decode("utf-8")
         json_result = json.loads(text_result)
-
-
         return json_result
 
     def extract_imdb(self):
