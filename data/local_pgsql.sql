@@ -89,3 +89,8 @@ CREATE TABLE users
     hashed_pass VARCHAR(128) NOT NULL
 );
 CREATE UNIQUE INDEX users_email_uindex ON users (email);
+
+-- HARDCODED DATA --
+-- websites sources name --
+INSERT INTO rating_sources (source_name) VALUES ('IMDb');
+INSERT INTO rating_sources (source_name) VALUES ('Metacritics');

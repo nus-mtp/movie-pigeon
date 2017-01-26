@@ -12,10 +12,9 @@ class Extractor:
       'trakt-api-key': '411a8f0219456de5e3e10596486c545359a919b6ebb10950fa86896c1a8ac99b'
     }
 
-    content_type = "json"
-    plot = "full"
-
     def __init__(self):
+        self.content_type = "json"  # return type for omdb requests
+        self.plot = "full"  # attribute for omdb
         pass
 
     def extract_trakt(self):
