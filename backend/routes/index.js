@@ -10,43 +10,14 @@ var passport = require('passport');
 // on routes that end in /users
 // ----------------------------------------------------
 router.route('/users')
+	.post(userControl.postUser)
+	.get(authController.isAuthenticated, userControl.getUser);
 
-// create a user (accessed at POST http://localhost:8080/api/users)
-.post(function(req, res) {
-	var username = req.body.username; //bodyParser does the magic
-	var password = req.body.password;
-
-	var user = User.build({ username: username, password: password });
-
-	userControl.add(user, function(success){
-		res.json({ message: 'User created!' });
-	},
-	function(err) {
-		res.send(err);
-	});
-})
-
-// get all the users (accessed at GET http://localhost:8080/api/users)
-.get(authController.isAuthenticated, function(req, res) {
-	var user = User.build();
-
-	userControl.retrieveAll(function(users) {
-		if (users) {
-		  res.json(users);
-		} else {
-		  res.send(401, "User not found");
-		}
-		}, function(error) {
-			res.send("User not found");
-	  });
-});
-
-
+/*
 // on routes that end in /users/:user_id
 // ----------------------------------------------------
 router.route('/users/:user_id')
 
-// update a user (accessed at PUT http://localhost:8080/api/users/:user_id)
 .put(authController.isAuthenticated, function(req, res) {
 	var user = User.build();
 
@@ -65,7 +36,6 @@ router.route('/users/:user_id')
 	  });
 })
 
-// get a user by id(accessed at GET http://localhost:8080/api/users/:user_id)
 .get(authController.isAuthenticated, function(req, res) {
 	var user = User.build();
 
@@ -79,32 +49,6 @@ router.route('/users/:user_id')
 		res.send("User not found");
 	  });
 })
-
-// delete a user by id (accessed at DELETE http://localhost:port/api/users/:user_id)
-.delete(authController.isAuthenticated, function(req, res) {
-	var user = User.build();
-
-	user.removeById(req.params.user_id, function(users) {
-		if (users) {
-		  res.json({ message: 'User removed!' });
-		} else {
-		  res.send(401, "User not found");
-		}
-	  }, function(error) {
-		res.send("User not found");
-	  });
-});
-
-/*
-router.post('/users/login', passport.authenticate('local'),
-	function(req, res) {
-  	res.send(req.body.username + 'login successful!');
-	},
-	function(err, req, res, next) {
-		// handle error
-		if (req.xhr) { return res.json(err); }
-	}
-);
 */
 router.post('/users/login', authController.isAuthenticated, function(req, res) {
       return res.send('login successful');

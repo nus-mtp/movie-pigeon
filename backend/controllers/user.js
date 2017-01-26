@@ -1,7 +1,35 @@
 var User = require('../models/user.js');
 var crypto = require('crypto');
 
-exports.retrieveAll = function(onSuccess, onError) {
+exports.postUser = function(req, res) {
+	var username = req.body.username;
+	var password = req.body.password;
+
+	var user = User.build({ username: username, password: password });
+
+	add(user, function(success){
+		res.json({ message: 'User created!' });
+	},
+	function(err) {
+		res.send(err);
+	});
+}
+
+exports.getUser = function(req, res) {
+	var user = User.build();
+
+	retrieveAll(function(users) {
+		if (users) {
+		  res.json(users);
+		} else {
+		  res.send(401, "User not found");
+		}
+		}, function(error) {
+			res.send("User not found");
+	  });
+}
+
+var retrieveAll = function(onSuccess, onError) {
   User.findAll({}, {raw: true}).then(onSuccess).catch(onError);
 };
 
@@ -9,7 +37,7 @@ exports.retrieveById = function(user_id, onSuccess, onError) {
   User.find({where: {id: user_id}}, {raw: true}).then(onSuccess).catch(onError);
 };
 
-exports.add = function(user, onSuccess, onError) {
+var add = function(user, onSuccess, onError) {
   var username = user.username;
   var password = user.password;
 
