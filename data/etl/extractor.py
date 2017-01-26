@@ -25,12 +25,20 @@ class Extractor:
         pass
 
     def extract_omdb(self):
-        imdb_id = "tt4972582"
+        """
+        extract omdb data
+        :return:
+        """
+        imdb_prefix = "tt"
+        imdb_number = "0000001"
+        imdb_id = imdb_prefix + imdb_number
         api_call_result = request.urlopen(
             "http://www.omdbapi.com/?i={}&plot={}&r={}".format(imdb_id, self.plot, self.content_type))
         text_result = api_call_result.read().decode("utf-8")
-        json_result = json.dump(text_result)
-        print(json_result["Title"])
+        json_result = json.loads(text_result)
+
+
+        return json_result
 
     def extract_imdb(self):
         pass
