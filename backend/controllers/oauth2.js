@@ -78,7 +78,7 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectUri, ca
     // Delete auth code now that it has been used
     authCode.destroy().then(function (err) {
       // Create a new access token
-      var value = uid(256),
+      var value = uid(128),
           clientId = authCode.clientId,
           userId = authCode.userId;
 
@@ -86,7 +86,7 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectUri, ca
       Token.build({value: value, clientId: clientId, userId: userId})
            .save()
            .then(function(success){
-             callback(null, token);
+             callback(null, value);
            })
            .catch(function (err) {
              if (err) { return callback(err); }

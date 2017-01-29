@@ -6,10 +6,16 @@ var User = sequelize.define('users', {
     username: {
       type: DataTypes.STRING,
       unique: true,
-      primaryKey: true
+      allowNull: false
     },
     password: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
     }
 },
 {

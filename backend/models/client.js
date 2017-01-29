@@ -4,16 +4,20 @@ var DataTypes = require("sequelize");
 
 var client = sequelize.define('clients', {
     name: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: false
     },
     id: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: false
     },
     secret: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: false
     },
     userId: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: false
     }
 },
 {
