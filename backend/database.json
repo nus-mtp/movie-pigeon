@@ -1,14 +1,14 @@
 {
   "dev": {
-    "driver": "mysql",
-    "user": "root",
+    "driver": "postgres",
+    "user": "postgres",
     "database": "test",
-	"password": "root"
+	  "password": "root"
   },
 
   "production": {
-    "driver": "mysql",
-    "user": "root",
+    "driver": "postgres",
+    "user": "postgres",
     "database": "myapp"
   }
 }

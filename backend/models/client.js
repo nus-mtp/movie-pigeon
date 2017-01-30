@@ -3,6 +3,11 @@ var crypto = require('crypto');
 var DataTypes = require("sequelize");
 
 var client = sequelize.define('clients', {
+    _id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false
