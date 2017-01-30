@@ -5,6 +5,7 @@ var User = require('../models/user.js');
 var authController = require('../controllers/auth');
 var oauth2Controller = require('../controllers/oauth2');
 var clientController = require('../controllers/client');
+var movieController = require('../controllers/movie');
 
 var passport = require('passport');
 // on routes that end in /users
@@ -67,5 +68,14 @@ router.route('/oauth2/authorize')
 // Create endpoint handlers for oauth2 token
 router.route('/oauth2/token')
   .post(authController.isClientAuthenticated, oauth2Controller.token);
+
+router.route('/movies/id')
+	  .post(authController.isAuthenticated, movieController.getMoviesById);
+router.route('/movies/title')
+		.post(authController.isAuthenticated, movieController.getMoviesByTitle);
+router.route('/movies/year')
+	  .post(authController.isAuthenticated, movieController.getMoviesByProductionYear);
+
+
 
 module.exports = router;
