@@ -4,6 +4,4 @@ class Transformer:
         pass
 
     def movie_json_tokenizer(self, json_result):
-
-
         pass
