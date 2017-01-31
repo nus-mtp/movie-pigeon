@@ -11,7 +11,7 @@ User.belongsToMany(Movie, {
   through: Bookmark,
   foreignKey: 'user_id'
 });
-Movie.belongsTo(User, {
+Movie.belongsToMany(User, {
   through: Bookmark,
   foreignKey: 'movie_id'
 });

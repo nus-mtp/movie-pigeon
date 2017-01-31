@@ -10,7 +10,7 @@ var Scale = sequelize.define('scales', {
   }
 });
 
-User.belongsTo(RatingSource, {
+User.belongsToMany(RatingSource, {
   through: Scale,
   foreignKey: 'user_id'
 });
@@ -18,8 +18,6 @@ RatingSource.belongsToMany(User, {
   through: Scale,
   foreignKey: 'source_id'
 });
-
-sequelize.sync({});
 
 // Export the model
 module.exports = Scale;

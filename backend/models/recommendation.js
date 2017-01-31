@@ -14,7 +14,7 @@ User.belongsToMany(Movie, {
   through: Recommendation,
   foreignKey: 'user_id'
 });
-Movie.belongsTo(User, {
+Movie.belongsToMany(User, {
   through: Recommendation,
   foreignKey: 'movie_id'
 });
