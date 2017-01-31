@@ -12,7 +12,7 @@ var path = require('path');
 
 var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
-app.set('port', process.env.PORT || 3200);
+app.set('port', process.env.PORT || 3233);
 app.use(logger('dev'));
 app.use(cookieParser());
 app.use(session({
@@ -49,3 +49,5 @@ app.use('/api', router);
 app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port'));
 });
+
+module.exports = app; //for testing
