@@ -3,7 +3,7 @@ var sequelize = require('./db.js');
 var DataTypes = require("sequelize");
 // Define our token schema
 var Movie = sequelize.define('movies', {
-  id: {
+  movie_id: {
     type: DataTypes.STRING,
     allowNull: false,
     primaryKey: true
@@ -12,33 +12,40 @@ var Movie = sequelize.define('movies', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  productionYear: {
+  production_year: {
     type: DataTypes.STRING
   },
-  Rated: {
+  rated: {
     type: DataTypes.STRING
   },
-  Plot: {
+  plot: {
     type: DataTypes.STRING
   },
-  Actors: {
-    type: DataTypes.ARRAY(DataTypes.STRING)
-  },
-  Lanugage: {
+  actors: {
     type: DataTypes.STRING
   },
-  Country: {
+  lanugage: {
+    type: DataTypes.STRING
+  },
+  country: {
+    type: DataTypes.STRING
+  },
+  genre: {
+    type: DataTypes.STRING
+  },
+  poster_url: {
+    type: DataTypes.STRING
+  },
+  released: {
     type: DataTypes.STRING
   },
   runtime: {
     type: DataTypes.STRING
   },
-  PosterUrl: {
+  director: {
     type: DataTypes.STRING
   }
 });
-
-sequelize.sync({});
 
 // Export the Mongoose model
 module.exports = Movie;

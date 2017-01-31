@@ -5,7 +5,6 @@ var DataTypes = require("sequelize");
 var User = sequelize.define('users', {
     username: {
       type: DataTypes.STRING,
-      unique: true,
       allowNull: false
     },
     password: {
@@ -30,6 +29,5 @@ var User = sequelize.define('users', {
 }
 );
 
-sequelize.sync({});
 
 module.exports = User;

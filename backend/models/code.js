@@ -18,7 +18,5 @@ var Code  = sequelize.define('codes', {
   }
 });
 
-sequelize.sync({});
-
 // Export the Mongoose model
 module.exports = Code;
