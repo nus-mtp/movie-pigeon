@@ -17,7 +17,8 @@ class Loader:
                                  movie_data['rated'],  movie_data['plot'], movie_data['actors'], movie_data['language'],
                                  movie_data['country'], movie_data['runtime'], movie_data['poster_url'], movie_data['genre'],
                                  movie_data['director'], movie_data['released']))
-        except psycopg2.IntegrityError:
+        except psycopg2.IntegrityError as e:
+            print(e)
             logging.error("UNIQUE CONSTRAINT violated in Table: movies")
 
         self.conn.commit()
