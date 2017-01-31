@@ -27,6 +27,9 @@ class Transformer:
         if runtime == "N/A":
             return None
         runtime = runtime.replace(" min", "")
+        if "h" in runtime:
+            [hours, minutes] = runtime.split("h")
+            runtime = int(hours.rstrip()) * 60 + int(minutes.rstrip())
         return runtime
 
     @staticmethod

@@ -4,7 +4,7 @@
 #   Movie Data
 # ==============
 def get_movie_data_dict(actors, country, director, genre, imdb_id, language, plot, poster_url,
-                        production_year, rated, released, runtime, title):
+                        production_year, rated, released, runtime, title, type):
     movie_data = {
         "movie_id": imdb_id,
         "title": title,
@@ -18,6 +18,7 @@ def get_movie_data_dict(actors, country, director, genre, imdb_id, language, plo
         "poster_url": poster_url,
         "genre": genre,
         "director": director,
-        "released": released
+        "released": released,
+        "type": type
     }
     return movie_data

@@ -5,6 +5,8 @@ import logging
 import data.utils as utils
 import time
 import datetime
+import random
+
 
 class ETLProcessor:
 
@@ -20,17 +22,32 @@ class ETLProcessor:
         updates movie data from omdb databases
         :return:
         """
+        result = self.loader.get_movie_id_list()
 
         logging.info("Initiating movie data extraction process...")
-        for i in range(50, 1000):
-            # extraction
+        for i in range(1, 9999999):
+            # construct imdb_id
             current_imdb_number = "{0:0=7d}".format(i)
             imdb_id = self.imdb_prefix + current_imdb_number
+
+            # detect repetition
+            token = (imdb_id, )
+            if token in result:
+                continue
+
+            # call api
             extraction_result = self.extractor.extract_omdb(imdb_id)
+
+            # cutoff validation
+            # Defective response
+            if extraction_result['Response'] == "False":
+                logging.warning(imdb_id + "| incorrect response returned")
+                continue
 
             # transforming
             # movies table data
             title = extraction_result['Title']
+            type = extraction_result['Type']
             rated = self.transformer.movie_data_rated(extraction_result['Rated'])
             plot = self.transformer.movie_data_na_to_none(extraction_result['Plot'])
             actors = self.transformer.movie_data_na_to_none(extraction_result['Actors'])
@@ -44,7 +61,7 @@ class ETLProcessor:
             production_year = self.transformer.movie_data_date(extraction_result['Released'])  # to integer
 
             movie_data = utils.get_movie_data_dict(actors, country, director, genre, imdb_id, language, plot,
-                                                   poster_url, production_year, rated, released, runtime, title)
+                                                   poster_url, production_year, rated, released, runtime, title, type)
 
             # others
             imdb_votes = extraction_result['imdbVotes']  # remove comma
@@ -54,6 +71,9 @@ class ETLProcessor:
 
             # loading
             self.loader.load_movie_data(movie_data)
+
+            # friendly api call
+            time.sleep(1)
 
     @staticmethod
     def updating_movie_rating(self):
