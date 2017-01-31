@@ -16,6 +16,7 @@ describe("User controller test", function(){
         res.body.message.should.equal('User created!');
         user.find({where : { username : 'testname'}}).then(function(users){
           users.validPassword('testpassword').should.equal(true);
+          users.destroy();
         })
         done();
       });
