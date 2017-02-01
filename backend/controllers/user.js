@@ -58,7 +58,7 @@ exports.updateById = function(user, user_id, onSuccess, onError) {
   shasum.update(password);
   password = shasum.digest('hex');
 
-  User.update({ username: username,password: password},{where: {id: id} })
+  User.update({ username: username,password: password} , {where: {id: id} })
     .then(onSuccess).catch(onError);
  };
 
