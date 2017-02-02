@@ -1,7 +1,7 @@
 // Load required packages
 var sequelize = require('./db.js');
 var DataTypes = require("sequelize");
-// Define our token schema
+// Define our movie schema
 var Movie = sequelize.define('movies', {
   movie_id: {
     type: DataTypes.STRING,
@@ -52,5 +52,5 @@ var Movie = sequelize.define('movies', {
 
 sequelize.sync({});
 
-// Export the Mongoose model
+// Export the model
 module.exports = Movie;

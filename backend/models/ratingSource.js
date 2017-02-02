@@ -1,7 +1,7 @@
 // Load required packages
-var sequelize = require('./db.js');
-var DataTypes = require("sequelize");
-// Define our token schema
+var sequelize = require('./db.js')
+var DataTypes = require('sequelize')
+// Define our ratingsource schema
 var RatingSource = sequelize.define('ratingsources', {
   source_id: {
     type: DataTypes.STRING,
@@ -11,7 +11,7 @@ var RatingSource = sequelize.define('ratingsources', {
   source_name: {
     type: DataTypes.STRING
   }
-});
+})
 
-// Export the Mongoose model
-module.exports = RatingSource;
+// Export the model
+module.exports = RatingSource
