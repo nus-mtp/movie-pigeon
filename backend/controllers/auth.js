@@ -8,7 +8,7 @@ var db = require('../models/db');
 
 passport.use('basic', new BasicStrategy(
   function(username, password, done) {
-    User.find({ where: { username : username } }).then(function (user) {
+    User.find({ where: { email : username } }).then(function (user) {
       if (!user) {
         return done(null, false, { message: 'Incorrect email address.' });
       }

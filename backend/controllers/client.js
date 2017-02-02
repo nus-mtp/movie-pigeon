@@ -7,7 +7,7 @@ exports.postClients = function(req, res) {
   var name = req.body.name;
   var id = req.body.id;
   var secret = req.body.secret;
-  var userId = req.user.username;
+  var userId = req.user.email;
   // Save the client and check for errors
   Client.build({ name: name, id: id, secret: secret, userId: userId })
       .save().then(function(success){

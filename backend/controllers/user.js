@@ -4,8 +4,9 @@ var crypto = require('crypto');
 exports.postUser = function(req, res) {
 	var username = req.body.username;
 	var password = req.body.password;
+	var email = req.body.email;
 
-	var user = User.build({ username: username, password: password });
+	var user = User.build({ email: email, username: username, password: password });
 
 	add(user, function(success){
 		res.json({ message: 'User created!' });
@@ -38,14 +39,13 @@ exports.retrieveById = function(user_id, onSuccess, onError) {
 };
 
 var add = function(user, onSuccess, onError) {
-  var username = user.username;
   var password = user.password;
 
   var shasum = crypto.createHash('sha1');
   shasum.update(password);
   password = shasum.digest('hex');
 
-  User.build({ username: username, password: password })
+  User.build({ email: user.email, username: user.username, password: password })
       .save().then(onSuccess).catch(onError);
 }
 

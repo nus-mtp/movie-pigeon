@@ -3,6 +3,10 @@ var crypto = require('crypto');
 var DataTypes = require("sequelize");
 
 var User = sequelize.define('users', {
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     username: {
       type: DataTypes.STRING,
       allowNull: false
@@ -29,5 +33,6 @@ var User = sequelize.define('users', {
 }
 );
 
+sequelize.sync({});
 
 module.exports = User;
