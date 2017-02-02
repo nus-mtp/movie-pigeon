@@ -19,7 +19,7 @@ var Movie = sequelize.define('movies', {
     type: DataTypes.STRING
   },
   plot: {
-    type: DataTypes.STRING
+    type: DataTypes.TEXT
   },
   actors: {
     type: DataTypes.STRING
@@ -34,7 +34,7 @@ var Movie = sequelize.define('movies', {
     type: DataTypes.STRING
   },
   poster_url: {
-    type: DataTypes.STRING
+    type: DataTypes.TEXT
   },
   released: {
     type: DataTypes.STRING
@@ -44,8 +44,13 @@ var Movie = sequelize.define('movies', {
   },
   director: {
     type: DataTypes.STRING
+  },
+  type: {
+    type: DataTypes.STRING
   }
 });
+
+sequelize.sync({});
 
 // Export the Mongoose model
 module.exports = Movie;

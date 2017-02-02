@@ -4,7 +4,7 @@ var DataTypes = require("sequelize");
 var RatingSource = require('./ratingSource.js');
 var Movie = require('./movie.js');
 // Define our cinema schema
-var Rates = sequelize.define('sourcerates', {
+var Rates = sequelize.define('public_rates', {
   vote: {
     type: DataTypes.INTEGER
   }
