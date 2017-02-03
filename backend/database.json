@@ -9,6 +9,7 @@
   "production": {
     "driver": "postgres",
     "user": "perhaps",
-    "database": "myapp"
+    "database": "myapp",
+    "password": "123"
   }
 }

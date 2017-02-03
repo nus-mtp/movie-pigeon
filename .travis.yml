@@ -5,16 +5,20 @@ node_js:
   - "4"
 python:
   - "3"
+services:
+  - postgresql
 env:
   global:
     - CXX=g++-4.8
-    - NODE_ENV=development
+    - NODE_ENV=dev
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
+before_script:
+  - psql -c 'create database test;' -U postgres
 before install:
   - sudo apt-get -y install python3-pip python-dev
   - python3 -V
