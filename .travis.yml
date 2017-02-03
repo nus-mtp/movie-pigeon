@@ -22,5 +22,7 @@ before install:
   - python3 -V
   - pip3 -V
 install:
+  - cd backend
   - npm install
+  - cd ..
   - sudo pip3 install -r requriements.txt
