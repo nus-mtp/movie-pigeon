@@ -18,6 +18,8 @@
     "passport-http-bearer": "^1.0.1",
     "passport-local": "^1.0.0",
     "path": "^0.12.7",
+    "pg": "^6.1.2",
+    "pg-hstore": "^2.3.2",
     "sequelize": "~2.0.0",
     "should": "^11.2.0",
     "supertest": "^3.0.0",
@@ -25,6 +27,6 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "find ./test -name '*.test.js' | xargs mocha -R spec"
+    "test": "mocha --recursive"
   }
 }

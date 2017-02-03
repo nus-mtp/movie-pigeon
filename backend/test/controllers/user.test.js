@@ -9,7 +9,7 @@ describe('User controller test', function () {
       .post('/api/users')
       .set('Content-Type', 'application/x-www-form-urlencoded')
       .send('username=testname')
-      .send('password=testpassword'``)
+      .send('password=testpassword')
       .send('email=song@test.com')
       .expect(200)
       .end(function (err, res) {
