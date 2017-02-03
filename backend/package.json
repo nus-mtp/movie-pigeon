@@ -22,5 +22,9 @@
     "should": "^11.2.0",
     "supertest": "^3.0.0",
     "uuid": "^3.0.1"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "find ./test -name '*.test.js' | xargs mocha -R spec"
   }
 }

@@ -8,7 +8,7 @@
 
   "production": {
     "driver": "postgres",
-    "user": "postgres",
+    "user": "perhaps",
     "database": "myapp"
   }
 }
