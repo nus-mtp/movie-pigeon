@@ -5,8 +5,6 @@ var session = require('express-session')
 var cookieParser = require('cookie-parser')
 var uuid = require('uuid')
 var passport = require('passport')
-var LocalStrategy = require('passport-local').Strategy
-var User = require('./models/user.js')
 var ejs = require('ejs')
 var path = require('path')
 
@@ -28,8 +26,6 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, '/views'))
-
-var env = app.get('env') === 'development' ? 'dev' : app.get('env')
 
 // IMPORT ROUTES
 // =============================================================================

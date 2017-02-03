@@ -1,6 +1,6 @@
 // Load required packages
 var sequelize = require('./db.js');
-var DataTypes = require("sequelize");
+var DataTypes = require('sequelize');
 var RatingSource = require('./ratingSource.js');
 var Movie = require('./movie.js');
 // Define our public_rate schema
