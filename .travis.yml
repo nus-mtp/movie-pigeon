@@ -1,11 +1,26 @@
+sudo: required
+dist: trusty
 language: node_js
 node_js:
   - "4"
+python:
+  - "3"
 env:
-  - CXX=g++-4.8
+  global:
+    - CXX=g++-4.8
+    - NODE_ENV=development
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
+before install:
+  - sudo apt-get -y install python3-pip python-dev
+  - sudo pip3 install -U setuptools
+  - sudo pip3 install -U virtualenvwrapper
+  - python3 -V
+  - pip3 -V
+install:
+  - npm install
+  - sudo pip3 install -r requriements.txt
