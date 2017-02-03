@@ -17,12 +17,7 @@ addons:
       - g++-4.8
 before install:
   - sudo apt-get -y install python3-pip python-dev
-  - sudo pip3 install -U setuptools
-  - sudo pip3 install -U virtualenvwrapper
   - python3 -V
-  - pip3 -V
 install:
   - cd backend
   - npm install
-  - cd ..
-  - sudo pip3 install -r requriements.txt
