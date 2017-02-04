@@ -1,11 +1,11 @@
 // Load required packages
-var oauth2orize = require('oauth2orize')
-var Client = require('../models/client')
-var Token = require('../models/token')
-var Code = require('../models/code')
+var oauth2orize = require('oauth2orize');
+var Client = require('../models/client');
+var Token = require('../models/token');
+var Code = require('../models/code');
 
 // Create OAuth 2.0 server
-var server = oauth2orize.createServer()
+var server = oauth2orize.createServer();
 
 // Register serialialization and deserialization functions.
 //
@@ -21,14 +21,14 @@ var server = oauth2orize.createServer()
 // the client by ID from the database.
 
 server.serializeClient(function (client, callback) {
-  return callback(null, client.id)
-})
+  return callback(null, client.id);
+});
 
 server.deserializeClient(function (id, callback) {
   Client.findOne({where: {id: id}}).then(function (client) {
-    return callback(null, client)
-  })
-})
+    return callback(null, client);
+  });
+});
 
 // Register supported grant types.
 //
@@ -44,22 +44,30 @@ server.deserializeClient(function (id, callback) {
 // the application.  The application issues a code, which is bound to these
 // values, and will be exchanged for an access token.
 
-server.grant(oauth2orize.grant.code(function (client, redirectUri, user, ares, callback) {
-  // Create a new authorization code
-  var value = uid(16)
-  var clientId = client.id
-  var userId = user.id
-  console.log('db here')
-  // Save the auth code and check for errors
-  Code.build({value: value, clientId: clientId, redirectUri: redirectUri, userId: userId})
+server.grant(oauth2orize.grant.code(
+  function (client, redirectUri, user, ares, callback) {
+    // Create a new authorization code
+    var value = uid(16);
+    var clientId = client.id;
+    var userId = user.id;
+    console.log('db here');
+    // Save the auth code and check for errors
+    Code.build({
+      value: value,
+      clientId: clientId,
+      redirectUri: redirectUri,
+      userId: userId
+    })
       .save()
       .then(function (success) {
-        callback(null, value)
+        callback(null, value);
       })
       .catch(function (err) {
-        if (err) { return callback(err) };
-      })
-}))
+        if (err) {
+          return callback(err);
+        }
+      });
+  }));
 
 // Exchange authorization codes for access tokens.  The callback accepts the
 // `client`, which is exchanging `code` and any `redirectUri` from the
@@ -67,31 +75,40 @@ server.grant(oauth2orize.grant.code(function (client, redirectUri, user, ares, c
 // application issues an access token on behalf of the user who authorized the
 // code.
 
-server.exchange(oauth2orize.exchange.code(function (client, code, redirectUri, callback) {
-  Code.findOne({where: {value: code}}).then(function (authCode) {
-    if (authCode === undefined) { return callback(null, false) }
-    if (client.id.toString() !== authCode.clientId) { return callback(null, false) }
-    if (redirectUri !== authCode.redirectUri) { return callback(null, false) }
+server.exchange(oauth2orize.exchange.code(
+  function (client, code, redirectUri, callback) {
+    Code.findOne({where: {value: code}}).then(function (authCode) {
+      if (authCode === undefined) {
+        return callback(null, false);
+      }
+      if (client.id.toString() !== authCode.clientId) {
+        return callback(null, false);
+      }
+      if (redirectUri !== authCode.redirectUri) {
+        return callback(null, false);
+      }
 
-    // Delete auth code now that it has been used
-    authCode.destroy().then(function (err) {
-      // Create a new access token
-      var value = uid(128)
-      var clientId = authCode.clientId
-      var userId = authCode.userId
+      // Delete auth code now that it has been used
+      authCode.destroy().then(function (err) {
+        // Create a new access token
+        var value = uid(128);
+        var clientId = authCode.clientId;
+        var userId = authCode.userId;
 
-      // Save the access token and check for errors
-      Token.build({value: value, clientId: clientId, userId: userId})
-           .save()
-           .then(function (success) {
-             callback(null, value)
-           })
-           .catch(function (err) {
-             if (err) { return callback(err) }
-           })
-    })
-  })
-}))
+        // Save the access token and check for errors
+        Token.build({value: value, clientId: clientId, userId: userId})
+          .save()
+          .then(function (success) {
+            callback(null, value);
+          })
+          .catch(function (err) {
+            if (err) {
+              return callback(err);
+            }
+          });
+      });
+    });
+  }));
 
 // user authorization endpoint
 //
@@ -112,13 +129,13 @@ server.exchange(oauth2orize.exchange.code(function (client, code, redirectUri, c
 exports.authorization = [
   server.authorization(function (clientId, redirectUri, callback) {
     Client.findOne({where: {id: clientId}}).then(function (client) {
-      return callback(null, client, redirectUri)
-    })
+      return callback(null, client, redirectUri);
+    });
   }),
   function (req, res) {
-    res.render('dialog', { transactionID: req.oauth2.transactionID, user: req.user, client: req.oauth2.client })
+    res.send(req.oauth2.transactionID);
   }
-]
+];
 
 // user decision endpoint
 //
@@ -129,7 +146,7 @@ exports.authorization = [
 
 exports.decision = [
   server.decision()
-]
+];
 
 // token endpoint
 //
@@ -141,7 +158,7 @@ exports.decision = [
 exports.token = [
   server.token(),
   server.errorHandler()
-]
+];
 
 /**
  * Return a unique identifier with the given `len`.
@@ -153,16 +170,16 @@ exports.token = [
  * @return {String}
  * @api private
  */
-function uid (len) {
-  var buf = []
-  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  var charlen = chars.length
+function uid(len) {
+  var buf = [];
+  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charlen = chars.length;
 
   for (var i = 0; i < len; ++i) {
-    buf.push(chars[getRandomInt(0, charlen - 1)])
+    buf.push(chars[getRandomInt(0, charlen - 1)]);
   }
 
-  return buf.join('')
+  return buf.join('');
 }
 
 /**
@@ -174,6 +191,6 @@ function uid (len) {
  * @api private
  */
 
-function getRandomInt (min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
