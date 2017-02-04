@@ -18,9 +18,8 @@ class Extractor:
         pass
 
     def extract_trakt(self):
-        api_call_result = request.Request('https://api.trakt.tv/movies/tt4972582', headers=self.trakt_header)
+        api_call_result = request.Request('https://api.trakt.tv/movies/tt4972582/releases', headers=self.trakt_header)
         print(request.urlopen(api_call_result).read())
-        logging.warning("haha")
         pass
 
     def extract_omdb(self, imdb_id):
@@ -43,4 +42,4 @@ class Extractor:
 
 if __name__ == '__main__':
     extractor = Extractor()
-    extractor.extract_omdb()
+    extractor.extract_trakt()

@@ -3,7 +3,7 @@ import psycopg2
 
 def database_connection():
     try:
-        connect_str = "dbname='postgres' user='' host='localhost' " + \
+        connect_str = "dbname='production' user='postgres' host='128.199.231.190' " + \
                       "password=''"
         # use our connection values to establish a connection
         conn = psycopg2.connect(connect_str)
