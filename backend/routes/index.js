@@ -68,11 +68,11 @@ router.route('/oauth2/token')
   .post(authController.isClientAuthenticated, oauth2Controller.token);
 
 router.route('/movies/id')
-  .post(authController.isAuthenticated, movieController.getMoviesById);
+  .get(authController.isAuthenticated, movieController.getMoviesById);
 router.route('/movies/title')
-  .post(authController.isAuthenticated, movieController.getMoviesByTitle);
+  .get(authController.isAuthenticated, movieController.getMoviesByTitle);
 router.route('/movies/year')
-  .post(authController.isAuthenticated,
+  .get(authController.isAuthenticated,
     movieController.getMoviesByProductionYear);
 
 module.exports = router;
