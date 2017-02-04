@@ -1,6 +1,6 @@
 var sequelize = require('./db.js');
 var crypto = require('crypto');
-var DataTypes = require("sequelize");
+var DataTypes = require('sequelize');
 
 var client = sequelize.define('clients', {
     _id: {
@@ -24,17 +24,17 @@ var client = sequelize.define('clients', {
       type: DataTypes.STRING,
       allowNull: false
     }
-},
-{
-  instanceMethods: {
-    validPassword: function(password) {
-      var shasum = crypto.createHash('sha1');
-      shasum.update(password);
-      password = shasum.digest('hex');
-      return password == this.password;
+  },
+  {
+    instanceMethods: {
+      validPassword: function (password) {
+        var shasum = crypto.createHash('sha1');
+        shasum.update(password);
+        password = shasum.digest('hex');
+        return password === this.password;
+      }
     }
   }
-}
 );
 
 sequelize.sync({});

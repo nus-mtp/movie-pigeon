@@ -1,9 +1,9 @@
 // Load required packages
 var sequelize = require('./db.js');
-var DataTypes = require("sequelize");
+var DataTypes = require('sequelize');
 
 // Define our token schema
-var Code  = sequelize.define('codes', {
+var accessCode = sequelize.define('codes', {
   value: {
     type: DataTypes.STRING
   },
@@ -11,7 +11,7 @@ var Code  = sequelize.define('codes', {
     type: DataTypes.STRING
   },
   userId: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING
   },
   clientId: {
     type: DataTypes.STRING
@@ -22,4 +22,4 @@ var Code  = sequelize.define('codes', {
 sequelize.sync({});
 
 // Export the Mongoose model
-module.exports = Code;
+module.exports = accessCode;

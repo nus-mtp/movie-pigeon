@@ -11,7 +11,6 @@
     "express-session": "^1.14.2",
     "mocha": "^3.2.0",
     "morgan": "~1.7.0",
-    "mysql": "~2.5.0",
     "oauth2orize": "^1.7.0",
     "passport": "^0.3.2",
     "passport-http": "^0.3.0",
