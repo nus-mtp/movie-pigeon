@@ -1,5 +1,4 @@
 from urllib import request
-
 import logging
 import json
 
@@ -17,12 +16,10 @@ class Extractor:
         self.plot = "full"  # attribute for omdb
         pass
 
-    def extract_trakt(self):
-        api_call_result = request.Request('https://api.trakt.tv/movies/tt4972582/releases', headers=self.trakt_header)
-        print(request.urlopen(api_call_result).read())
-        pass
-
-    def extract_omdb(self, imdb_id):
+    # ==========
+    #   data
+    # ==========
+    def extract_omdb_data(self, imdb_id):
         """
         :param imdb_id: a given imdb id
         :return: json result of its movie data
@@ -33,13 +30,31 @@ class Extractor:
         json_result = json.loads(text_result)
         return json_result
 
-    def extract_imdb(self):
+    # ==========
+    #   rating
+    # ==========
+    def extract_trakt_rating(self, imdb_id):
+        api_call_result = request.Request('https://api.trakt.tv/movies/{}/rating'.format(imdb_id),
+                                          headers=self.trakt_header)
+        print(request.urlopen(api_call_result).read())
         pass
 
-    def extract_letterboxd(self):
+    def extract_imdb_rating(self):
+        pass
+
+    def extract_letterboxd_rating(self):
+        pass
+
+    def extract_metacritic_rating(self):
+        pass
+
+    def extract_rotten_tomatoes_rating(self):
+        pass
+
+    def extract_douban_rating(self):
         pass
 
 
 if __name__ == '__main__':
     extractor = Extractor()
-    extractor.extract_trakt()
+    extractor.extract_trakt_rating()

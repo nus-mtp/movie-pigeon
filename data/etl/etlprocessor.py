@@ -38,7 +38,7 @@ class ETLProcessor:
                 continue
 
             # 2. extracting call api
-            extraction_result = self.extractor.extract_omdb(imdb_id)
+            extraction_result = self.extractor.extract_omdb_data(imdb_id)
 
             # validate response
             if extraction_result['Response'] == "False":
@@ -77,8 +77,9 @@ class ETLProcessor:
     def updating_movie_rating(self):
         """
         updates movie rating from various websites
-        :return:
         """
+        # list of existing movies
+
         pass
 
 # ==================
