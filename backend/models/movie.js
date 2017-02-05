@@ -50,5 +50,6 @@ var Movie = sequelize.define('movies', {
   }
 });
 
+sequelize.sync({});
 // Export the model
 module.exports = Movie;

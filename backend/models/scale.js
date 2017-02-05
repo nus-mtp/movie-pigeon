@@ -19,5 +19,6 @@ RatingSource.belongsToMany(User, {
   foreignKey: 'source_id'
 });
 
+sequelize.sync({});
 // Export the model
 module.exports = Scale;

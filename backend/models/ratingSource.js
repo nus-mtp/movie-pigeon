@@ -13,5 +13,6 @@ var RatingSource = sequelize.define('rating_sources', {
   }
 });
 
+sequelize.sync({});
 // Export the model
 module.exports = RatingSource;
