@@ -18,8 +18,5 @@ var accessCode = sequelize.define('codes', {
   }
 });
 
-
-sequelize.sync({});
-
 // Export the Mongoose model
 module.exports = accessCode;

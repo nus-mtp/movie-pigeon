@@ -2,7 +2,7 @@
 var sequelize = require('./db.js');
 var DataTypes = require('sequelize');
 // Define our ratingsource schema
-var RatingSource = sequelize.define('ratingsources', {
+var RatingSource = sequelize.define('rating_sources', {
   source_id: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -13,6 +13,5 @@ var RatingSource = sequelize.define('ratingsources', {
   }
 });
 
-sequelize.sync({});
 // Export the model
 module.exports = RatingSource;

@@ -4,7 +4,11 @@ var DataTypes = require('sequelize');
 var User = require('./user.js');
 var Movie = require('./movie.js');
 // Define our history schema
-var history = sequelize.define('history', {});
+var history = sequelize.define('user_ratings', {
+  score: {
+    type: DataTypes.FLOAT
+  }
+});
 
 User.belongsToMany(Movie, {
   through: history,
@@ -15,6 +19,5 @@ Movie.belongsToMany(User, {
   foreignKey: 'movie_id'
 });
 
-sequelize.sync({});
 // Export the model
 module.exports = history;

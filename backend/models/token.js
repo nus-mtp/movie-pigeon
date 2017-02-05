@@ -14,6 +14,5 @@ var Token = sequelize.define('token', {
   }
 });
 
-sequelize.sync({});
 // Export the Mongoose model
 module.exports = Token;

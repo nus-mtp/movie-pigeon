@@ -1,7 +1,7 @@
 var Sequelize = require('sequelize');
 
 // db config
-var env = process.env.NODE_ENV ? process.env.NODE_ENV : 'dev';
+var env = 'dev';
 var config = require('../database.json')[env];
 var password = config.password ? config.password : null;
 

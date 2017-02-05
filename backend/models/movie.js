@@ -1,6 +1,6 @@
 // Load required packages
 var sequelize = require('./db.js');
-var DataTypes = require("sequelize");
+var DataTypes = require('sequelize');
 // Define our movie schema
 var Movie = sequelize.define('movies', {
   movie_id: {
@@ -49,8 +49,6 @@ var Movie = sequelize.define('movies', {
     type: DataTypes.STRING
   }
 });
-
-sequelize.sync({});
 
 // Export the model
 module.exports = Movie;

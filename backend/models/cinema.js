@@ -13,6 +13,5 @@ var Cinema = sequelize.define('cinemas', {
   }
 });
 
-sequelize.sync({});
 // Export the model
 module.exports = Cinema;

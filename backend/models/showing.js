@@ -14,6 +14,5 @@ Movie.belongsToMany(Cinema, {
   foreignKey: 'movie_id'
 });
 
-sequelize.sync({});
 // Export the model
 module.exports = Showing;

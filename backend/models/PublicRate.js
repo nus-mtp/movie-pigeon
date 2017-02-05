@@ -4,9 +4,12 @@ var DataTypes = require('sequelize');
 var RatingSource = require('./ratingSource.js');
 var Movie = require('./movie.js');
 // Define our public_rate schema
-var Rates = sequelize.define('public_rates', {
+var Rates = sequelize.define('public_ratings', {
   vote: {
     type: DataTypes.INTEGER
+  },
+  score: {
+    type: Datatypes.FLOAT
   }
 });
 
@@ -19,6 +22,5 @@ Movie.belongsToMany(RatingSource, {
   foreignKey: 'movie_id'
 });
 
-sequelize.sync({});
 // Export the model
 module.exports = Rates;

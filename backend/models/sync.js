@@ -6,7 +6,6 @@ var sequelize = require('./db.js');
 var history = require('./history.js');
 var movie = require('./movie.js');
 var PublicRate = require('./PublicRate.js');
-var rates = require('./rates.js');
 var ratingSource = require('./ratingSource.js');
 var recommendation = require('./recommendation.js');
 var scale = require('./scale.js');
