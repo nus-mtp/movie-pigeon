@@ -79,13 +79,20 @@ class ETLProcessor:
         updates movie rating from various websites
         """
         # list of existing movies
+        id_list = self.loader.get_movie_id_list()
+        for id in id_list:
+            rating, votes = self.extractor.extract_imdb_rating(id)
+            votes = self.transformer.movie_rating_votes(votes)
+            movie_rating = utils.get_movie_rating_dict(rating, votes, id, "IMDb")
+            self.loader.load_movie_rating(movie_rating)
 
-        pass
+            break
+
 
 # ==================
 #   run main logic
 # ==================
 if __name__ == '__main__':
     processor = ETLProcessor()
-    processor.updating_movie_data()
+    processor.updating_movie_rating()
 

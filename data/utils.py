@@ -22,3 +22,17 @@ def get_movie_data_dict(actors, country, director, genre, imdb_id, language, plo
         "type": type
     }
     return movie_data
+
+
+def get_movie_rating_dict(score, votes, imdb_id, rating_source):
+    rating_sources = {
+        "IMDb": 1
+    }
+
+    movie_rating = {
+        "movie_id": imdb_id,
+        "source_id": rating_sources[rating_source],
+        "score": score,
+        "votes": votes
+    }
+    return movie_rating

@@ -72,4 +72,4 @@ class Extractor:
 
 if __name__ == '__main__':
     extractor = Extractor()
-    extractor.extract_imdb_rating("tt0498381")
+    extractor.extract_imdb_rating("tt0000001")

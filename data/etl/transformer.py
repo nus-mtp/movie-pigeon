@@ -40,6 +40,13 @@ class Transformer:
     # ================
     #   Movie Rating
     # ================
+
+    @staticmethod
+    def movie_rating_votes(votes):
+        votes = votes.replace(",", "")
+        return votes
+
+
     # ================
     #   Now Showing
     # ================
