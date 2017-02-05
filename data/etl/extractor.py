@@ -1,4 +1,5 @@
 from urllib import request
+from bs4 import BeautifulSoup
 import logging
 import json
 
@@ -10,6 +11,8 @@ class Extractor:
       'trakt-api-version': '2',
       'trakt-api-key': '411a8f0219456de5e3e10596486c545359a919b6ebb10950fa86896c1a8ac99b'
     }
+
+    imdb_url_format = "http://www.imdb.com/title/{}/"
 
     def __init__(self):
         self.content_type = "json"  # return type for omdb requests
@@ -39,8 +42,20 @@ class Extractor:
         print(request.urlopen(api_call_result).read())
         pass
 
-    def extract_imdb_rating(self):
-        pass
+    def extract_imdb_rating(self, imdb_id):
+        """
+        given imdb_id, return the current rating and total number of votes of this movie in imdb
+        :param imdb_id:
+        :return:
+        """
+        url = self.imdb_url_format.format(imdb_id)
+        content = request.urlopen(url).read()
+        soup = BeautifulSoup(content, "lxml")
+        div = soup.find('div', {'class': 'ratingValue'})
+        list = div.find("strong")['title'].split(" based on ")
+        rating = list[0]
+        votes = list[1].split(" ")[0]
+        return rating, votes
 
     def extract_letterboxd_rating(self):
         pass
@@ -57,4 +72,4 @@ class Extractor:
 
 if __name__ == '__main__':
     extractor = Extractor()
-    extractor.extract_trakt_rating()
+    extractor.extract_imdb_rating("tt0498381")
