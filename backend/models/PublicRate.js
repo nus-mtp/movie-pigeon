@@ -9,7 +9,7 @@ var Rates = sequelize.define('public_ratings', {
     type: DataTypes.INTEGER
   },
   score: {
-    type: Datatypes.FLOAT
+    type: DataTypes.FLOAT
   }
 });
 
