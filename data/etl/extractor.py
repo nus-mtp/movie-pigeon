@@ -37,10 +37,15 @@ class Extractor:
     #   rating
     # ==========
     def extract_trakt_rating(self, imdb_id):
-        api_call_result = request.Request('https://api.trakt.tv/movies/{}/rating'.format(imdb_id),
+        """
+        given imdb_id, return the current rating and total number of votes of this movie in trakt
+        :param imdb_id:
+        :return:
+        """
+        api_call_result = request.Request('https://api.trakt.tv/movies/{}/ratings'.format(imdb_id),
                                           headers=self.trakt_header)
-        print(request.urlopen(api_call_result).read())
-        pass
+        json_result = json.loads(request.urlopen(api_call_result).read().decode("utf-8"))
+        return json_result['rating'], json_result['votes']
 
     def extract_imdb_rating(self, imdb_id):
         """
@@ -52,13 +57,10 @@ class Extractor:
         content = request.urlopen(url).read()
         soup = BeautifulSoup(content, "lxml")
         div = soup.find('div', {'class': 'ratingValue'})
-        list = div.find("strong")['title'].split(" based on ")
-        rating = list[0]
-        votes = list[1].split(" ")[0]
+        parse_list = div.find("strong")['title'].split(" based on ")
+        rating = parse_list[0]
+        votes = parse_list[1].split(" ")[0]
         return rating, votes
-
-    def extract_letterboxd_rating(self):
-        pass
 
     def extract_metacritic_rating(self):
         pass
@@ -72,4 +74,4 @@ class Extractor:
 
 if __name__ == '__main__':
     extractor = Extractor()
-    extractor.extract_imdb_rating("tt0000001")
+    extractor.extract_trakt_rating("tt0000001")

@@ -81,11 +81,13 @@ class ETLProcessor:
         # list of existing movies
         id_list = self.loader.get_movie_id_list()
         for id in id_list:
+            # imdb
             rating, votes = self.extractor.extract_imdb_rating(id)
             votes = self.transformer.movie_rating_votes(votes)
             movie_rating = utils.get_movie_rating_dict(rating, votes, id, "IMDb")
             self.loader.load_movie_rating(movie_rating)
 
+            # letterboxd
             break
 
 
