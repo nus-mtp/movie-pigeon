@@ -5,6 +5,7 @@ var authController = require('../controllers/auth');
 var oauth2Controller = require('../controllers/oauth2');
 var clientController = require('../controllers/client');
 var movieController = require('../controllers/movie');
+var ratingController = require('../controllers/rate');
 
 // on routes that end in /users
 // ----------------------------------------------------
@@ -74,5 +75,9 @@ router.route('/movies/title')
 router.route('/movies/year')
   .get(authController.isAuthenticated,
     movieController.getMoviesByProductionYear);
+
+router.route('/ratings')
+  .post(authController.isAuthenticated, ratingController.postRates)
+  .get(authController.isAuthenticated, ratingController.getRates);
 
 module.exports = router;
