@@ -8,6 +8,9 @@ class Loader:
     def __init__(self):
         self.cursor, self.conn = config.database_connection()
 
+    # ========
+    #   LOAD
+    # ========
     def load_movie_data(self, movie_data):
         try:
             self.cursor.execute("INSERT INTO movies (movie_id, title, production_year, rated, plot, actors, "
@@ -32,6 +35,9 @@ class Loader:
 
         self.conn.commit()
 
+    # ========
+    #   GET
+    # ========
     def get_movie_id_list(self):
         self.cursor.execute("SELECT movie_id FROM movies")
         data_object = self.cursor.fetchall()
@@ -39,3 +45,8 @@ class Loader:
         for item in data_object:
             id_list.append(item[0])
         return id_list
+
+    def get_movie_validation_info(self, movie_id):
+        self.cursor.execute("SELECT title, released, director FROM movies WHERE movie_id=%s", (movie_id, ))
+        data_object = self.cursor.fetchone()
+        return data_object

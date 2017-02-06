@@ -1,6 +1,5 @@
 from urllib import request
 from bs4 import BeautifulSoup
-import logging
 import json
 
 
@@ -12,11 +11,16 @@ class Extractor:
       'trakt-api-key': '411a8f0219456de5e3e10596486c545359a919b6ebb10950fa86896c1a8ac99b'
     }
 
+    wemakesites_api_key = "5a7e0693-af96-4d43-89a3-dc8ca00cf355"
+
     imdb_url_format = "http://www.imdb.com/title/{}/"
 
+    # omdb setup
+    omdb_plot_option = "full"  # attribute for omdb
+
+    omdb_content_type = "json"  # return type for omdb requests
+
     def __init__(self):
-        self.content_type = "json"  # return type for omdb requests
-        self.plot = "full"  # attribute for omdb
         pass
 
     # ==========
@@ -28,7 +32,28 @@ class Extractor:
         :return: json result of its movie data
         """
         api_call_result = request.urlopen(
-            "http://www.omdbapi.com/?i={}&plot={}&r={}".format(imdb_id, self.plot, self.content_type))
+            "http://www.omdbapi.com/?i={}&plot={}&r={}".format(imdb_id, self.omdb_plot_option, self.omdb_content_type))
+        text_result = api_call_result.read().decode("utf-8")
+        json_result = json.loads(text_result)
+        return json_result
+
+    def extract_imdb_data(self, imdb_id):
+        """
+        service on hold incase omdb is not going to back up
+        :param imdb_id:
+        :return:
+        """
+        json_result = 0
+        return json_result
+
+    def extract_wemakesites_data(self, imdb_id):
+        """
+        alternatives to omdb
+        :param imdb_id:
+        :return:
+        """
+        api_call_result = request.urlopen(
+            "http://imdb.wemakesites.net/api/{}?api_key={}".format(imdb_id, self.wemakesites_api_key))
         text_result = api_call_result.read().decode("utf-8")
         json_result = json.loads(text_result)
         return json_result
@@ -40,7 +65,7 @@ class Extractor:
         """
         given imdb_id, return the current rating and total number of votes of this movie in trakt
         :param imdb_id:
-        :return:
+        :return: rating and votes in string format
         """
         api_call_result = request.Request('https://api.trakt.tv/movies/{}/ratings'.format(imdb_id),
                                           headers=self.trakt_header)
@@ -51,7 +76,7 @@ class Extractor:
         """
         given imdb_id, return the current rating and total number of votes of this movie in imdb
         :param imdb_id:
-        :return:
+        :return: rating and votes in string format
         """
         url = self.imdb_url_format.format(imdb_id)
         content = request.urlopen(url).read()
@@ -62,16 +87,25 @@ class Extractor:
         votes = parse_list[1].split(" ")[0]
         return rating, votes
 
-    def extract_metacritic_rating(self):
+    def extract_metacritic_rating(self, imdb_id, search_string, director, release_date):
+        """
+        given imdb_id and various validation info, return the correct current rating and total votes count of a movie
+        :param imdb_id:
+        :param search_string: movie title formatted according to source
+        :param director:
+        :param release_date:
+        :return:
+        """
+
         pass
 
-    def extract_rotten_tomatoes_rating(self):
+    def extract_rotten_tomatoes_rating(self, imdb_id):
         pass
 
-    def extract_douban_rating(self):
+    def extract_douban_rating(self, imdb_id):
         pass
 
 
 if __name__ == '__main__':
     extractor = Extractor()
-    extractor.extract_trakt_rating("tt0000001")
+    extractor.extract_wemakesites_data("tt0000001")

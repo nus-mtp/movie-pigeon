@@ -27,7 +27,7 @@ class ETLProcessor:
         existing_movies = self.loader.get_movie_id_list()
 
         logging.info("Initiating movie data extraction process...")
-        for i in range(1, 9999999):
+        for i in range(1, 9999999):  # iterate all possible titles
             # 1. construct imdb_id
             current_imdb_number = "{0:0=7d}".format(i)
             imdb_id = self.imdb_prefix + current_imdb_number
@@ -80,14 +80,17 @@ class ETLProcessor:
         """
         # list of existing movies
         id_list = self.loader.get_movie_id_list()
-        for id in id_list:
+        for current_movie_id in id_list:
             # imdb
-            rating, votes = self.extractor.extract_imdb_rating(id)
-            votes = self.transformer.movie_rating_votes(votes)
-            movie_rating = utils.get_movie_rating_dict(rating, votes, id, "IMDb")
-            self.loader.load_movie_rating(movie_rating)
+            # rating, votes = self.extractor.extract_imdb_rating(current_movie_id)
+            # votes = self.transformer.movie_rating_votes(votes)
+            # movie_rating = utils.get_movie_rating_dict(rating, votes, current_movie_id, "IMDb")
+            # self.loader.load_movie_rating(movie_rating)
 
             # letterboxd
+            # metacritic
+            validation_info = self.loader.get_movie_validation_info(current_movie_id)
+            print(validation_info)
             break
 
 
