@@ -90,21 +90,6 @@ class Extractor:
         votes = parse_list[1].split(" ")[0]
         return rating, votes
 
-    def extract_metacritic_rating(self, imdb_id, search_string, director, release_date):
-        """
-        given imdb_id and various validation info, return the correct current rating and total votes count of a movie
-        :param imdb_id:
-        :param search_string: movie title formatted according to source
-        :param director:
-        :param release_date:
-        :return:
-        """
-
-        pass
-
-    def extract_rotten_tomatoes_rating(self, imdb_id):
-        pass
-
     def extract_douban_rating(self, movie_id):
         url = self.douban_url_format.format(movie_id)
         call_result = request.urlopen(url).read()
@@ -113,7 +98,16 @@ class Extractor:
         votes = soup.find("span", {'class': 'pl'}).text.replace("人评价","")[1: -1]  # remove parenthesis and words
         return rating, votes
 
+    def extract_metacritic_rating(self, imdb_id, search_string, director, release_date):
+        pass
 
+    def extract_rotten_tomatoes_rating(self, imdb_id):
+        pass
+
+    def extract_letterboxd_rating(self, movie_id):
+        pass
+
+# test
 if __name__ == '__main__':
     extractor = Extractor()
-    extractor.extract_douban_rating("tt0000001")
+    extractor.extract_douban_rating("tt0000003")
