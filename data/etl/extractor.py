@@ -20,6 +20,9 @@ class Extractor:
 
     omdb_content_type = "json"  # return type for omdb requests
 
+    # douban
+    douban_url_format = "https://movie.douban.com/subject_search?search_text={}"
+
     def __init__(self):
         pass
 
@@ -102,10 +105,15 @@ class Extractor:
     def extract_rotten_tomatoes_rating(self, imdb_id):
         pass
 
-    def extract_douban_rating(self, imdb_id):
-        pass
+    def extract_douban_rating(self, movie_id):
+        url = self.douban_url_format.format(movie_id)
+        call_result = request.urlopen(url).read()
+        soup = BeautifulSoup(call_result, "lxml")
+        rating = soup.find("span", {'class': 'rating_nums'}).text
+        votes = soup.find("span", {'class': 'pl'}).text.replace("人评价","")[1: -1]  # remove parenthesis and words
+        return rating, votes
 
 
 if __name__ == '__main__':
     extractor = Extractor()
-    extractor.extract_wemakesites_data("tt0000001")
+    extractor.extract_douban_rating("tt0000001")

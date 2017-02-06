@@ -88,9 +88,14 @@ class ETLProcessor:
             # self.loader.load_movie_rating(movie_rating)
 
             # letterboxd
+
+            # douban
+
+            # rotten tomatoes
+
             # metacritic
-            validation_info = self.loader.get_movie_validation_info(current_movie_id)
-            print(validation_info)
+            # validation_info = self.loader.get_movie_validation_info(current_movie_id)
+            # print(validation_info)
             break
 
 
