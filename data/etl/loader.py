@@ -27,13 +27,13 @@ class Loader:
         self.conn.commit()
 
     def load_movie_rating(self, movie_rating):
-        try:
-            self.cursor.execute("INSERT INTO public_ratings (vote, score, movie_id, source_id) VALUES (%s, %s, %s, %s)",
-                                (movie_rating['votes'], movie_rating['score'], movie_rating['movie_id'],
-                                 movie_rating['source_id']))
-        except psycopg2.IntegrityError:
-            logging.error("UNIQUE CONSTRAINT violated in Table: public_ratings")
-
+        self.cursor.execute("INSERT INTO public_ratings (vote, score, movie_id, source_id) VALUES (%s, %s, %s, %s) "
+                            "ON CONFLICT (movie_id, source_id) "
+                            "DO UPDATE SET (vote, score) = (%s, %s) "
+                            "WHERE public_ratings.movie_id=%s AND public_ratings.source_id=%s",
+                            (movie_rating['votes'], movie_rating['score'], movie_rating['movie_id'],
+                             movie_rating['source_id'], movie_rating['votes'], movie_rating['score'],
+                             movie_rating['movie_id'], movie_rating['source_id']))
         self.conn.commit()
 
     # ========

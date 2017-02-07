@@ -97,7 +97,7 @@ class ETLProcessor:
             # validation_info = self.loader.get_movie_validation_info(current_movie_id)
             # print(validation_info)
 
-            break
+            # break
         self.logger.info("Movie rating update process complete.")
 
     def updating_movie_showing(self):
@@ -120,9 +120,9 @@ class ETLProcessor:
         elif source_name == "Trakt":
             rating, votes = self.extractor.extract_trakt_rating(current_movie_id)
         else:
+            self.logger.error("The input source name is not valid!")
             raise Exception("There is no such source name.")
 
-        votes = self.transformer.movie_rating_votes(str(votes))
         movie_rating = utils.get_movie_rating_dict(rating, votes, current_movie_id, source_name)
         self.loader.load_movie_rating(movie_rating)
 

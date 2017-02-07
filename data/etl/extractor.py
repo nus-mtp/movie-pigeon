@@ -1,4 +1,4 @@
-from urllib import request
+from urllib import request, error
 from bs4 import BeautifulSoup
 import json
 import html
@@ -66,38 +66,54 @@ class Extractor:
     # ==========
     #   rating
     # ==========
-    def extract_trakt_rating(self, imdb_id):
+    def extract_trakt_rating(self, movie_id):
         """
-        given imdb_id, return the current rating and total number of votes of this movie in trakt
-        :param imdb_id:
-        :return: rating and votes in string format
+        given imdb_id, return the current rating and total number of votes of this movie in trakt.tv database
+        :param movie_id:
+        :return: rating and votes in STRING format
         """
-        api_call_result = request.Request('https://api.trakt.tv/movies/{}/ratings'.format(imdb_id),
+        request_result = request.Request('https://api.trakt.tv/movies/{}/ratings'.format(movie_id),
                                           headers=self.trakt_header)
-        json_result = json.loads(request.urlopen(api_call_result).read().decode("utf-8"))
-        return json_result['rating'], json_result['votes']
+        try:
+            json_result = json.loads(request.urlopen(request_result).read().decode("utf-8"))
+        except error.HTTPError:
+            self.logger.error("Rating is not available in Trakt")
+            return None, None
 
-    def extract_imdb_rating(self, imdb_id):
+        return str(json_result['rating']), str(json_result['votes'])
+
+    def extract_imdb_rating(self, movie_id):
         """
-        given imdb_id, return the current rating and total number of votes of this movie in imdb
-        :param imdb_id:
-        :return: rating and votes in string format
+        given imdb_id, return the current rating and total number of votes of this movie in imdb database
+        :param movie_id:
+        :return: rating and votes in STRING format
         """
-        url = self.imdb_url_format.format(imdb_id)
-        content = request.urlopen(url).read()
-        soup = BeautifulSoup(content, "lxml")
+        url = self.imdb_url_format.format(movie_id)
+        request_result = request.urlopen(url).read()
+        soup = BeautifulSoup(request_result, "lxml")
         div = soup.find('div', {'class': 'ratingValue'})
         parse_list = div.find("strong")['title'].split(" based on ")
         rating = parse_list[0]
-        votes = parse_list[1].split(" ")[0]
+        votes = parse_list[1].split(" ")[0].replace(",", "")
         return rating, votes
 
     def extract_douban_rating(self, movie_id):
+        """
+        given imdb_id, return the current rating and total number of votes of this movie in douban database
+        :param movie_id:
+        :return: rating and votes in STRING format
+        """
         url = self.douban_url_format.format(movie_id)
-        call_result = request.urlopen(url).read()
-        soup = BeautifulSoup(call_result, "lxml")
-        rating = soup.find("span", {'class': 'rating_nums'}).text
-        votes = soup.find("span", {'class': 'pl'}).text.replace("人评价","")[1: -1]  # remove parenthesis and words
+        request_result = request.urlopen(url).read()
+        soup = BeautifulSoup(request_result, "lxml")
+
+        try:
+            rating = soup.find("span", {'class': 'rating_nums'}).text
+            votes = soup.find("span", {'class': 'pl'}).text.replace("人评价","")[1: -1].replace(",", "")  # remove parenthesis and words
+        except AttributeError:
+            self.logger.error("Rating is not available in Douban.")
+            return None, None
+
         return rating, votes
 
     def extract_metacritic_rating(self, imdb_id, search_string, director, release_date):
