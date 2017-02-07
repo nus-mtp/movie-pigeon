@@ -47,17 +47,46 @@ exports.retrieveById = function (userId, onSuccess, onError) {
   User.find({where: {id: userId}}, {raw: true}).then(onSuccess).catch(onError);
 };
 
-exports.updateById = function (user, userId, onSuccess, onError) {
-  var id = userId;
-  var username = user.username;
-  var password = user.password;
+exports.updateUsername = function (req, res) {
+  var username = req.body.username;
+  var user = req.user;
 
-  var shasum = crypto.createHash('sha1');
-  shasum.update(password);
-  password = shasum.digest('hex');
+  if (username) {
+    if (user.username === username) {
+      res.json({status: 'fail', message: 'Same Username'});
+    } else {
+      user.updateAttributes({
+        username: username
+      }).then(function () {
+        res.json({status: 'success', message: 'Username Updated'});
+      });
+    }
+  } else {
+    res.json({status: 'fail', message: 'No Username Provided'});
+  }
+};
 
-  User.update({username: username, password: password}, {where: {id: id}})
-    .then(onSuccess).catch(onError);
+exports.updatePassword = function (req, res) {
+  var password = req.body.password;
+  var user = req.user;
+
+  if (password) {
+    var shasum = crypto.createHash('sha1');
+    shasum.update(password);
+    password = shasum.digest('hex');
+
+    if (user.password === password) {
+      res.json({status: 'fail', message: 'Same Password'});
+    } else {
+      user.updateAttributes({
+        password: password
+      }).then(function () {
+        res.json({status: 'success', message: 'Password Updated'});
+      });
+    }
+  } else {
+    res.json({status: 'fail', message: 'No Password Provided'});
+  }
 };
 
 exports.removeById = function (user_id, onSuccess, onError) {

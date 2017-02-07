@@ -12,6 +12,11 @@ router.route('/users')
   .post(userControl.postUser)
   .get(authController.isAuthenticated, userControl.getUser);
 
+router.route('/users/username')
+  .put(authController.isAuthenticated, userControl.updateUsername);
+
+router.route('/users/password')
+  .put(authController.isAuthenticated, userControl.updatePassword);
 /*
  // on routes that end in /users/:user_id
  // ----------------------------------------------------
