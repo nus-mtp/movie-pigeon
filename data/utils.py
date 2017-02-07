@@ -26,7 +26,9 @@ def get_movie_data_dict(actors, country, director, genre, imdb_id, language, plo
 
 def get_movie_rating_dict(score, votes, imdb_id, rating_source):
     rating_sources = {
-        "IMDb": 1
+        "IMDb": 1,
+        "Douban": 2,
+        "Trakt": 3
     }
 
     movie_rating = {

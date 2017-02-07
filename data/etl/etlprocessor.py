@@ -14,9 +14,11 @@ class ETLProcessor:
     """
 
     def __init__(self):
+        # initialisation
         self.extractor = extractor.Extractor()
         self.loader = loader.Loader()
         self.transformer = transformer.Transformer()
+
         self.imdb_prefix = "tt"
 
     def updating_movie_data(self):
@@ -81,22 +83,27 @@ class ETLProcessor:
         # list of existing movies
         id_list = self.loader.get_movie_id_list()
         for current_movie_id in id_list:
-            # imdb
-            # rating, votes = self.extractor.extract_imdb_rating(current_movie_id)
-            # votes = self.transformer.movie_rating_votes(votes)
-            # movie_rating = utils.get_movie_rating_dict(rating, votes, current_movie_id, "IMDb")
-            # self.loader.load_movie_rating(movie_rating)
-
-            # letterboxd
-
-            # douban
-
-            # rotten tomatoes
+            self.update_rating_simple(current_movie_id, "IMDb")
+            self.update_rating_simple(current_movie_id, "Douban")
+            self.update_rating_simple(current_movie_id, "Trakt")
 
             # metacritic
             # validation_info = self.loader.get_movie_validation_info(current_movie_id)
             # print(validation_info)
-            break
+
+    def update_rating_simple(self, current_movie_id, source_name):
+        if source_name == "IMDb":
+            rating, votes = self.extractor.extract_imdb_rating(current_movie_id)
+        elif source_name == "Douban":
+            rating, votes = self.extractor.extract_douban_rating(current_movie_id)
+        elif source_name == "Trakt":
+            rating, votes = self.extractor.extract_trakt_rating(current_movie_id)
+        else:
+            raise Exception("There is no such source name.")
+
+        votes = self.transformer.movie_rating_votes(str(votes))
+        movie_rating = utils.get_movie_rating_dict(rating, votes, current_movie_id, source_name)
+        self.loader.load_movie_rating(movie_rating)
 
 
 # ==================

@@ -1,6 +1,7 @@
 from urllib import request
 from bs4 import BeautifulSoup
 import json
+import html
 
 
 class Extractor:
@@ -22,6 +23,7 @@ class Extractor:
 
     # douban
     douban_url_format = "https://movie.douban.com/subject_search?search_text={}"
+    metacritic_url_format = "http://www.metacritic.com/search/movie/{}/results"
 
     def __init__(self):
         pass
@@ -99,6 +101,12 @@ class Extractor:
         return rating, votes
 
     def extract_metacritic_rating(self, imdb_id, search_string, director, release_date):
+        # bad request, on hold, need to use selenium
+        url = self.metacritic_url_format.format(html.escape(search_string))
+        call_result = request.urlopen(url).read()
+        soup = BeautifulSoup(call_result, "lxml")
+        results = soup.find('li', {'class': 'result'})
+        print(results)
         pass
 
     def extract_rotten_tomatoes_rating(self, imdb_id):
@@ -110,4 +118,4 @@ class Extractor:
 # test
 if __name__ == '__main__':
     extractor = Extractor()
-    extractor.extract_douban_rating("tt0000003")
+    extractor.extract_metacritic_rating("1","harry potter and the deathly hallows","1","1")
