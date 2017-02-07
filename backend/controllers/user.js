@@ -1,30 +1,34 @@
 var User = require('../models/user.js');
 var crypto = require('crypto');
 
-var add = function (user, onSuccess, onError) {
-  var password = user.password;
-
-  var shasum = crypto.createHash('sha1');
-  shasum.update(password);
-  password = shasum.digest('hex');
-
-  User.build({email: user.email, username: user.username, password: password})
-    .save().then(onSuccess).catch(onError);
-};
-
 exports.postUser = function (req, res) {
   var username = req.body.username;
   var password = req.body.password;
   var email = req.body.email;
 
-  var user = User.build({email: email, username: username, password: password});
+  var shasum = crypto.createHash('sha1');
+  shasum.update(password);
+  password = shasum.digest('hex');
 
-  add(user, function (success) {
-      res.json({message: 'User created!'});
-    },
-    function (err) {
+  User.find({where: {email: email}})
+    .then(function (users) {
+      if (users) {
+        return res.json({status: 'fail', message: 'User Existed'});
+      }
+    });
+
+  User.build({email: email, username: username, password: password})
+    .save()
+    .then(function () {
+      res.json({status: 'success', message: 'User Created'});
+    })
+    .catch(function (err) {
       res.send(err);
     });
+};
+
+var retrieveAll = function (onSuccess, onError) {
+  User.findAll({}, {raw: true}).then(onSuccess).catch(onError);
 };
 
 exports.getUser = function (req, res) {
@@ -39,16 +43,12 @@ exports.getUser = function (req, res) {
   });
 };
 
-var retrieveAll = function (onSuccess, onError) {
-  User.findAll({}, {raw: true}).then(onSuccess).catch(onError);
+exports.retrieveById = function (userId, onSuccess, onError) {
+  User.find({where: {id: userId}}, {raw: true}).then(onSuccess).catch(onError);
 };
 
-exports.retrieveById = function (user_id, onSuccess, onError) {
-  User.find({where: {id: user_id}}, {raw: true}).then(onSuccess).catch(onError);
-};
-
-exports.updateById = function (user, user_id, onSuccess, onError) {
-  var id = user_id;
+exports.updateById = function (user, userId, onSuccess, onError) {
+  var id = userId;
   var username = user.username;
   var password = user.password;
 
