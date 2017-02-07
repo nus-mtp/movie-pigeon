@@ -15,6 +15,8 @@ class ETLProcessor:
 
     def __init__(self):
         # initialisation
+        logger = logging.getLogger("general_logger")
+
         self.extractor = extractor.Extractor()
         self.loader = loader.Loader()
         self.transformer = transformer.Transformer()
@@ -65,11 +67,6 @@ class ETLProcessor:
             movie_data = utils.get_movie_data_dict(actors, country, director, genre, imdb_id, language, plot,
                                                    poster_url, production_year, rated, released, runtime, title, type)
 
-            # others
-            imdb_votes = extraction_result['imdbVotes']  # remove comma
-            imdb_rating = extraction_result['imdbRating']
-            # unused : metascore, awards
-
             # 4. loading
             self.loader.load_movie_data(movie_data)
 
@@ -91,6 +88,9 @@ class ETLProcessor:
             # validation_info = self.loader.get_movie_validation_info(current_movie_id)
             # print(validation_info)
 
+    # ==========
+    #   helper
+    # ==========
     def update_rating_simple(self, current_movie_id, source_name):
         if source_name == "IMDb":
             rating, votes = self.extractor.extract_imdb_rating(current_movie_id)

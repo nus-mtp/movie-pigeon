@@ -1,3 +1,5 @@
 # jetbrain products
 .idea/
+
+# config file and various api keys
 config.py
