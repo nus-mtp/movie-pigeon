@@ -27,7 +27,7 @@ describe('Client controller test', function () {
         .expect(200)
         .end(function (err, res) {
           res.status.should.equal(200);
-          res.body.message.should.equal('Client created!');
+          res.body.message.should.equal('Client Created');
           client.find({where: {name: 'testclient'}}).then(function (client) {
             client.secret.should.equal('testclientsecret');
             client.destroy();
