@@ -25,8 +25,8 @@ class Extractor:
     douban_url_format = "https://movie.douban.com/subject_search?search_text={}"
     metacritic_url_format = "http://www.metacritic.com/search/movie/{}/results"
 
-    def __init__(self):
-        pass
+    def __init__(self, logger):
+        self.logger = logger
 
     # ==========
     #   data

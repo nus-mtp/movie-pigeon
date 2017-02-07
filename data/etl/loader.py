@@ -5,8 +5,9 @@ import logging
 
 class Loader:
 
-    def __init__(self):
+    def __init__(self, logger):
         self.cursor, self.conn = config.database_connection()
+        self.logger = logger
 
     # ========
     #   LOAD
