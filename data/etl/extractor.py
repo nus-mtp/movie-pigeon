@@ -92,7 +92,13 @@ class Extractor:
         request_result = request.urlopen(url).read()
         soup = BeautifulSoup(request_result, "lxml")
         div = soup.find('div', {'class': 'ratingValue'})
-        parse_list = div.find("strong")['title'].split(" based on ")
+
+        try:
+            parse_list = div.find("strong")['title'].split(" based on ")
+        except AttributeError:
+            self.logger.error("Rating is not available in IMDb.")
+            return None, None
+
         rating = parse_list[0]
         votes = parse_list[1].split(" ")[0].replace(",", "")
         return rating, votes
