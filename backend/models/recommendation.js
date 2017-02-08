@@ -5,19 +5,24 @@ var User = require('./user.js');
 var Movie = require('./movie.js');
 // Define our recommendation schema
 var Recommendation = sequelize.define('recommendations', {
+  user_id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true
+  },
+  movie_id: {
+    type: DataTypes.STRING,
+    primaryKey: true
+  },
   score: {
     type: DataTypes.FLOAT
   }
 });
 
-User.belongsToMany(Movie, {
-  through: Recommendation,
-  foreignKey: 'user_id'
-});
-Movie.belongsToMany(User, {
-  through: Recommendation,
-  foreignKey: 'movie_id'
-});
+User.hasMany(Recommendation, {foreignKey: 'user_id'});
+Recommendation.belongsTo(User, {foreignKey: 'user_id', targetKey: 'id'});
+
+Movie.hasMany(Recommendation, {foreignKey: 'movie_id'});
+Recommendation.belongsTo(Movie, {foreignKey: 'movie_id', targetKey: 'movie_id'});
 
 sequelize.sync({});
 // Export the model
