@@ -10,7 +10,7 @@ exports.postClients = function (req, res) {
   // Save the client and check for errors
   Client.build({name: name, id: id, secret: secret, userId: userId})
       .save().then(function (success) {
-        res.json({message: 'Client created!'});
+        res.json({status: 'Success', message: 'Client Created'});
       });
 };
 
