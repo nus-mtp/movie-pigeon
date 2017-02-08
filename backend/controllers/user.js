@@ -14,16 +14,16 @@ exports.postUser = function (req, res) {
     .then(function (users) {
       if (users) {
         return res.json({status: 'fail', message: 'User Existed'});
+      } else {
+        User.build({email: email, username: username, password: password})
+          .save()
+          .then(function () {
+            res.json({status: 'success', message: 'User Created'});
+          })
+          .catch(function (err) {
+            res.send(err);
+          });
       }
-    });
-
-  User.build({email: email, username: username, password: password})
-    .save()
-    .then(function () {
-      res.json({status: 'success', message: 'User Created'});
-    })
-    .catch(function (err) {
-      res.send(err);
     });
 };
 
