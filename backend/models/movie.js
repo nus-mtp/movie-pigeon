@@ -24,7 +24,7 @@ var Movie = sequelize.define('movies', {
   actors: {
     type: DataTypes.STRING
   },
-  lanugage: {
+  language: {
     type: DataTypes.STRING
   },
   country: {
