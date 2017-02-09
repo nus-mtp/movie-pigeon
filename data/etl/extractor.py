@@ -2,8 +2,8 @@ from urllib import request, error
 from bs4 import BeautifulSoup
 import json
 import html
-
-
+import datetime
+import data.utils as utils
 class Extractor:
 
     trakt_header = {
@@ -42,14 +42,88 @@ class Extractor:
         json_result = json.loads(text_result)
         return json_result
 
-    def extract_imdb_data(self, imdb_id):
+    def extract_imdb_data(self, movie_id):
         """
-        service on hold incase omdb is not going to back up
-        :param imdb_id:
-        :return:
+        given imdb_id, return the current rating and total number of votes of this movie in imdb database
+        :param movie_id:
+        :return: rating and votes in STRING format
         """
-        json_result = 0
-        return json_result
+        url = self.imdb_url_format.format(movie_id)
+        request_result = request.urlopen(url).read()
+        soup = BeautifulSoup(request_result, "lxml")
+
+        # title, production year
+        title_wrapper = soup.find("h1").text.split("\xa0")
+        title = title_wrapper[0]
+        production_year = title_wrapper[1][1: -2]
+
+        # runtime, genre, released, country
+        subtext = soup.find("div", {"class": "subtext"}).text.replace("\n", "").strip().split("|")
+        if len(subtext) == 3:
+            runtime, genre, release_country = subtext
+        elif len(subtext) == 2:  # either runtime + genre or genre + release_country
+            if 'min' in subtext[0]:  # runtime plus genre
+                runtime, genre = subtext
+                release_country = None
+            else:
+                genre, release_country = subtext
+                runtime = None
+        elif len(subtext) == 1:
+            genre = subtext[0]
+            runtime = None
+            release_country = None
+        else:
+            print(subtext)
+            raise Exception("Examine the output")
+
+        if runtime is not None:
+            runtime = runtime.replace("min", "").strip()
+
+        if release_country is not None:
+            released, country = release_country.replace(")", "").split("(")
+            released = released.strip()  # remove last white space
+            length_of_date = len(released.split(" "))
+            if length_of_date == 3:
+                released = datetime.datetime.strptime(released, '%d %B %Y').strftime('%Y-%m-%d')
+            elif length_of_date == 2:
+                released = datetime.datetime.strptime(released, '%B %Y').strftime('%Y-%m-%d')
+            elif length_of_date == 1:
+                released = datetime.datetime.strptime(released, '%Y').strftime('%Y-%m-%d')
+        else:
+            released = None
+            country = None
+
+        # plot
+        plot = soup.find("div", {"class": "summary_text"}).text.strip()
+        if "Add a Plot" in plot:
+            plot = None
+
+        # actors, poster_url, director
+        credits = soup.find_all("div", {"class": "credit_summary_item"})
+        director, actor = None, None
+        for item in credits:
+            current_text = item.text
+            if "Directors:" in current_text:
+                director = current_text.replace("Directors:", "").replace("\n", "").replace("  ", "")
+            elif "Director:" in current_text:
+                director = current_text.replace("Director:", "").strip()
+            elif "Stars" in current_text:
+                actor = current_text.replace("Stars:", "").replace("\n", "").replace("  ", "")
+            elif "Star" in current_text:
+                actor = current_text.replace("Star:", "").strip()
+
+        # poster_url
+        poster = soup.find("div", {"class": "poster"})
+        try:
+            poster_url = poster.find("img")['src']
+        except AttributeError:
+            self.logger.warning("No poster for movie id: " + movie_id)
+            poster_url = None
+
+        movie_data = utils.get_movie_data_dict(actor, country, director, genre, movie_id, None,
+                                               plot, poster_url, production_year, None, released, runtime, title, None)
+
+        return movie_data
 
     def extract_wemakesites_data(self, imdb_id):
         """
@@ -140,4 +214,4 @@ class Extractor:
 # test
 if __name__ == '__main__':
     extractor = Extractor()
-    extractor.extract_metacritic_rating("1","harry potter and the deathly hallows","1","1")
+    extractor.extract_imdb_data("tt0000001")
