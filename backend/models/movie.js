@@ -37,7 +37,7 @@ var Movie = sequelize.define('movies', {
     type: DataTypes.TEXT
   },
   released: {
-    type: DataTypes.DATE
+    type: DataTypes.DATEONLY
   },
   runtime: {
     type: DataTypes.STRING
