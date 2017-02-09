@@ -13,7 +13,7 @@ var Movie = sequelize.define('movies', {
     allowNull: false
   },
   production_year: {
-    type: DataTypes.STRING
+    type: DataTypes.INTEGER
   },
   rated: {
     type: DataTypes.STRING
@@ -22,7 +22,7 @@ var Movie = sequelize.define('movies', {
     type: DataTypes.TEXT
   },
   actors: {
-    type: DataTypes.STRING
+    type: DataTypes.TEXT
   },
   language: {
     type: DataTypes.STRING
@@ -37,7 +37,7 @@ var Movie = sequelize.define('movies', {
     type: DataTypes.TEXT
   },
   released: {
-    type: DataTypes.STRING
+    type: DataTypes.DATE
   },
   runtime: {
     type: DataTypes.STRING
