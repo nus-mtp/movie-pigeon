@@ -4,9 +4,12 @@ var PublicRate = require('../models/PublicRate.js');
 // Create endpoint /api/movie for GET
 exports.getMoviesByTitle = function (req, res) {
   // Use the Client model to find all clients
+  var title = req.headers.title;
+  var searchString = title.trim().replace(' ', '%');
+  searchString = '%' + searchString + '%';
   Movie.findAll({
     where: {
-      title: {$like: req.headers.title}
+      title: {$ilike: searchString}
     },
     include: [
       PublicRate
