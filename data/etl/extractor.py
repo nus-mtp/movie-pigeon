@@ -46,10 +46,15 @@ class Extractor:
         """
         given imdb_id, return the current rating and total number of votes of this movie in imdb database
         :param movie_id:
-        :return: rating and votes in STRING format
+        :return: rating and votes in STRING format or False if it is a bad request
         """
         url = self.imdb_url_format.format(movie_id)
-        request_result = request.urlopen(url).read()
+        try:
+            request_result = request.urlopen(url).read()
+        except error.HTTPError:
+            self.logger.warning("Movie id is not valid:" + movie_id)
+            return False
+
         soup = BeautifulSoup(request_result, "lxml")
 
         # title, production year
@@ -94,7 +99,7 @@ class Extractor:
             country = None
 
         # plot
-        plot = soup.find("div", {"class": "summary_text"}).text.strip()
+        plot = soup.find("div", {"class": "summary_text"}).text.replace("\n", "").strip().split("    ")[0]
         if "Add a Plot" in plot:
             plot = None
 
