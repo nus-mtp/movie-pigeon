@@ -62,21 +62,22 @@ class Extractor:
         title = title_wrapper[0]
         production_year = title_wrapper[1][1: -2]
 
-        # runtime, genre, released, country
-        subtext = soup.find("div", {"class": "subtext"}).text.replace("\n", "").strip().split("|")
+        # rated, runtime, genre, released, country
+        rated, runtime, genre, release_country = None, None, None, None  # initialisation
+        subtext = soup.find("div", {"class": "subtext"}).text.replace("\n", "").strip().split("|")  # unpack subtext
+
         if len(subtext) == 3:
             runtime, genre, release_country = subtext
         elif len(subtext) == 2:  # either runtime + genre or genre + release_country
             if 'min' in subtext[0]:  # runtime plus genre
                 runtime, genre = subtext
-                release_country = None
             else:
                 genre, release_country = subtext
-                runtime = None
         elif len(subtext) == 1:
             genre = subtext[0]
-            runtime = None
             release_country = None
+        elif len(subtext) == 4:
+            rated, runtime, genre, release_country = subtext
         else:
             print(subtext)
             raise Exception("Examine the output")
@@ -126,7 +127,7 @@ class Extractor:
             poster_url = None
 
         movie_data = utils.get_movie_data_dict(actor, country, director, genre, movie_id, None,
-                                               plot, poster_url, production_year, None, released, runtime, title, None)
+                                               plot, poster_url, production_year, rated, released, runtime, title, None)
 
         return movie_data
 

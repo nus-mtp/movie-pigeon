@@ -101,5 +101,5 @@ class ETLProcessor:
 # ==================
 if __name__ == '__main__':
     processor = ETLProcessor()
-    processor.retrieve_movie_data()
+    processor.updating_movie_rating()
 
