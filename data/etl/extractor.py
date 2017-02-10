@@ -114,7 +114,7 @@ class Extractor:
             elif "Director:" in current_text:
                 director = current_text.replace("Director:", "").strip()
             elif "Stars" in current_text:
-                actor = current_text.replace("Stars:", "").replace("\n", "").replace("  ", "")
+                actor = current_text.replace("Stars:", "").split("|")[0].replace("\n", "").replace("  ", "")
             elif "Star" in current_text:
                 actor = current_text.replace("Star:", "").strip()
 
