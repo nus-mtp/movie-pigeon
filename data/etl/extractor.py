@@ -4,6 +4,8 @@ import json
 import html
 import datetime
 import data.utils as utils
+
+
 class Extractor:
 
     trakt_header = {
@@ -31,17 +33,6 @@ class Extractor:
     # ==========
     #   data
     # ==========
-    def extract_omdb_data(self, imdb_id):
-        """
-        :param imdb_id: a given imdb id
-        :return: json result of its movie data
-        """
-        api_call_result = request.urlopen(
-            "http://www.omdbapi.com/?i={}&plot={}&r={}".format(imdb_id, self.omdb_plot_option, self.omdb_content_type))
-        text_result = api_call_result.read().decode("utf-8")
-        json_result = json.loads(text_result)
-        return json_result
-
     def extract_imdb_data(self, movie_id):
         """
         given imdb_id, return the current rating and total number of votes of this movie in imdb database
@@ -49,99 +40,25 @@ class Extractor:
         :return: rating and votes in STRING format or False if it is a bad request
         """
         url = self.imdb_url_format.format(movie_id)
+
         try:
             request_result = request.urlopen(url).read()
         except error.HTTPError:
             self.logger.warning("Movie id is not valid:" + movie_id)
             return False
 
-        soup = BeautifulSoup(request_result, "lxml")
+        soup = BeautifulSoup(request_result, "lxml")  # soup builder
 
-        # title, production year
-        title_wrapper = soup.find("h1").text.split("\xa0")
-        title = title_wrapper[0]
-        production_year = title_wrapper[1][1: -2]
-
-        # rated, runtime, genre, released, country
-        rated, runtime, genre, release_country = None, None, None, None  # initialisation
-        subtext = soup.find("div", {"class": "subtext"}).text.replace("\n", "").strip().split("|")  # unpack subtext
-
-        if len(subtext) == 3:
-            runtime, genre, release_country = subtext
-        elif len(subtext) == 2:  # either runtime + genre or genre + release_country
-            if 'min' in subtext[0]:  # runtime plus genre
-                runtime, genre = subtext
-            else:
-                genre, release_country = subtext
-        elif len(subtext) == 1:
-            genre = subtext[0]
-            release_country = None
-        elif len(subtext) == 4:
-            rated, runtime, genre, release_country = subtext
-        else:
-            print(subtext)
-            raise Exception("Examine the output")
-
-        if runtime is not None:
-            runtime = runtime.replace("min", "").strip()
-
-        if release_country is not None:
-            released, country = release_country.replace(")", "").split("(")
-            released = released.strip()  # remove last white space
-            length_of_date = len(released.split(" "))
-            if length_of_date == 3:
-                released = datetime.datetime.strptime(released, '%d %B %Y').strftime('%Y-%m-%d')
-            elif length_of_date == 2:
-                released = datetime.datetime.strptime(released, '%B %Y').strftime('%Y-%m-%d')
-            elif length_of_date == 1:
-                released = datetime.datetime.strptime(released, '%Y').strftime('%Y-%m-%d')
-        else:
-            released = None
-            country = None
-
-        # plot
-        plot = soup.find("div", {"class": "summary_text"}).text.replace("\n", "").strip().split("    ")[0]
-        if "Add a Plot" in plot:
-            plot = None
-
-        # actors, poster_url, director
-        credits = soup.find_all("div", {"class": "credit_summary_item"})
-        director, actor = None, None
-        for item in credits:
-            current_text = item.text
-            if "Directors:" in current_text:
-                director = current_text.replace("Directors:", "").replace("\n", "").replace("  ", "")
-            elif "Director:" in current_text:
-                director = current_text.replace("Director:", "").strip()
-            elif "Stars" in current_text:
-                actor = current_text.replace("Stars:", "").split("|")[0].replace("\n", "").replace("  ", "")
-            elif "Star" in current_text:
-                actor = current_text.replace("Star:", "").strip()
-
-        # poster_url
-        poster = soup.find("div", {"class": "poster"})
-        try:
-            poster_url = poster.find("img")['src']
-        except AttributeError:
-            self.logger.warning("No poster for movie id: " + movie_id)
-            poster_url = None
+        production_year, title = self.get_title_year(soup)
+        country, genre, rated, released, runtime = self.extract_subtext(soup)
+        plot = self.extract_plot(soup)
+        actor, director = self.extract_credits(soup)
+        poster_url = self.extract_poster(soup)
 
         movie_data = utils.get_movie_data_dict(actor, country, director, genre, movie_id, None,
                                                plot, poster_url, production_year, rated, released, runtime, title, None)
 
         return movie_data
-
-    def extract_wemakesites_data(self, imdb_id):
-        """
-        alternatives to omdb
-        :param imdb_id:
-        :return:
-        """
-        api_call_result = request.urlopen(
-            "http://imdb.wemakesites.net/api/{}?api_key={}".format(imdb_id, self.wemakesites_api_key))
-        text_result = api_call_result.read().decode("utf-8")
-        json_result = json.loads(text_result)
-        return json_result
 
     # ==========
     #   rating
@@ -217,7 +134,109 @@ class Extractor:
     def extract_letterboxd_rating(self, movie_id):
         pass
 
-# test
-if __name__ == '__main__':
-    extractor = Extractor()
-    extractor.extract_imdb_data("tt0000001")
+    # ===========
+    #   showing
+    # ===========
+    def extract_popcorn_showing(self):
+        pass
+
+    # private
+    def extract_poster(self, soup):
+        """
+        return the url of poster of one movie
+        :param movie_id:
+        :param soup: url in string format or None
+        :return:
+        """
+        poster = soup.find("div", {"class": "poster"})
+        try:
+            poster_url = poster.find("img")['src']
+        except AttributeError:
+            poster_url = None
+        return poster_url
+
+    def extract_credits(self, soup):
+        """
+        return the directors and actors of the movie. If there is more than
+        one director or actor, it will display a string with multiple tokens,
+        separated by comma
+        :param soup:
+        :return: credits info in string format or None
+        """
+        credits_text = soup.find_all("div", {"class": "credit_summary_item"})
+        director, actor = None, None
+        for item in credits_text:
+            current_text = item.text
+            if "Directors:" in current_text:
+                director = current_text.replace("Directors:", "").replace("\n", "").replace("  ", "")
+            elif "Director:" in current_text:
+                director = current_text.replace("Director:", "").strip()
+            elif "Stars" in current_text:
+                actor = current_text.replace("Stars:", "").split("|")[0].replace("\n", "").replace("  ", "")
+            elif "Star" in current_text:
+                actor = current_text.replace("Star:", "").strip()
+        return actor, director
+
+    def extract_plot(self, soup):
+        """
+        return the plot of one movie
+        :param soup:
+        :return: plot in string format or None
+        """
+        plot = soup.find("div", {"class": "summary_text"}).text.replace("\n", "").strip().split("    ")[0]
+        if "Add a Plot" in plot:
+            plot = None
+        return plot
+
+    def extract_subtext(self, soup):
+        """
+        return the rating, run time, genre, release date and country of origin of a movie
+        :param soup:
+        :return: rated, runtime, genre and country are in string
+                format or None, released date is in date format or None
+        """
+        rated, runtime, genre, release_country = None, None, None, None  # initialisation
+        subtext = soup.find("div", {"class": "subtext"}).text.replace("\n", "").strip().split("|")  # unpack subtext
+        if len(subtext) == 3:
+            runtime, genre, release_country = subtext
+        elif len(subtext) == 2:  # either runtime + genre or genre + release_country
+            if 'min' in subtext[0]:  # runtime plus genre
+                runtime, genre = subtext
+            else:
+                genre, release_country = subtext
+        elif len(subtext) == 1:
+            genre = subtext[0]
+            release_country = None
+        elif len(subtext) == 4:
+            rated, runtime, genre, release_country = subtext
+        else:
+            print(subtext)
+            raise Exception("Examine the output")
+        if runtime is not None:
+            runtime = runtime.replace("min", "").strip()
+        if release_country is not None:
+            released, country = release_country.replace(")", "").split("(")
+            released = released.strip()  # remove last white space
+            length_of_date = len(released.split(" "))
+            if length_of_date == 3:
+                released = datetime.datetime.strptime(released, '%d %B %Y').strftime('%Y-%m-%d')
+            elif length_of_date == 2:
+                released = datetime.datetime.strptime(released, '%B %Y').strftime('%Y-%m-%d')
+            elif length_of_date == 1:
+                released = datetime.datetime.strptime(released, '%Y').strftime('%Y-%m-%d')
+        else:
+            released = None
+            country = None
+
+        return country, genre, rated, released, runtime
+
+    def get_title_year(self, soup):
+        """
+        return title and production year of a movie
+        :param soup:
+        :return: title in string or None, production year in integer or None
+        """
+        title_wrapper = soup.find("h1").text.split("\xa0")
+        title = title_wrapper[0]
+        production_year = title_wrapper[1][1: -2]
+        return int(production_year), title

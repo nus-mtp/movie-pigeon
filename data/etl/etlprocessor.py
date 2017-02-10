@@ -31,23 +31,24 @@ class ETLProcessor:
         """
         self.logger.info("Initialise movie data retrieval process ...")
 
-        existing_movies = self.loader.get_movie_id_list()
+        existing_movies_id = self.loader.get_movie_id_list()
         logging.info("Initiating movie data extraction process...")
-        for i in range(1, 9999999):  # iterate all possible titles
-            current_imdb_number = "{0:0=7d}".format(i)
-            imdb_id = self.imdb_prefix + current_imdb_number
 
-            if imdb_id in existing_movies:
+        for index in range(1, 9999999):  # iterate all possible titles
+            imdb_id = self.imdb_id_builder(index)
+
+            if imdb_id in existing_movies_id:
                 continue
 
             movie_data = self.extractor.extract_imdb_data(imdb_id)
+
             if movie_data:
                 self.loader.load_movie_data(movie_data)
             time.sleep(1)
 
     def updating_movie_rating(self):
         """
-        updates movie rating from various websites
+        updates movie rating from popcorn movies (may have to change to raaw implementation in the future)
         it is a continuous process and data will be updated constantly
         """
         self.logger.info("Initialise movie rating update process ...")
@@ -94,6 +95,11 @@ class ETLProcessor:
 
         movie_rating = utils.get_movie_rating_dict(rating, votes, current_movie_id, source_name)
         self.loader.load_movie_rating(movie_rating)
+
+    def imdb_id_builder(self, i):
+        current_imdb_number = "{0:0=7d}".format(i)
+        imdb_id = self.imdb_prefix + current_imdb_number
+        return imdb_id
 
 
 # ==================
