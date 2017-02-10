@@ -1,6 +1,7 @@
 // Load required packages
 var Movie = require('../models/movie.js');
 var PublicRate = require('../models/PublicRate.js');
+var RatingSource = require('../models/ratingSource.js');
 // Create endpoint /api/movie for GET
 exports.getMoviesByTitle = function (req, res) {
   // Use the Client model to find all clients
@@ -11,15 +12,16 @@ exports.getMoviesByTitle = function (req, res) {
     where: {
       title: {$ilike: searchString}
     },
-    include: [
-      PublicRate
-    ]
+    include: [{
+      model: PublicRate,
+      include: [
+        RatingSource
+      ]
+    }]
   })
     .then(function (movies) {
       res.json(movies);
-    }).catch(function (err) {
-      res.send(err);
-    }
+    }).catch(function (err) {}
   );
 };
 
@@ -29,6 +31,7 @@ exports.getMoviesById = function (req, res) {
   Movie.find({where: {id: req.headers.id}}).then(function (movies) {
     res.json(movies);
   }).catch(function (err) {
+      res.send(err);
     res.send(err);
   });
 };
