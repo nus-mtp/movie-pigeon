@@ -49,7 +49,7 @@ class Extractor:
 
         soup = BeautifulSoup(request_result, "lxml")  # soup builder
 
-        type = self.is_episode(soup)
+        type = self.extract_type(soup)
         production_year, title = self.extract_title_and_year(soup)
         country, genre, rated, released, runtime = self.extract_subtext(soup)
         plot = self.extract_plot(soup)
@@ -57,9 +57,10 @@ class Extractor:
         poster_url = self.extract_poster(soup)
 
         movie_data = utils.get_movie_data_dict(actor, country, director, genre, movie_id, None,
-                                               plot, poster_url, production_year, rated, released, runtime, title, None)
+                                               plot, poster_url, production_year, rated, released, runtime, title, type)
 
         return movie_data
+
 
 
 
@@ -241,8 +242,16 @@ class Extractor:
         """
         title_wrapper = soup.find("h1").text.split("\xa0")
         title = title_wrapper[0]
-        production_year = title_wrapper[1][1: -2]
+        production_year = title_wrapper[1].replace("(", "").replace(")", "").replace(" ", "")
+        if production_year == "":
+            return None, title
         return int(production_year), title
+
+    def extract_type(self, soup):
+        if self.is_episode(soup):
+            return "episode"
+        else:
+            return None
 
     def is_episode(self, soup):
         type_text = soup.find("div", {"class": "titleParent"})
