@@ -50,3 +50,9 @@ def get_movie_rating_dict(score, votes, imdb_id, rating_source):
         "votes": votes
     }
     return movie_rating
+
+
+def imdb_id_builder(i):
+    current_imdb_number = "{0:0=7d}".format(i)
+    imdb_id = "tt" + current_imdb_number
+    return imdb_id

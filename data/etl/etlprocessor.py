@@ -22,8 +22,6 @@ class ETLProcessor:
         self.loader = loader.Loader(self.logger)
         self.transformer = transformer.Transformer(self.logger)
 
-        self.imdb_prefix = "tt"
-
     def retrieve_movie_data(self):
         """
         updates movie data from databases (potentially more than one source)
@@ -35,7 +33,7 @@ class ETLProcessor:
         logging.info("Initiating movie data extraction process...")
 
         for index in range(1, 9999999):  # iterate all possible titles
-            imdb_id = self.imdb_id_builder(index)
+            imdb_id = utils.imdb_id_builder(index)
 
             if imdb_id in existing_movies_id:
                 continue
@@ -96,10 +94,7 @@ class ETLProcessor:
         movie_rating = utils.get_movie_rating_dict(rating, votes, current_movie_id, source_name)
         self.loader.load_movie_rating(movie_rating)
 
-    def imdb_id_builder(self, i):
-        current_imdb_number = "{0:0=7d}".format(i)
-        imdb_id = self.imdb_prefix + current_imdb_number
-        return imdb_id
+
 
 
 # ==================
