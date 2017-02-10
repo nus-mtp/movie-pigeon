@@ -216,8 +216,10 @@ class Extractor:
         else:
             print(subtext)
             raise Exception("Examine the output")
+
         if runtime is not None:
             runtime = runtime.replace("min", "").strip()
+
         if release_country is not None:
             released, country = release_country.replace(")", "").split("(")
             released = released.strip()  # remove last white space
