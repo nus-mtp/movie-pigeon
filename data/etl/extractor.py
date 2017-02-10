@@ -49,7 +49,8 @@ class Extractor:
 
         soup = BeautifulSoup(request_result, "lxml")  # soup builder
 
-        production_year, title = self.get_title_year(soup)
+        type = self.is_episode(soup)
+        production_year, title = self.extract_title_and_year(soup)
         country, genre, rated, released, runtime = self.extract_subtext(soup)
         plot = self.extract_plot(soup)
         actor, director = self.extract_credits(soup)
@@ -59,6 +60,8 @@ class Extractor:
                                                plot, poster_url, production_year, rated, released, runtime, title, None)
 
         return movie_data
+
+
 
     # ==========
     #   rating
@@ -230,7 +233,7 @@ class Extractor:
 
         return country, genre, rated, released, runtime
 
-    def get_title_year(self, soup):
+    def extract_title_and_year(self, soup):
         """
         return title and production year of a movie
         :param soup:
@@ -240,3 +243,13 @@ class Extractor:
         title = title_wrapper[0]
         production_year = title_wrapper[1][1: -2]
         return int(production_year), title
+
+    def is_episode(self, soup):
+        type_text = soup.find("div", {"class": "titleParent"})
+        if type_text == None:
+            return False
+        return True
+
+if __name__ == '__main__':
+    extractor = Extractor(None)
+    extractor.extract_imdb_data("tt0000001")
