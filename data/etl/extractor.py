@@ -29,7 +29,7 @@ class Extractor:
 
     def __init__(self, logger):
         self.logger = logger
-        self.transformer = Transformer()
+        self.transformer = Transformer(logger)
 
     # ==========
     #   data
@@ -49,7 +49,6 @@ class Extractor:
             return False
 
         soup = BeautifulSoup(request_result, "lxml")  # soup builder
-
         type = self.extract_type(soup)
         production_year, title = self.extract_title_and_year(soup)
         country, genre, rated, released, runtime = self.extract_subtext(soup, movie_id)
@@ -61,9 +60,6 @@ class Extractor:
                                                plot, poster_url, production_year, rated, released, runtime, title, type)
 
         return movie_data
-
-
-
 
     # ==========
     #   rating
@@ -145,7 +141,9 @@ class Extractor:
     def extract_popcorn_showing(self):
         pass
 
-    # private
+    # ===========
+    #   private
+    # ===========
     def extract_title_and_year(self, soup):
         """
         return title and production year of a movie
@@ -158,12 +156,6 @@ class Extractor:
         if production_year == "":
             return None, title
         return int(production_year), title
-
-    def extract_type(self, soup):
-        if self.is_episode(soup):
-            return "episode"
-        else:
-            return None
 
     def extract_poster(self, soup):
         """
@@ -220,6 +212,7 @@ class Extractor:
                 format or None, released date is in date format or None
         """
         rated, runtime, genre, release, country = None, None, None, None, None  # initialisation
+        # print(soup.find("time")['datetime'] alternative to find time
         subtext = soup.find("div", {"class": "subtext"}).text.replace("\n", "").strip().split("|")  # unpack subtext
         type_text = subtext[-1]  # type inference
 
@@ -238,7 +231,7 @@ class Extractor:
 
             # cleaning process
             runtime = self.transformer.transform_time_imdb(runtime)
-            release = self.transformer.transform_date_imdb(release)
+            release = self.transformer.transform_date_imdb(release.replace("Episode aired", "").strip())
             return country, genre, rated, release, runtime, type
 
         elif "TV Series" in type_text:
@@ -261,28 +254,44 @@ class Extractor:
             type = "movie"
             if len(subtext) == 4:
                 rated, runtime, genre, release_country = subtext
+                runtime = self.transformer.transform_time_imdb(runtime)
+                release, country = self.transformer.split_release_and_country_imdb(release_country)
+                release = self.transformer.transform_date_imdb(release)
             elif len(subtext) == 3:
                 runtime, genre, release_country = subtext
+                runtime = self.transformer.transform_time_imdb(runtime)
+                release, country = self.transformer.split_release_and_country_imdb(release_country)
+                release = self.transformer.transform_date_imdb(release)
             elif len(subtext) == 2:  # 2 scenarios
-                if 'min' in subtext[0] or 'h' in subtext[0]:  # runtime plus genre
+                if 'min' in subtext[0] or self.is_hour(subtext[0]):  # runtime plus genre
                     runtime, genre = subtext
+                    runtime = self.transformer.transform_time_imdb(runtime)
                 else:
                     genre, release_country = subtext
                     release, country = self.transformer.split_release_and_country_imdb(release_country)
+                    release = self.transformer.transform_date_imdb(release)
             elif len(subtext) == 1:  # 3 scenarios
                 text = subtext[0]
                 if 'min' in text or 'h' in text:
                     runtime = text
+                    runtime = self.transformer.transform_time_imdb(runtime)
                 elif '(' in text:
                     release_country = text
                     release, country = self.transformer.split_release_and_country_imdb(release_country)
+                    release = self.transformer.transform_date_imdb(release)
                 elif "" == text:
                     return country, genre, rated, release, runtime, type
-
-            # clean
-            runtime = self.transformer.transform_time_imdb(runtime)
-            release = self.transformer.transform_date_imdb(release)
             return country, genre, rated, release, runtime, type
+
+    @staticmethod
+    def is_hour(input_text):
+        if 'h' in input_text:
+            try:
+                time = int(input_text.strip())
+            except ValueError:
+                return False
+            return True
+        return False
 
 
 
