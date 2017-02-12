@@ -14,12 +14,36 @@ describe('User controller test', function () {
       .expect(200)
       .end(function (err, res) {
         res.status.should.equal(200);
-        res.body.message.should.equal('User created!');
+        res.body.status.should.equal('success');
+        res.body.message.should.equal('User Created');
         user.find({where: {username: 'testname'}}).then(function (users) {
           users.validPassword('testpassword').should.equal(true);
           users.destroy();
+          done();
         });
-        done();
+      });
+  });
+
+  it('should report fail when duplicated user', function (done) {
+    user.build({email: 'song@test.com', username: 'testname', password: 'pass'})
+      .save()
+      .then(function () {
+        request(server)
+          .post('/api/users')
+          .set('Content-Type', 'application/x-www-form-urlencoded')
+          .send('username=testname')
+          .send('password=testpassword')
+          .send('email=song@test.com')
+          .expect(200)
+          .end(function (err, res) {
+            res.status.should.equal(200);
+            res.body.status.should.equal('fail');
+            res.body.message.should.equal('User Existed');
+            user.find({where: {username: 'testname'}}).then(function (users) {
+              users.destroy();
+              done();
+            });
+          });
       });
   });
 });

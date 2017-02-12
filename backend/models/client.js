@@ -38,5 +38,4 @@ var client = sequelize.define('clients', {
 );
 
 sequelize.sync({});
-
 module.exports = client;

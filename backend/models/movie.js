@@ -1,6 +1,6 @@
 // Load required packages
 var sequelize = require('./db.js');
-var DataTypes = require("sequelize");
+var DataTypes = require('sequelize');
 // Define our movie schema
 var Movie = sequelize.define('movies', {
   movie_id: {
@@ -13,7 +13,7 @@ var Movie = sequelize.define('movies', {
     allowNull: false
   },
   production_year: {
-    type: DataTypes.STRING
+    type: DataTypes.INTEGER
   },
   rated: {
     type: DataTypes.STRING
@@ -22,9 +22,9 @@ var Movie = sequelize.define('movies', {
     type: DataTypes.TEXT
   },
   actors: {
-    type: DataTypes.STRING
+    type: DataTypes.TEXT
   },
-  lanugage: {
+  language: {
     type: DataTypes.STRING
   },
   country: {
@@ -37,7 +37,7 @@ var Movie = sequelize.define('movies', {
     type: DataTypes.TEXT
   },
   released: {
-    type: DataTypes.STRING
+    type: DataTypes.DATEONLY
   },
   runtime: {
     type: DataTypes.STRING
@@ -51,6 +51,5 @@ var Movie = sequelize.define('movies', {
 });
 
 sequelize.sync({});
-
 // Export the model
 module.exports = Movie;

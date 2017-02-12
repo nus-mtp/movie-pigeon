@@ -1,32 +1,48 @@
 // Load required packages
-var Movie = require('../models/movie.js')
-
+var Movie = require('../models/movie.js');
+var PublicRate = require('../models/PublicRate.js');
+var RatingSource = require('../models/ratingSource.js');
 // Create endpoint /api/movie for GET
 exports.getMoviesByTitle = function (req, res) {
   // Use the Client model to find all clients
-  Movie.findAll({where: {title: {$like: req.headers.title}}}).then(function (movies) {
-    res.json(movies)
-  }).catch(function (err) {
-    res.send(err)
+  var title = req.headers.title;
+  var searchString = title.trim().replace(' ', '%');
+  searchString = '%' + searchString + '%';
+  Movie.findAll({
+    where: {
+      title: {$ilike: searchString}
+    },
+    include: [{
+      model: PublicRate,
+      include: [
+        RatingSource
+      ]
+    }]
   })
-}
+    .then(function (movies) {
+      res.json(movies);
+    }).catch(function (err) {}
+  );
+};
 
 // Create endpoint /api/movie for GET
 exports.getMoviesById = function (req, res) {
   // Use the Client model to find all clients
   Movie.find({where: {id: req.headers.id}}).then(function (movies) {
-    res.json(movies)
+    res.json(movies);
   }).catch(function (err) {
-    res.send(err)
-  })
-}
+      res.send(err);
+    res.send(err);
+  });
+};
 
 // Create endpoint /api/movie for GET
 exports.getMoviesByProductionYear = function (req, res) {
   // Use the Client model to find all clients
-  Movie.find({where: {productionYear: req.headers.productionYear}}).then(function (movies) {
-    res.json(movies)
-  }).catch(function (err) {
-    res.send(err)
-  })
-}
+  Movie.find({where: {productionYear: req.headers.productionYear}})
+    .then(function (movies) {
+      res.json(movies);
+    }).catch(function (err) {
+    res.send(err);
+  });
+};
