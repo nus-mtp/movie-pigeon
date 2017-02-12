@@ -4,7 +4,7 @@ import json
 import html
 import datetime
 import data.utils as utils
-
+from transformer import Transformer
 
 class Extractor:
 
@@ -29,6 +29,7 @@ class Extractor:
 
     def __init__(self, logger):
         self.logger = logger
+        self.transformer = Transformer()
 
     # ==========
     #   data
@@ -236,8 +237,8 @@ class Extractor:
                 raise Exception("Examine the output")
 
             # cleaning process
-            runtime = self.transform_time(runtime)
-            release = self.transform_date(release)
+            runtime = self.transformer.transform_time_imdb(runtime)
+            release = self.transformer.transform_date_imdb(release)
             return country, genre, rated, release, runtime, type
 
         elif "TV Series" in type_text:
@@ -254,7 +255,7 @@ class Extractor:
                 raise Exception("Examine the output")
 
             # cleaning process
-            runtime = self.transform_time(runtime)
+            runtime = self.transformer.transform_time_imdb(runtime)
             return country, genre, rated, release, runtime, type
         else:
             type = "movie"
@@ -267,63 +268,23 @@ class Extractor:
                     runtime, genre = subtext
                 else:
                     genre, release_country = subtext
-                    release, country = self.split_release_and_country(release_country)
+                    release, country = self.transformer.split_release_and_country_imdb(release_country)
             elif len(subtext) == 1:  # 3 scenarios
                 text = subtext[0]
                 if 'min' in text or 'h' in text:
                     runtime = text
                 elif '(' in text:
                     release_country = text
-                    release, country = self.split_release_and_country(release_country)
+                    release, country = self.transformer.split_release_and_country_imdb(release_country)
                 elif "" == text:
                     return country, genre, rated, release, runtime, type
 
             # clean
-            runtime = self.transform_time(runtime)
-            release = self.transform_date(release)
+            runtime = self.transformer.transform_time_imdb(runtime)
+            release = self.transformer.transform_date_imdb(release)
             return country, genre, rated, release, runtime, type
 
-    @staticmethod
-    def split_release_and_country(release_country):
-        """
-        given a string containing released date and country of a movie, return both fields
-        :param release_country: string
-        :return: string, string
-        """
-        released, country = release_country.replace(")", "").split("(")
-        released = released.strip()  # remove last white space
-        return released, country
 
-    @staticmethod
-    def transform_time(runtime):
-        """
-        given a string of time in various format from imdb, return in minutes
-        :param runtime: string
-        :return: string
-        """
-        runtime = runtime.replace(" ", "").replace("min", "")
-        if "h" in runtime:
-            [hours, minutes] = runtime.split("h")
-            if minutes == "":
-                minutes = 0
-            runtime = int(hours) * 60 + int(minutes)
-        return str(runtime)
-
-    @staticmethod
-    def transform_date(input_text):
-        """
-        given a date of string from imdb, return date in %Y-%m-%d format
-        :param input_text: string
-        :return: string
-        """
-        length_of_date = len(input_text.split(" "))
-        if length_of_date == 3:
-            input_text = datetime.datetime.strptime(input_text, '%d %B %Y').strftime('%Y-%m-%d')
-        elif length_of_date == 2:
-            input_text = datetime.datetime.strptime(input_text, '%B %Y').strftime('%Y-%m-%d')
-        elif length_of_date == 1:
-            input_text = datetime.datetime.strptime(input_text, '%Y').strftime('%Y-%m-%d')
-        return input_text
 
 
 

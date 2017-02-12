@@ -10,33 +10,46 @@ class Transformer:
     #   Movie Data
     # ==============
     @staticmethod
-    def movie_data_date(raw_date):
-        if raw_date == "N/A":
-            return None
-        production_year = datetime.datetime.strptime(raw_date, '%d %b %Y').strftime('%Y-%m-%d')
-        return production_year
+    def split_release_and_country_imdb(release_country):
+        """
+        given a string containing released date and country of a movie, return both fields
+        :param release_country: string
+        :return: string, string
+        """
+        released, country = release_country.replace(")", "").split("(")
+        released = released.strip()  # remove last white space
+        return released, country
 
     @staticmethod
-    def movie_data_rated(rating):
-        if rating == "N/A" or rating == "NOT RATED" or rating == "UNRATED":
-            return None
-        return rating
-
-    @staticmethod
-    def movie_data_runtime(runtime):
-        if runtime == "N/A":
-            return None
-        runtime = runtime.replace(" min", "")
+    def transform_time_imdb(runtime):
+        """
+        given a string of time in various format from imdb, return in minutes
+        :param runtime: string
+        :return: string
+        """
+        runtime = runtime.replace(" ", "").replace("min", "")
         if "h" in runtime:
             [hours, minutes] = runtime.split("h")
-            runtime = int(hours.rstrip()) * 60 + int(minutes.rstrip())
-        return runtime
+            if minutes == "":
+                minutes = 0
+            runtime = int(hours) * 60 + int(minutes)
+        return str(runtime)
 
     @staticmethod
-    def movie_data_na_to_none(general):
-        if general == "N/A":
-            return None
-        return general
+    def transform_date_imdb(input_text):
+        """
+        given a date of string from imdb, return date in %Y-%m-%d format
+        :param input_text: string
+        :return: string
+        """
+        length_of_date = len(input_text.split(" "))
+        if length_of_date == 3:
+            input_text = datetime.datetime.strptime(input_text, '%d %B %Y').strftime('%Y-%m-%d')
+        elif length_of_date == 2:
+            input_text = datetime.datetime.strptime(input_text, '%B %Y').strftime('%Y-%m-%d')
+        elif length_of_date == 1:
+            input_text = datetime.datetime.strptime(input_text, '%Y').strftime('%Y-%m-%d')
+        return input_text
     # ================
     #   Movie Rating
     # ================
