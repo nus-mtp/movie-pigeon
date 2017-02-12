@@ -145,6 +145,25 @@ class Extractor:
         pass
 
     # private
+    def extract_title_and_year(self, soup):
+        """
+        return title and production year of a movie
+        :param soup:
+        :return: title in string or None, production year in integer or None
+        """
+        title_wrapper = soup.find("h1").text.split("\xa0")
+        title = title_wrapper[0]
+        production_year = title_wrapper[1].replace("(", "").replace(")", "").replace(" ", "")
+        if production_year == "":
+            return None, title
+        return int(production_year), title
+
+    def extract_type(self, soup):
+        if self.is_episode(soup):
+            return "episode"
+        else:
+            return None
+
     def extract_poster(self, soup):
         """
         return the url of poster of one movie
@@ -207,6 +226,7 @@ class Extractor:
             type = "episode"
             if len(subtext) == 4:
                 rated, runtime, genre, release = subtext
+                release = release.replace("Episode aired", "")
             elif len(subtext) == 3:
                 runtime, genre, release = subtext
             elif len(subtext) == 2:
@@ -216,72 +236,71 @@ class Extractor:
                 raise Exception("Examine the output")
 
             # cleaning process
-            runtime = self.imdb_runtime_to_mins(runtime)
-            release = self.release_to_episode_release(release)
+            runtime = self.transform_time(runtime)
+            release = self.transform_date(release)
             return country, genre, rated, release, runtime, type
 
         elif "TV Series" in type_text:
             type = "tv"
-            self.logger.debug("this is tv")
-            subtext = subtext[:-1] # ignore last token
+            subtext = subtext[:-1] # ignore last token since it is a date range instaed of a date
             if len(subtext) == 3:
                 rated, runtime, genre = subtext
             elif len(subtext) == 2:
                 runtime, genre = subtext
             elif len(subtext) == 1:
-                runtime = subtext
+                runtime = subtext[0]
             else:
                 self.logger.critical(subtext, movie_id)
                 raise Exception("Examine the output")
 
             # cleaning process
-            runtime = self.imdb_runtime_to_mins(runtime)
+            runtime = self.transform_time(runtime)
             return country, genre, rated, release, runtime, type
         else:
             type = "movie"
+            if len(subtext) == 4:
+                rated, runtime, genre, release_country = subtext
+            elif len(subtext) == 3:
+                runtime, genre, release_country = subtext
+            elif len(subtext) == 2:  # 2 scenarios
+                if 'min' in subtext[0] or 'h' in subtext[0]:  # runtime plus genre
+                    runtime, genre = subtext
+                else:
+                    genre, release_country = subtext
+                    release, country = self.split_release_and_country(release_country)
+            elif len(subtext) == 1:  # 3 scenarios
+                text = subtext[0]
+                if 'min' in text or 'h' in text:
+                    runtime = text
+                elif '(' in text:
+                    release_country = text
+                    release, country = self.split_release_and_country(release_country)
+                elif "" == text:
+                    return country, genre, rated, release, runtime, type
 
+            # clean
+            runtime = self.transform_time(runtime)
+            release = self.transform_date(release)
+            return country, genre, rated, release, runtime, type
 
-        # return
-        #
-        # if len(subtext) == 3:
-        #     runtime, genre, release_country = subtext
-        # elif len(subtext) == 2:  # either runtime + genre or genre + release_country
-        #     if 'min' in subtext[0]:  # runtime plus genre
-        #         runtime, genre = subtext
-        #     else:
-        #         genre, release_country = subtext
-        # elif len(subtext) == 1:
-        #     genre = subtext[0]
-        #     release_country = None
-        # elif len(subtext) == 4:
-        #     rated, runtime, genre, release_country = subtext
-        # else:
-        #     print(subtext)
-        #     raise Exception("Examine the output")
-        #
-        # if release_country is not None:
-        #     released, country = release_country.replace(")", "").split("(")
-        #     released = released.strip()  # remove last white space
-        #     length_of_date = len(released.split(" "))
-        #     if length_of_date == 3:
-        #         released = datetime.datetime.strptime(released, '%d %B %Y').strftime('%Y-%m-%d')
-        #     elif length_of_date == 2:
-        #         released = datetime.datetime.strptime(released, '%B %Y').strftime('%Y-%m-%d')
-        #     elif length_of_date == 1:
-        #         released = datetime.datetime.strptime(released, '%Y').strftime('%Y-%m-%d')
-        # else:
-        #     released = None
-        #     country = None
-        #
-        # return country, genre, rated, released, runtime
+    @staticmethod
+    def split_release_and_country(release_country):
+        """
+        given a string containing released date and country of a movie, return both fields
+        :param release_country: string
+        :return: string, string
+        """
+        released, country = release_country.replace(")", "").split("(")
+        released = released.strip()  # remove last white space
+        return released, country
 
-    def release_to_episode_release(self, release):
-        release = release.replace("Episode aired", "").strip()  # remove last white space
-        length_of_date = len(release.split(" "))
-        release = datetime.datetime.strptime(release, '%d %B %Y').strftime('%Y-%m-%d')
-        return release
-
-    def imdb_runtime_to_mins(self, runtime):
+    @staticmethod
+    def transform_time(runtime):
+        """
+        given a string of time in various format from imdb, return in minutes
+        :param runtime: string
+        :return: string
+        """
         runtime = runtime.replace(" ", "").replace("min", "")
         if "h" in runtime:
             [hours, minutes] = runtime.split("h")
@@ -290,22 +309,22 @@ class Extractor:
             runtime = int(hours) * 60 + int(minutes)
         return str(runtime)
 
-    def extract_title_and_year(self, soup):
+    @staticmethod
+    def transform_date(input_text):
         """
-        return title and production year of a movie
-        :param soup:
-        :return: title in string or None, production year in integer or None
+        given a date of string from imdb, return date in %Y-%m-%d format
+        :param input_text: string
+        :return: string
         """
-        title_wrapper = soup.find("h1").text.split("\xa0")
-        title = title_wrapper[0]
-        production_year = title_wrapper[1].replace("(", "").replace(")", "").replace(" ", "")
-        if production_year == "":
-            return None, title
-        return int(production_year), title
+        length_of_date = len(input_text.split(" "))
+        if length_of_date == 3:
+            input_text = datetime.datetime.strptime(input_text, '%d %B %Y').strftime('%Y-%m-%d')
+        elif length_of_date == 2:
+            input_text = datetime.datetime.strptime(input_text, '%B %Y').strftime('%Y-%m-%d')
+        elif length_of_date == 1:
+            input_text = datetime.datetime.strptime(input_text, '%Y').strftime('%Y-%m-%d')
+        return input_text
 
-    def extract_type(self, soup):
-        if self.is_episode(soup):
-            return "episode"
-        else:
-            return None
+
+
 
