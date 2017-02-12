@@ -8,7 +8,7 @@ from extractor import Extractor
 
 class TestExtractor(unittest.TestCase):
 
-    test_id_list = ['tt0000001', 'tt1234567', 'tt0460648', 'tt2345678']
+    test_id_list = ['tt0000001', 'tt1234567', 'tt0460648', 'tt2345678', 'tt4346792', 'tt3107288', 'tt0395865']
 
     test_soup_list = []
 
@@ -44,8 +44,18 @@ class TestExtractor(unittest.TestCase):
     #     self.assertEqual(extractor.extract_type(self.test_soup_list[3]), "episode")
 
     def test_extract_subtext(self):
-        extractor = Extractor(None)
-        self.assertEqual(extractor.extract_subtext(self.test_soup_list[0]), ('USA', 'Documentary, Short', None, '1894-03-10', '1'))
-        self.assertEqual(extractor.extract_subtext(self.test_soup_list[1]), (None, 'Game-Show, Music, Reality-TV', None, '2008-07-02', '60'))
-        self.assertEqual(extractor.extract_subtext(self.test_soup_list[2]), (None, 'Comedy', None, '2005-01-01', '30'))
-        self.assertEqual(extractor.extract_subtext(self.test_soup_list[3]), (None, None, None, '2014-03-24', '75'))
+        extractor = Extractor(utils.initialise_test_logger())
+
+        # test movie with 2, 3, 4 subtextes
+        #self.assertEqual(extractor.extract_subtext(self.test_soup_list[0], self.test_id_list[4]), ('USA', 'Documentary, Short', None, '1894-03-10', '1'))
+
+        # test episode with 2, 3, 4 subtextes
+        # self.assertEqual(extractor.extract_subtext(self.test_soup_list[1], self.test_id_list[1]), (None, 'Game-Show, Music, Reality-TV', None, '2008-07-02', '60', 'episode'))
+        # self.assertEqual(extractor.extract_subtext(self.test_soup_list[3], self.test_id_list[3]), (None, None, None, '2004-03-24', '75', 'episode'))
+        # self.assertEqual(extractor.extract_subtext(self.test_soup_list[4], self.test_id_list[4]), (None, 'Action, Adventure, Drama', 'PG', '2015-10-06', '43', 'episode'))
+
+        # test tv with 2, 3, 4 subtextes
+        self.assertEqual(extractor.extract_subtext(self.test_soup_list[5], self.test_id_list[5]), (None, 'Action, Adventure, Drama', 'PG', None, '30', 'tv'))
+        self.assertEqual(extractor.extract_subtext(self.test_soup_list[2], self.test_id_list[2]), (None, 'Comedy', None, None, '30', 'tv'))
+        self.assertEqual(extractor.extract_subtext(self.test_soup_list[6], self.test_id_list[6]), (None, None, None, None, '75', 'tv'))
+

@@ -12,6 +12,11 @@ def initialise_logger():
     return logger
 
 
+def initialise_test_logger():
+    logger = logging.getLogger("test_logger")
+    logger.setLevel(logging.DEBUG)
+    return logger
+
 # ==============
 #   Movie Data
 # ==============
