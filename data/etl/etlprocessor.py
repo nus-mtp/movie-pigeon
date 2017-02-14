@@ -42,7 +42,6 @@ class ETLProcessor:
 
             if movie_data:
                 self.loader.load_movie_data(movie_data)
-            time.sleep(1)
 
     def updating_movie_rating(self):
         """
