@@ -291,7 +291,7 @@ class Extractor:
     def is_hour(input_text):
         if 'h' in input_text:
             try:
-                time = int(input_text.strip())
+                time = int(input_text.strip().replace("h", ""))
             except ValueError:
                 return False
             return True
