@@ -94,9 +94,6 @@ class ETLProcessor:
         movie_rating = utils.get_movie_rating_dict(rating, votes, current_movie_id, source_name)
         self.loader.load_movie_rating(movie_rating)
 
-
-
-
 # ==================
 #   run main logic
 # ==================

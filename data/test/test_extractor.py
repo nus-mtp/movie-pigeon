@@ -22,32 +22,48 @@ class TestExtractor(unittest.TestCase):
     def test_extract_title_and_year(self):
         extractor = Extractor(None)
         self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[0])), (1894, 'Carmencita'))
-        self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[1])), (None, 'The Top 14 Perform'))
-        self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[2])), (None, 'Hot Properties'))
-        self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[3])), (None, 'Episode dated 24 March 2004'))
+        self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[1])),
+                         (None, 'The Top 14 Perform'))
+        self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[2])),
+                         (None, 'Hot Properties'))
+        self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[3])),
+                         (None, 'Episode dated 24 March 2004'))
         self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[7])), (2016, 'La La Land'))
 
     def test_extract_subtext(self):
         extractor = Extractor(utils.initialise_test_logger())
 
         # test movie with 2, 3, 4 subtextes
-        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[0]), self.test_id_list[0]), ('USA', 'Documentary, Short', None, '1894-03-10', '1', 'movie'))
-        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[7]), self.test_id_list[7]), ('Singapore', 'Comedy, Drama, Musical', 'PG13', '2016-12-08', '128', 'movie'))
-        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[8]), self.test_id_list[8]), ('France', 'Animation, Short', None, '1892-10-28', None, 'movie'))
-        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[9]), self.test_id_list[8]), (None, 'Short, Sport', None, None, '1', 'movie'))
-        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[10]), self.test_id_list[8]), (None, None, None, None, '100', 'movie'))
-        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[11]), self.test_id_list[8]), ('Germany', None, None, '1913-01-10', None, 'movie'))
-        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[12]), self.test_id_list[8]), (None, None, None, None, None, 'movie'))
+        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[0]), self.test_id_list[0]),
+                         ('USA', 'Documentary, Short', None, '1894-03-10', '1', 'movie'))
+        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[7]), self.test_id_list[7]),
+                         ('Singapore', 'Comedy, Drama, Musical', 'PG13', '2016-12-08', '128', 'movie'))
+        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[8]), self.test_id_list[8]),
+                         ('France', 'Animation, Short', None, '1892-10-28', None, 'movie'))
+        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[9]), self.test_id_list[8]),
+                         (None, 'Short, Sport', None, None, '1', 'movie'))
+        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[10]), self.test_id_list[8]),
+                         (None, None, None, None, '100', 'movie'))
+        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[11]), self.test_id_list[8]),
+                         ('Germany', None, None, '1913-01-10', None, 'movie'))
+        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[12]), self.test_id_list[8]),
+                         (None, None, None, None, None, 'movie'))
 
         # test episode with 2, 3, 4 subtextes
-        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[1]), self.test_id_list[8]), (None, 'Game-Show, Music, Reality-TV', None, '2008-07-02', '60', 'episode'))
-        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[3]), self.test_id_list[8]), (None, None, None, '2004-03-24', '75', 'episode'))
-        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[4]), self.test_id_list[8]), (None, 'Action, Adventure, Drama', 'PG', '2015-10-06', '43', 'episode'))
+        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[1]), self.test_id_list[8]),
+                         (None, 'Game-Show, Music, Reality-TV', None, '2008-07-02', '60', 'episode'))
+        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[3]), self.test_id_list[8]),
+                         (None, None, None, '2004-03-24', '75', 'episode'))
+        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[4]), self.test_id_list[8]),
+                         (None, 'Action, Adventure, Drama', 'PG', '2015-10-06', '43', 'episode'))
 
         # test tv with 2, 3, 4 subtextes
-        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[5]), self.test_id_list[8]), (None, 'Action, Adventure, Drama', 'PG', None, '43', 'tv'))
-        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[2]), self.test_id_list[8]), (None, 'Comedy', None, None, '30', 'tv'))
-        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[6]), self.test_id_list[8]), (None, None, None, None, '75', 'tv'))
+        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[5]), self.test_id_list[8]),
+                         (None, 'Action, Adventure, Drama', 'PG', None, '43', 'tv'))
+        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[2]), self.test_id_list[8]),
+                         (None, 'Comedy', None, None, '30', 'tv'))
+        self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[6]), self.test_id_list[8]),
+                         (None, None, None, None, '75', 'tv'))
 
     def build_soup(self, test_id):
         url = self.imdb_url_format.format(test_id)

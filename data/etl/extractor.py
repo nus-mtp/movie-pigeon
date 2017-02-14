@@ -6,6 +6,7 @@ import datetime
 import data.utils as utils
 from transformer import Transformer
 
+
 class Extractor:
 
     trakt_header = {
@@ -49,9 +50,8 @@ class Extractor:
             return False
 
         soup = BeautifulSoup(request_result, "lxml")  # soup builder
-        type = self.extract_type(soup)
         production_year, title = self.extract_title_and_year(soup)
-        country, genre, rated, released, runtime = self.extract_subtext(soup, movie_id)
+        country, genre, rated, released, runtime, type = self.extract_subtext(soup, movie_id)
         plot = self.extract_plot(soup)
         actor, director = self.extract_credits(soup)
         poster_url = self.extract_poster(soup)
@@ -272,7 +272,7 @@ class Extractor:
                     release = self.transformer.transform_date_imdb(release)
             elif len(subtext) == 1:  # 3 scenarios
                 text = subtext[0]
-                if 'min' in text or 'h' in text:
+                if 'min' in text or self.is_hour(text):
                     runtime = text
                     runtime = self.transformer.transform_time_imdb(runtime)
                 elif '(' in text:
