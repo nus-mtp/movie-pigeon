@@ -1,5 +1,5 @@
 // Load required packages
-var Rate = require('../models/history.js');
+var rate = require('../models/history.js');
 
 // Create endpoint /api/ratings for POST
 exports.postRates = function (req, res) {
@@ -7,23 +7,33 @@ exports.postRates = function (req, res) {
   var score = req.body.score;
   var userId = req.user.id;
 
-  Rate.find({
+  rate.find({
     where: {
       movie_id: movieId,
       user_id: userId
     }
-  }).then(function (rate) {
-    if (rate) {
-      rate.updateAttributes({
+  }).then(function (ratings) {
+    if (ratings) {
+      ratings.updateAttributes({
         score: score
       }).then(function () {
-        return res.json({status: 'success', message: 'Ratings Updated'});
+        return res.json({
+          status: 'success',
+          message: 'Ratings Updated'
+        });
       });
     } else {
       // Save the rating and check for errors
-      Rate.build({score: score, movie_id: movieId, user_id: userId})
+      rate.build({
+        score: score,
+        movie_id: movieId,
+        user_id: userId
+      })
         .save().then(function (success) {
-        res.json({status: 'success', message: 'Ratings Posted!'});
+        res.json({
+          status: 'success',
+          message: 'Ratings Posted!'
+        });
       });
     }
   });
@@ -32,7 +42,12 @@ exports.postRates = function (req, res) {
 // Create endpoint /api/ratings for GET
 exports.getRates = function (req, res) {
   // Use the Ratings model to find all clients
-  Rate.findAll({where: {user_id: req.user.id}}).then(function (ratings) {
-    res.json(ratings);
-  });
+  rate.findAll({
+    where: {
+      user_id: req.user.id
+    }
+  })
+    .then(function (ratings) {
+      res.json(ratings);
+    });
 };
