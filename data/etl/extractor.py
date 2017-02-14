@@ -184,11 +184,11 @@ class Extractor:
         for item in credits_text:
             current_text = item.text
             if "Directors:" in current_text:
-                director = current_text.replace("Directors:", "").replace("\n", "").replace("  ", "")
+                director = current_text.replace("Directors:", "").split("|")[0].replace("\n", "").replace("  ", "").strip()
             elif "Director:" in current_text:
                 director = current_text.replace("Director:", "").strip()
             elif "Stars" in current_text:
-                actor = current_text.replace("Stars:", "").split("|")[0].replace("\n", "").replace("  ", "")
+                actor = current_text.replace("Stars:", "").split("|")[0].replace("\n", "").replace("  ", "").strip()
             elif "Star" in current_text:
                 actor = current_text.replace("Star:", "").strip()
         return actor, director

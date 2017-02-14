@@ -10,7 +10,7 @@ class TestExtractor(unittest.TestCase):
 
     test_id_list = ['tt0000001', 'tt1234567', 'tt0460648', 'tt2345678', 'tt4346792', 'tt3107288', 'tt0395865',
                     'tt3783958', 'tt0000004', 'tt0000007', 'tt0000502', 'tt0001304', 'tt0000869', 'tt0000019',
-                    'tt0000025']
+                    'tt0000025', 'tt0010781']
 
     imdb_url_format = "http://www.imdb.com/title/{}/"
 
@@ -34,16 +34,44 @@ class TestExtractor(unittest.TestCase):
     #                      (None, 'Episode dated 24 March 2004'))
     #     self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[7])), (2016, 'La La Land'))
 
-    def test_extract_poster(self):
+    # def test_extract_poster(self):
+    #     extractor = Extractor(None)
+    #     self.assertEqual(extractor.extract_poster(self.build_soup(self.test_id_list[0])),
+    #                      "https://images-na.ssl-images-amazon.com/"
+    #                      "images/M/MV5BMjAzNDEwMzk3OV5BMl5BanBnXkFtZTcwOTk4OTM5Ng@@._V1_UY268_CR6,0,182,268_AL_.jpg")
+    #     self.assertEqual(extractor.extract_poster(self.build_soup(self.test_id_list[1])),
+    #                      "https://images-na.ssl-images-amazon.com/"
+    #                      "images/M/MV5BMTMxMjU0MTMxMl5BMl5BanBnXkFtZTcwNjY4Mjc3MQ@@._V1_UY268_CR2,0,182,268_AL_.jpg")
+    #     self.assertEqual(extractor.extract_poster(self.build_soup(self.test_id_list[13])), None)
+    #     self.assertEqual(extractor.extract_poster(self.build_soup(self.test_id_list[14])), None)
+
+    def test_extract_credits(self):
         extractor = Extractor(None)
-        self.assertEqual(extractor.extract_poster(self.build_soup(self.test_id_list[0])),
-                         "https://images-na.ssl-images-amazon.com/"
-                         "images/M/MV5BMjAzNDEwMzk3OV5BMl5BanBnXkFtZTcwOTk4OTM5Ng@@._V1_UY268_CR6,0,182,268_AL_.jpg")
-        self.assertEqual(extractor.extract_poster(self.build_soup(self.test_id_list[1])),
-                         "https://images-na.ssl-images-amazon.com/"
-                         "images/M/MV5BMTMxMjU0MTMxMl5BMl5BanBnXkFtZTcwNjY4Mjc3MQ@@._V1_UY268_CR2,0,182,268_AL_.jpg")
-        self.assertEqual(extractor.extract_poster(self.build_soup(self.test_id_list[13])), None)
-        self.assertEqual(extractor.extract_poster(self.build_soup(self.test_id_list[14])), None)
+        # None, None
+        # None, Director
+        # None, Directors
+        # Actor, None
+        self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[3])),
+                         ("Agustín Bravo", None))
+        # Actors, None
+        self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[5])),
+                         ("Grant Gustin, Candice Patton, Danielle Panabaker", None))
+        # Actor, Director
+        self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[0])),
+                         ("Carmencita", "William K.L. Dickson"))
+        # Actors, Director
+        self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[1])),
+                         ("Joshua Allen, Stephen Boss, Cat Deeley", "Don Weiner"))
+        # Actor, Directors
+        # Actors, Directors
+        self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[15])),
+                         ("Ruth Roland, George Larkin, Mark Strong", "Robert Ellis, Louis J. Gasnier"))
+
+
+
+
+        self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[8])), (None, "Émile Reynaud"))
+
 
     # def test_extract_subtext(self):
     #     extractor = Extractor(utils.initialise_test_logger())
