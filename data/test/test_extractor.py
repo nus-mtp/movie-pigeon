@@ -10,7 +10,7 @@ class TestExtractor(unittest.TestCase):
 
     test_id_list = ['tt0000001', 'tt1234567', 'tt0460648', 'tt2345678', 'tt4346792', 'tt3107288', 'tt0395865',
                     'tt3783958', 'tt0000004', 'tt0000007', 'tt0000502', 'tt0001304', 'tt0000869', 'tt0000019',
-                    'tt0000025', 'tt0010781']
+                    'tt0000025', 'tt0010781', 'tt0000481', 'tt0000012', 'tt0000399']
 
     imdb_url_format = "http://www.imdb.com/title/{}/"
 
@@ -47,9 +47,16 @@ class TestExtractor(unittest.TestCase):
 
     def test_extract_credits(self):
         extractor = Extractor(None)
+
         # None, None
+        self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[16])),
+                         (None, None))
         # None, Director
+        self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[14])),
+                         (None, "Birt Acres"))
         # None, Directors
+        self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[17])),
+                         (None, "Auguste Lumière, Louis Lumière"))
         # Actor, None
         self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[3])),
                          ("Agustín Bravo", None))
@@ -63,15 +70,11 @@ class TestExtractor(unittest.TestCase):
         self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[1])),
                          ("Joshua Allen, Stephen Boss, Cat Deeley", "Don Weiner"))
         # Actor, Directors
+        self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[18])),
+                         ("Thomas White", "George S. Fleming, Edwin S. Porter"))
         # Actors, Directors
         self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[15])),
                          ("Ruth Roland, George Larkin, Mark Strong", "Robert Ellis, Louis J. Gasnier"))
-
-
-
-
-        self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[8])), (None, "Émile Reynaud"))
-
 
     # def test_extract_subtext(self):
     #     extractor = Extractor(utils.initialise_test_logger())
