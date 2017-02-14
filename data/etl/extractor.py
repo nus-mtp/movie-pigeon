@@ -281,6 +281,10 @@ class Extractor:
                     release = self.transformer.transform_date_imdb(release)
                 elif "" == text:
                     return country, genre, rated, release, runtime, type
+                else:
+                    genre = text
+                    return country, genre, rated, release, runtime, type
+
             return country, genre, rated, release, runtime, type
 
     @staticmethod
