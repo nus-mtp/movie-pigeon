@@ -263,7 +263,7 @@ class Extractor:
                 release, country = self.transformer.split_release_and_country_imdb(release_country)
                 release = self.transformer.transform_date_imdb(release)
             elif len(subtext) == 2:  # 2 scenarios
-                if 'min' in subtext[0] or self.is_hour(subtext[0]):  # runtime plus genre
+                if 'min' in subtext[0] or self.transformer.is_hour(subtext[0]):  # runtime plus genre
                     runtime, genre = subtext
                     runtime = self.transformer.transform_time_imdb(runtime)
                 else:
@@ -272,7 +272,7 @@ class Extractor:
                     release = self.transformer.transform_date_imdb(release)
             elif len(subtext) == 1:  # 3 scenarios
                 text = subtext[0]
-                if 'min' in text or self.is_hour(text):
+                if 'min' in text or self.transformer.is_hour(text):
                     runtime = text
                     runtime = self.transformer.transform_time_imdb(runtime)
                 elif '(' in text:
@@ -287,15 +287,7 @@ class Extractor:
 
             return country, genre, rated, release, runtime, type
 
-    @staticmethod
-    def is_hour(input_text):
-        if 'h' in input_text:
-            try:
-                time = int(input_text.strip().replace("h", ""))
-            except ValueError:
-                return False
-            return True
-        return False
+
 
 
 
