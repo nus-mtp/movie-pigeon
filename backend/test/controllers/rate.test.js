@@ -3,7 +3,7 @@ var request = require('supertest');
 var should = require('should');
 var movie = require('../../models/movie.js');
 var user = require('../../models/user.js');
-var rate = require('../../models/rate.js');
+var rate = require('../../models/history.js');
 var crypto = require('crypto');
 
 describe('Rate controller test', function () {
@@ -50,32 +50,109 @@ describe('Rate controller test', function () {
 
   it('should post a rate to the db', function (done) {
     request(server)
-      .post('/api/movies/title')
+      .post('/api/ratings')
       .set('Content-Type', 'application/x-www-form-urlencoded')
       .auth('testemailmovietest', 'pass')
-      .send('movie_id', 'test000001')
-      .send('score', '4.5')
+      .send('movieId=test000001')
+      .send('score=4.5')
       .expect(200)
       .end(function (err, res) {
         res.status.should.equal(200);
         res.body.status.should.equal('success');
         res.body.message.should.equal('Ratings Posted!');
-        user.find({
+        rate.find({
           where: {
-            email: 'testemailmovietest'
+            movie_id: 'test000001'
           }
         })
-          .then(function (users) {
-            rate.find({
-              where: {
-                movie_id: 'test000001',
-                user_id: users.id
-              }
-            })
-              .then(function (rating) {
-                rating.score.should.equal(4.5);
-              });
+          .then(function (rating) {
+            rating.score.should.equal(4.5);
+            done();
           });
+      });
+  });
+
+  it('should update a rate to the db', function (done) {
+    request(server)
+      .post('/api/ratings')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .auth('testemailmovietest', 'pass')
+      .send('movieId=test000001')
+      .send('score=7.9')
+      .expect(200)
+      .end(function (err, res) {
+        res.status.should.equal(200);
+        res.body.status.should.equal('success');
+        res.body.message.should.equal('Ratings Updated');
+        rate.find({
+          where: {
+            movie_id: 'test000001'
+          }
+        })
+          .then(function (rating) {
+            rating.score.should.equal(7.9);
+            done();
+          });
+      });
+  });
+
+  it('should report fail for score out of range', function (done) {
+    request(server)
+      .post('/api/ratings')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .auth('testemailmovietest', 'pass')
+      .send('movieId=test000001')
+      .send('score=-1')
+      .expect(200)
+      .end(function (err, res) {
+        res.status.should.equal(200);
+        res.body.status.should.equal('fail');
+        res.body.message.should.equal('Invalid Score');
+      });
+
+    request(server)
+      .post('/api/ratings')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .auth('testemailmovietest', 'pass')
+      .send('movieId=test000001')
+      .send('score=10.3')
+      .expect(200)
+      .end(function (err, res) {
+        res.status.should.equal(200);
+        res.body.status.should.equal('fail');
+        res.body.message.should.equal('Invalid Score');
+        done();
+      });
+  });
+
+  it('should report fail when score is not float num', function (done) {
+    request(server)
+      .post('/api/ratings')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .auth('testemailmovietest', 'pass')
+      .send('movieId=test000001')
+      .send('score=abcde')
+      .expect(200)
+      .end(function (err, res) {
+        res.status.should.equal(200);
+        res.body.status.should.equal('fail');
+        res.body.message.should.equal('Invalid Score');
+        done();
+      });
+  });
+
+  it('should report fail when movieId is invalid', function (done) {
+    request(server)
+      .post('/api/ratings')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .auth('testemailmovietest', 'pass')
+      .send('movieId=randommovieId')
+      .send('score=1.5')
+      .expect(200)
+      .end(function (err, res) {
+        res.status.should.equal(200);
+        res.body.status.should.equal('fail');
+        res.body.message.should.equal('Invalid MovieId');
         done();
       });
   });
