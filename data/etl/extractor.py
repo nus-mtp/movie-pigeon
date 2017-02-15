@@ -220,7 +220,7 @@ class Extractor:
             type = "episode"
             if len(subtext) == 4:
                 rated, runtime, genre, release = subtext
-                release = release.replace("Episode aired", "")
+                release = release.replace("Episode aired", "").strip()
             elif len(subtext) == 3:
                 runtime, genre, release = subtext
             elif len(subtext) == 2:
@@ -250,6 +250,23 @@ class Extractor:
             # cleaning process
             runtime = self.transformer.transform_time_imdb(runtime)
             return country, genre, rated, release, runtime, type
+        elif "TV Movie" in type_text:
+            type = "tv-movie"
+            if len(subtext) == 4:
+                rated, runtime, genre, release = subtext
+            elif len(subtext) == 3:
+                runtime, genre, release = subtext
+            elif len(subtext) == 2:
+                runtime, release = subtext
+            else:
+                self.logger.critical(subtext, movie_id)
+                raise Exception("Examine the output")
+
+            # cleaning process
+            runtime = self.transformer.transform_time_imdb(runtime)
+            release = self.transformer.transform_date_imdb(release.replace("TV Movie", "").strip())
+            return country, genre, rated, release, runtime, type
+
         else:
             type = "movie"
             if len(subtext) == 4:
@@ -264,7 +281,15 @@ class Extractor:
                 release = self.transformer.transform_date_imdb(release)
             elif len(subtext) == 2:  # 2 scenarios
                 if 'min' in subtext[0] or self.transformer.is_hour(subtext[0]):  # runtime plus genre
-                    runtime, genre = subtext
+                    if "(" in subtext[1]:
+                        runtime, release_country = subtext
+                        release, country = self.transformer.split_release_and_country_imdb(release_country)
+                        release = self.transformer.transform_date_imdb(release)
+                    else:
+                        runtime, genre = subtext
+                    runtime = self.transformer.transform_time_imdb(runtime)
+                elif 'min' in subtext[1] or self.transformer.is_hour(subtext[1]):
+                    rated, runtime = subtext
                     runtime = self.transformer.transform_time_imdb(runtime)
                 else:
                     genre, release_country = subtext
