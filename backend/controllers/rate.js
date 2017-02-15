@@ -5,10 +5,10 @@ var movie = require('../models/movie.js');
 // Create endpoint /api/ratings for POST
 exports.postRates = function (req, res) {
   var movieId = req.body.movieId;
-  var score = req.body.score;
+  var score = parseFloat(req.body.score) || -1;
   var userId = req.user.id;
 
-  if (parseFloat(score) <0 || parseFloat(score) >10) {
+  if (score <0 || score >10) {
     res.json({status: 'fail', message: 'Invalid Score'});
     return;
   }
