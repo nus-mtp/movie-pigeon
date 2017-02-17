@@ -2,7 +2,7 @@
 .idea/
 
 # config file and various api keys
-config.py
+data/config.py
 
 # python compiles
 data/__pycache__/
@@ -10,3 +10,6 @@ data/etl/__pycache__/
 
 # log file
 data/etl/general.log
+
+# DS store
+data/.DS_Store
