@@ -20,19 +20,7 @@ class TestExtractor(unittest.TestCase):
     # ============
     #  Main tests
     # ============
-    # def test_extract_title_and_year(self):
-    #     """
-    #     :return: integer!, string!
-    #     """
-    #     extractor = Extractor(None)
-    #     self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[0])), (1894, 'Carmencita'))
-    #     self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[1])),
-    #                      (None, 'The Top 14 Perform'))
-    #     self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[2])),
-    #                      (None, 'Hot Properties'))
-    #     self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[3])),
-    #                      (None, 'Episode dated 24 March 2004'))
-    #     self.assertEqual(extractor.extract_title_and_year(self.build_soup(self.test_id_list[7])), (2016, 'La La Land'))
+    #
 
     # def test_extract_poster(self):
     #     extractor = Extractor(None)

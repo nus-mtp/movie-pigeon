@@ -8,10 +8,10 @@ import time
 
 class ETLProcessor:
     """
-    Core object of this etl framework. Logic of each main process listed below are included:
-    1. update movie data
-    2. update movie public rating
-    3. update movie data in public theatres of Singapore
+        Core object of this etl framework. Logic of each main process listed below are included:
+        1. update movie data
+        2. update movie public rating
+        3. update movie data in public theatres of Singapore
     """
 
     def __init__(self):
@@ -24,20 +24,17 @@ class ETLProcessor:
 
     def retrieve_movie_data(self):
         """
-        updates movie data from databases (potentially more than one source)
-        it is a one time process, i.e. data will not be updated constantly
+            updates movie data from databases (potentially more than one source)
+            it is a one time process, i.e. data will not be updated constantly
         """
         self.logger.info("Initialise movie data retrieval process ...")
-
         existing_movies_id = self.loader.get_movie_id_list()
-        logging.info("Initiating movie data extraction process...")
 
         for index in range(1, 9999999):  # iterate all possible titles
             imdb_id = utils.imdb_id_builder(index)
-
             if imdb_id in existing_movies_id:
                 continue
-
+            # soup
             movie_data = self.extractor.extract_imdb_data(imdb_id)
 
             if movie_data:

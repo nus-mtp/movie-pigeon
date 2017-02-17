@@ -215,7 +215,6 @@ class Extractor:
         # print(soup.find("time")['datetime'] alternative to find time
         subtext = soup.find("div", {"class": "subtext"}).text.replace("\n", "").strip().split("|")  # unpack subtext
         type_text = subtext[-1]  # type inference
-
         if "Episode aired" in type_text:
             type = "episode"
             if len(subtext) == 4:
@@ -258,13 +257,16 @@ class Extractor:
                 runtime, genre, release = subtext
             elif len(subtext) == 2:
                 runtime, release = subtext
+            elif len(subtext) == 1:
+                release = subtext[0]
             else:
                 self.logger.critical(subtext, movie_id)
                 raise Exception("Examine the output")
-
             # cleaning process
-            runtime = self.transformer.transform_time_imdb(runtime)
-            release = self.transformer.transform_date_imdb(release.replace("TV Movie", "").strip())
+            if runtime is not None:
+                runtime = self.transformer.transform_time_imdb(runtime)
+            if release is not None:
+                release = self.transformer.transform_date_imdb(release.replace("TV Movie", "").strip())
             return country, genre, rated, release, runtime, type
 
         else:

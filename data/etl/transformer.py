@@ -48,7 +48,10 @@ class Transformer:
         elif length_of_date == 2:
             input_text = datetime.datetime.strptime(input_text, '%B %Y').strftime('%Y-%m-%d')
         elif length_of_date == 1:
-            input_text = datetime.datetime.strptime(input_text, '%Y').strftime('%Y-%m-%d')
+            if input_text == "":
+                return None
+            else:
+                input_text = datetime.datetime.strptime(input_text, '%Y').strftime('%Y-%m-%d')
         return input_text
     # ================
     #   Movie Rating
