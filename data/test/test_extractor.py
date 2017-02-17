@@ -60,22 +60,6 @@ class TestExtractor(unittest.TestCase):
     #     self.assertEqual(extractor.extract_subtext(self.build_soup(self.test_id_list[6]), self.test_id_list[8]),
     #                      (None, None, None, None, '75', 'tv'))
 
-    # def test_extract_plot(self):
-    #     extractor = Extractor(None)
-    #     # complete plot
-    #     self.assertEqual(extractor.extract_plot(self.build_soup(self.test_id_list[0])),
-    #                      "Performing on what looks like a small wooden stage, wearing a dress with a hoop skirt and "
-    #                      "white high-heeled pumps, Carmencita does a dance with kicks and twirls, a smile always on "
-    #                      "her face.")
-    #
-    #     # incomplete plot
-    #     self.assertEqual(extractor.extract_plot(self.build_soup(self.test_id_list[1])),
-    #                      "Host Cat Deeley promised at the outset that the final 14 dancers will face some changes and"
-    #                      " the competition would get more difficult for the final seven couples...")
-    #
-    #     # none plot
-    #     self.assertEqual(extractor.extract_plot(self.build_soup(self.test_id_list[3])), None)
-
     def build_soup(self, test_id):
         url = self.imdb_url_format.format(test_id)
         request_result = request.urlopen(url).read().decode("utf-8")

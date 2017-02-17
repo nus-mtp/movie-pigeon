@@ -78,6 +78,19 @@ class TestIMDbSoup(unittest.TestCase):
     #     self.assertEqual(IMDbSoup(self.test_id_list[15]).extract_credits(),
     #                      ("Ruth Roland, George Larkin, Mark Strong", "Robert Ellis, Louis J. Gasnier"))
 
-
+    # def test_extract_plot(self):
+    #     # complete plot
+    #     self.assertEqual(IMDbSoup(self.test_id_list[0]).extract_plot(),
+    #                      "Performing on what looks like a small wooden stage, wearing a dress with a hoop skirt and "
+    #                      "white high-heeled pumps, Carmencita does a dance with kicks and twirls, a smile always on "
+    #                      "her face.")
+    #
+    #     # incomplete plot
+    #     self.assertEqual(IMDbSoup(self.test_id_list[1]).extract_plot(),
+    #                      "Host Cat Deeley promised at the outset that the final 14 dancers will face some changes and"
+    #                      " the competition would get more difficult for the final seven couples...")
+    #
+    #     # none plot
+    #     self.assertEqual(IMDbSoup(self.test_id_list[3]).extract_plot(), None)
 
 

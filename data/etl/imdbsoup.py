@@ -27,6 +27,11 @@ class IMDbSoup:
         self.imdb_id = imdb_id
         self.soup = self.build_soup(self.imdb_id)
 
+        # main logic of extraction
+        self.extract_title_and_year()
+        self.extract_poster()
+        self.extract_credits()
+
     def build_soup(self, test_id):
         url = self.IMDB_URL_FORMAT.format(test_id)
         request_result = html.unescape(request.urlopen(url).read().decode("utf-8"))
@@ -86,5 +91,14 @@ class IMDbSoup:
                 self.actors = current_text.replace("Star:", "").strip()
         return self.actors, self.director
 
+    def extract_plot(self):
+        """
+        return the plot of one movie
+        :return: plot in string format or None
+        """
+        self.plot = self.soup.find("div", {"class": "summary_text"}).text.replace("\n", "").strip().split("    ")[0]
+        if "Add a Plot" in self.plot:
+            self.plot = None
+        return self.plot
 
 

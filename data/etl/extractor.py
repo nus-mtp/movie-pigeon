@@ -148,16 +148,6 @@ class Extractor:
 
 
 
-    def extract_plot(self, soup):
-        """
-        return the plot of one movie
-        :param soup:
-        :return: plot in string format or None
-        """
-        plot = soup.find("div", {"class": "summary_text"}).text.replace("\n", "").strip().split("    ")[0]
-        if "Add a Plot" in plot:
-            plot = None
-        return plot
 
     def extract_subtext(self, soup, movie_id):
         """
