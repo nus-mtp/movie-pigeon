@@ -10,7 +10,8 @@ class TestIMDbSoup(unittest.TestCase):
 
     test_id_list = ['tt0000001', 'tt1234567', 'tt0460648', 'tt2345678', 'tt4346792', 'tt3107288', 'tt0395865',
                     'tt3783958', 'tt0000004', 'tt0000007', 'tt0000502', 'tt0001304', 'tt0000869', 'tt0000019',
-                    'tt0000025', 'tt0010781', 'tt0000481', 'tt0000012', 'tt0000399']
+                    'tt0000025', 'tt0010781', 'tt0000481', 'tt0000012', 'tt0000399', 'tt0039624', 'tt0030298',
+                    'tt0039445']
 
     def __init__(self, *args, **kwargs):
         super(TestIMDbSoup, self).__init__(*args, **kwargs)
@@ -93,4 +94,32 @@ class TestIMDbSoup(unittest.TestCase):
     #     # none plot
     #     self.assertEqual(IMDbSoup(self.test_id_list[3]).extract_plot(), None)
 
+    # def test_extract(self):
+    #     self.assertEqual(IMDbSoup(self.test_id_list[4]).extract_rated(), "PG")
+    #     self.assertEqual(IMDbSoup(self.test_id_list[0]).extract_rated(), None)
+
+    # def test_extract_release(self):
+    #     # episodes
+    #     self.assertEqual(IMDbSoup(self.test_id_list[1]).extract_release(), ('2008-07-02', None, 'episode'))
+    #     self.assertEqual(IMDbSoup(self.test_id_list[3]).extract_release(), ('2004-03-24', None, 'episode'))
+    #     self.assertEqual(IMDbSoup(self.test_id_list[4]).extract_release(), ('2015-10-06', None, 'episode'))
+    #
+    #     # tv
+    #     self.assertEqual(IMDbSoup(self.test_id_list[2]).extract_release(), (None, None, 'tv'))
+    #     self.assertEqual(IMDbSoup(self.test_id_list[5]).extract_release(), (None, None, 'tv'))
+    #     self.assertEqual(IMDbSoup(self.test_id_list[6]).extract_release(), (None, None, 'tv'))
+    #
+    #     # # movies
+    #     self.assertEqual(IMDbSoup(self.test_id_list[0]).extract_release(), ('1894-03-10', 'USA', 'movie'))
+    #     self.assertEqual(IMDbSoup(self.test_id_list[7]).extract_release(), ('2016-12-08', 'Singapore', 'movie'))
+    #     self.assertEqual(IMDbSoup(self.test_id_list[8]).extract_release(), ('1892-10-28', 'France', 'movie'))
+    #     self.assertEqual(IMDbSoup(self.test_id_list[9]).extract_release(), (None, None, 'movie'))
+    #     self.assertEqual(IMDbSoup(self.test_id_list[10]).extract_release(), (None, None, 'movie'))
+    #     self.assertEqual(IMDbSoup(self.test_id_list[11]).extract_release(), ('1913-01-10', 'Germany', 'movie'))
+    #     self.assertEqual(IMDbSoup(self.test_id_list[12]).extract_release(), (None, None, 'movie'))
+    #
+    #     # tv-movies
+    #     self.assertEqual(IMDbSoup(self.test_id_list[19]).extract_release(), (None, None, 'tv-movie'))
+    #     self.assertEqual(IMDbSoup(self.test_id_list[20]).extract_release(), ('1938-07-24', None, 'tv-movie'))
+    #     self.assertEqual(IMDbSoup(self.test_id_list[21]).extract_release(), ('1947-12-09', None, 'tv-movie'))
 

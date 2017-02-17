@@ -23,8 +23,6 @@ class TestExtractor(unittest.TestCase):
     #
 
 
-
-
     # def test_extract_subtext(self):
     #     extractor = Extractor(utils.initialise_test_logger())
     #

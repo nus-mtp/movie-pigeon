@@ -22,6 +22,7 @@ class IMDbSoup:
     runtime = None
     director = None
     type = None
+    subtext = None
 
     def __init__(self, imdb_id):
         self.imdb_id = imdb_id
@@ -31,6 +32,7 @@ class IMDbSoup:
         self.extract_title_and_year()
         self.extract_poster()
         self.extract_credits()
+        self.extract_subtext()
 
     def build_soup(self, test_id):
         url = self.IMDB_URL_FORMAT.format(test_id)
@@ -101,4 +103,43 @@ class IMDbSoup:
             self.plot = None
         return self.plot
 
+    def extract_rated(self):
+        """
+        return the rating of a movie
+        :return:
+        """
+        metas = self.subtext.find_all("meta")
+        for meta in metas:
+            if meta['itemprop'] == "contentRating":
+                self.rated = meta['content']
+        return self.rated
 
+    def extract_subtext(self):
+        self.subtext = self.soup.find("div", {"class": "subtext"})
+
+    def extract_release(self):
+        self.type = 'movie'  # default movie type
+        anchors = self.subtext.find_all("a")
+        for anchor in anchors:
+            if anchor.has_attr('title'):
+                release_text = anchor.text
+                if "Episode aired" in release_text:
+                    self.type = "episode"
+                    release_text = release_text.replace("Episode aired", "")
+                    release_text = release_text.replace("\n", "")
+                    release_text = release_text.strip()
+                    self.released = utils.transform_date_imdb(release_text)
+                elif "TV Series" in release_text:
+                    self.type = "tv"
+                elif "TV Movie" in release_text:
+                    self.type = "tv-movie"
+                    release_text = release_text.replace("TV Movie", "")
+                    release_text = release_text.replace("\n", "")
+                    release_text = release_text.strip()
+                    self.released = utils.transform_date_imdb(release_text)
+                else:
+                    release_text = release_text.replace("\n", "")
+                    release_text = release_text.strip()
+                    self.released, self.country = utils.split_release_and_country_imdb(release_text)
+                    self.released = utils.transform_date_imdb(self.released)
+        return self.released, self.country, self.type

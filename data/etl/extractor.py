@@ -145,10 +145,6 @@ class Extractor:
     #   private
     # ===========
 
-
-
-
-
     def extract_subtext(self, soup, movie_id):
         """
         return the rating, run time, genre, release date and country of origin of a movie
