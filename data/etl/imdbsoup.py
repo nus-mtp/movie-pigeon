@@ -32,7 +32,12 @@ class IMDbSoup:
         self.extract_title_and_year()
         self.extract_poster()
         self.extract_credits()
+        self.extract_plot()
         self.extract_subtext()
+        self.extract_rated()
+        self.extract_genre()
+        self.extract_release()
+        self.extract_runtime()
 
     def build_soup(self, test_id):
         url = self.IMDB_URL_FORMAT.format(test_id)
@@ -103,6 +108,9 @@ class IMDbSoup:
             self.plot = None
         return self.plot
 
+    def extract_subtext(self):
+        self.subtext = self.soup.find("div", {"class": "subtext"})
+
     def extract_rated(self):
         """
         return the rating of a movie
@@ -113,9 +121,6 @@ class IMDbSoup:
             if meta['itemprop'] == "contentRating":
                 self.rated = meta['content']
         return self.rated
-
-    def extract_subtext(self):
-        self.subtext = self.soup.find("div", {"class": "subtext"})
 
     def extract_release(self):
         self.type = 'movie'  # default movie type
@@ -143,3 +148,21 @@ class IMDbSoup:
                     self.released, self.country = utils.split_release_and_country_imdb(release_text)
                     self.released = utils.transform_date_imdb(self.released)
         return self.released, self.country, self.type
+
+    def extract_genre(self):
+        genre_list = []
+        spans = self.subtext.find_all("span", {"class": "itemprop"})
+        for span in spans:
+            genre_list.append(span.text)
+        if len(genre_list) > 0:
+            self.genre = ", ".join(genre_list)
+        return self.genre
+
+    def extract_runtime(self):
+        time_tag = self.subtext.find("time")
+        try:
+            time_text = time_tag['datetime']
+            self.runtime = int(time_text.replace("PT", "").replace("M", ""))
+        except TypeError:
+            return None
+        return self.runtime
