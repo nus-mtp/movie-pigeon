@@ -3,7 +3,6 @@ from urllib import request, error
 import html
 import data.utils as utils
 
-
 class IMDbSoup:
 
     # statics
@@ -23,12 +22,20 @@ class IMDbSoup:
     director = None
     type = None
     subtext = None
+    soup = None
 
     def __init__(self, imdb_id):
         self.imdb_id = imdb_id
-        self.soup = self.build_soup(self.imdb_id)
+        self.build_soup()
+        self.extract_process()
 
-        # main logic of extraction
+    # main logic
+    def build_soup(self):
+        url = self.IMDB_URL_FORMAT.format(self.imdb_id)
+        request_result = html.unescape(request.urlopen(url).read().decode("utf-8"))
+        self.soup = BeautifulSoup(request_result, "lxml")  # soup builder
+
+    def extract_process(self):
         self.extract_title_and_year()
         self.extract_poster()
         self.extract_credits()
@@ -39,19 +46,18 @@ class IMDbSoup:
         self.extract_release()
         self.extract_runtime()
 
-    def build_soup(self, test_id):
-        url = self.IMDB_URL_FORMAT.format(test_id)
-        request_result = html.unescape(request.urlopen(url).read().decode("utf-8"))
-        soup = BeautifulSoup(request_result, "lxml")  # soup builder
-        return soup
-
+    # get
     def get_movie_data(self):
         """
         return a dict that contains all data to extractor
         :return: dictionary of data in various type
         """
-        pass
+        movie_data = utils.get_movie_data_dict(self.actors, self.country, self.director, self.genre, self.imdb_id,
+                                               None, self.plot, self.poster_url, self.production_year, self.rated,
+                                               self.released, self.runtime, self.title, self.type)
+        return movie_data
 
+    # extraction nodes
     def extract_title_and_year(self):
         """
         return title and production year of a movie

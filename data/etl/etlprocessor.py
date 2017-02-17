@@ -4,7 +4,7 @@ import loader
 import logging
 import data.utils as utils
 import time
-
+from error import InvalidIMDbIDException
 
 class ETLProcessor:
     """
@@ -35,7 +35,10 @@ class ETLProcessor:
             if imdb_id in existing_movies_id:
                 continue
             # soup
-            movie_data = self.extractor.extract_imdb_data(imdb_id)
+            try:
+                movie_data = self.extractor.extract_imdb_data(imdb_id)
+            except InvalidIMDbIDException:
+                continue
 
             if movie_data:
                 self.loader.load_movie_data(movie_data)

@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 from urllib import request, error
 from imdbsoup import IMDbSoup
 
-
 class TestIMDbSoup(unittest.TestCase):
 
     test_id_list = ['tt0000001', 'tt1234567', 'tt0460648', 'tt2345678', 'tt4346792', 'tt3107288', 'tt0395865',
@@ -136,3 +135,4 @@ class TestIMDbSoup(unittest.TestCase):
         self.assertEqual(IMDbSoup(self.test_id_list[3]).extract_runtime(), 75)
         self.assertEqual(IMDbSoup(self.test_id_list[4]).extract_runtime(), 43)
         self.assertEqual(IMDbSoup(self.test_id_list[12]).extract_runtime(), None)
+
