@@ -144,54 +144,9 @@ class Extractor:
     # ===========
     #   private
     # ===========
-    def extract_title_and_year(self, soup):
-        """
-        return title and production year of a movie
-        :param soup:
-        :return: title in string or None, production year in integer or None
-        """
-        title_wrapper = soup.find("h1").text.split("\xa0")
-        title = title_wrapper[0]
-        production_year = title_wrapper[1].replace("(", "").replace(")", "").replace(" ", "")
-        if production_year == "":
-            return None, title
-        return int(production_year), title
 
-    def extract_poster(self, soup):
-        """
-        return the url of poster of one movie
-        :param movie_id:
-        :param soup: url in string format or None
-        :return:
-        """
-        poster = soup.find("div", {"class": "poster"})
-        try:
-            poster_url = poster.find("img")['src']
-        except AttributeError:
-            poster_url = None
-        return poster_url
 
-    def extract_credits(self, soup):
-        """
-        return the directors and actors of the movie. If there is more than
-        one director or actor, it will display a string with multiple tokens,
-        separated by comma
-        :param soup:
-        :return: credits info in string format or None
-        """
-        credits_text = soup.find_all("div", {"class": "credit_summary_item"})
-        director, actor = None, None
-        for item in credits_text:
-            current_text = item.text
-            if "Directors:" in current_text:
-                director = current_text.replace("Directors:", "").split("|")[0].replace("\n", "").replace("  ", "").strip()
-            elif "Director:" in current_text:
-                director = current_text.replace("Director:", "").strip()
-            elif "Stars" in current_text:
-                actor = current_text.replace("Stars:", "").split("|")[0].replace("\n", "").replace("  ", "").strip()
-            elif "Star" in current_text:
-                actor = current_text.replace("Star:", "").strip()
-        return actor, director
+
 
     def extract_plot(self, soup):
         """

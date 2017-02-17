@@ -43,16 +43,48 @@ class IMDbSoup:
     def extract_title_and_year(self):
         """
         return title and production year of a movie
-        :param soup:
         :return: title in string, production year in integer or None
         """
         title_wrapper = self.soup.find("h1").text.split("\xa0")
-        title = title_wrapper[0]
-        production_year = title_wrapper[1].replace("(", "").replace(")", "").replace(" ", "")
-        if production_year == "":
-            return title, None
-        return title, int(production_year)
+        self.title = title_wrapper[0]
+        self.production_year = title_wrapper[1].replace("(", "").replace(")", "").replace(" ", "")
+        if self.production_year == "":
+            return self.title, None
+        return self.title, int(self.production_year)
 
+    def extract_poster(self):
+        """
+        return the url of poster of one movie
+        :return:
+        """
+        poster = self.soup.find("div", {"class": "poster"})
+        try:
+            self.poster_url = poster.find("img")['src']
+        except AttributeError:
+            self.poster_url = None
+        return self.poster_url
+
+    def extract_credits(self):
+        """
+        return the directors and actors of the movie. If there is more than
+        one director or actor, it will display a string with multiple tokens,
+        separated by comma
+        :return: credits info in string format or None
+        """
+        credits_text = self.soup.find_all("div", {"class": "credit_summary_item"})
+        for item in credits_text:
+            current_text = item.text
+            if "Directors:" in current_text:
+                self.director = current_text.replace("Directors:", "").split("|")[0].replace("\n", "").\
+                    replace("  ", "").strip()
+            elif "Director:" in current_text:
+                self.director = current_text.replace("Director:", "").strip()
+            elif "Stars" in current_text:
+                self.actors = current_text.replace("Stars:", "").split("|")[0].replace("\n", "").\
+                    replace("  ", "").strip()
+            elif "Star" in current_text:
+                self.actors = current_text.replace("Star:", "").strip()
+        return self.actors, self.director
 
 
 

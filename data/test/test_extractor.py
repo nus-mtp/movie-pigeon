@@ -22,47 +22,8 @@ class TestExtractor(unittest.TestCase):
     # ============
     #
 
-    # def test_extract_poster(self):
-    #     extractor = Extractor(None)
-    #     self.assertEqual(extractor.extract_poster(self.build_soup(self.test_id_list[0])),
-    #                      "https://images-na.ssl-images-amazon.com/"
-    #                      "images/M/MV5BMjAzNDEwMzk3OV5BMl5BanBnXkFtZTcwOTk4OTM5Ng@@._V1_UY268_CR6,0,182,268_AL_.jpg")
-    #     self.assertEqual(extractor.extract_poster(self.build_soup(self.test_id_list[1])),
-    #                      "https://images-na.ssl-images-amazon.com/"
-    #                      "images/M/MV5BMTMxMjU0MTMxMl5BMl5BanBnXkFtZTcwNjY4Mjc3MQ@@._V1_UY268_CR2,0,182,268_AL_.jpg")
-    #     self.assertEqual(extractor.extract_poster(self.build_soup(self.test_id_list[13])), None)
-    #     self.assertEqual(extractor.extract_poster(self.build_soup(self.test_id_list[14])), None)
 
-    # def test_extract_credits(self):
-    #     extractor = Extractor(None)
-    #
-    #     # None, None
-    #     self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[16])),
-    #                      (None, None))
-    #     # None, Director
-    #     self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[14])),
-    #                      (None, "Birt Acres"))
-    #     # None, Directors
-    #     self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[17])),
-    #                      (None, "Auguste Lumière, Louis Lumière"))
-    #     # Actor, None
-    #     self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[3])),
-    #                      ("Agustín Bravo", None))
-    #     # Actors, None
-    #     self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[5])),
-    #                      ("Grant Gustin, Candice Patton, Danielle Panabaker", None))
-    #     # Actor, Director
-    #     self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[0])),
-    #                      ("Carmencita", "William K.L. Dickson"))
-    #     # Actors, Director
-    #     self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[1])),
-    #                      ("Joshua Allen, Stephen Boss, Cat Deeley", "Don Weiner"))
-    #     # Actor, Directors
-    #     self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[18])),
-    #                      ("Thomas White", "George S. Fleming, Edwin S. Porter"))
-    #     # Actors, Directors
-    #     self.assertEqual(extractor.extract_credits(self.build_soup(self.test_id_list[15])),
-    #                      ("Ruth Roland, George Larkin, Mark Strong", "Robert Ellis, Louis J. Gasnier"))
+
 
     # def test_extract_subtext(self):
     #     extractor = Extractor(utils.initialise_test_logger())
