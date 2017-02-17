@@ -3,6 +3,7 @@ from urllib import request, error
 import html
 import data.utils as utils
 
+
 class IMDbSoup:
 
     # statics
@@ -67,7 +68,8 @@ class IMDbSoup:
         self.title = title_wrapper[0]
         self.production_year = title_wrapper[1].replace("(", "").replace(")", "").replace(" ", "")
         if self.production_year == "":
-            return self.title, None
+            self.production_year = None
+            return self.title, self.production_year
         return self.title, int(self.production_year)
 
     def extract_poster(self):

@@ -42,7 +42,6 @@ class Extractor:
         :return: rating and votes in STRING format or False if it is a bad request
         """
         soup = IMDbSoup(movie_id)
-
         return soup.get_movie_data()
 
     # ==========

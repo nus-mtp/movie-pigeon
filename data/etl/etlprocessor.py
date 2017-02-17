@@ -4,7 +4,7 @@ import loader
 import logging
 import data.utils as utils
 import time
-from error import InvalidIMDbIDException
+from urllib import error
 
 class ETLProcessor:
     """
@@ -30,18 +30,19 @@ class ETLProcessor:
         self.logger.info("Initialise movie data retrieval process ...")
         existing_movies_id = self.loader.get_movie_id_list()
 
-        for index in range(1, 9999999):  # iterate all possible titles
+        for index in range(40054, 9999999):  # iterate all possible titles
             imdb_id = utils.imdb_id_builder(index)
             if imdb_id in existing_movies_id:
                 continue
+
             # soup
             try:
                 movie_data = self.extractor.extract_imdb_data(imdb_id)
-            except InvalidIMDbIDException:
+            except error.HTTPError:
+                self.logger.error("Movie ID is not valid." + imdb_id)
                 continue
 
-            if movie_data:
-                self.loader.load_movie_data(movie_data)
+            self.loader.load_movie_data(movie_data)
 
     def updating_movie_rating(self):
         """
