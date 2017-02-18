@@ -1,5 +1,24 @@
-# jetbrain products
+# Compiled classfiles
+bin/
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# IDEA files
 .idea/
+*.iml
+
+# Node modules
+backend/node_modules/
 
 # config file and various api keys
 data/config.py
@@ -13,3 +32,4 @@ data/etl/general.log
 
 # DS store
 data/.DS_Store
+
