@@ -35,7 +35,8 @@ class Extractor:
     # ==========
     #   data
     # ==========
-    def extract_imdb_data(self, movie_id):
+    @staticmethod
+    def extract_imdb_data(movie_id):
         """
         given imdb_id, return the current rating and total number of votes of this movie in imdb database
         :param movie_id:
@@ -124,9 +125,6 @@ class Extractor:
     def extract_popcorn_showing(self):
         pass
 
-    # ===========
-    #   private
-    # ===========
 
 
 

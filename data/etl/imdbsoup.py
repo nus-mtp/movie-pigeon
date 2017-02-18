@@ -153,6 +153,8 @@ class IMDbSoup:
                     self.type = "tv-movie"
                     release_text = release_text.replace("TV Movie", "").replace("\n", "").strip()
                     self.released = utils.transform_date_imdb(release_text)
+                elif "TV Short" in release_text:
+                    self.type = "tv-short"
                 else:
                     release_text = release_text.replace("\n", "").strip()
                     self.released, self.country = utils.split_release_and_country_imdb(release_text)
