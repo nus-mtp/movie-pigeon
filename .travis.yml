@@ -23,14 +23,13 @@ before_script:
   - node sync.js
   - cd ..
 before install:
-
-install:
   - cd data
-  - sudo apt-get -y install python3-pip python-dev
+  - sudo apt-get -y install python3-pip
   - sudo pip3 install -U bs4
   - python3 -V
   - pip3 -V
   - cd ..
+install:
   - cd backend
   - npm install
 script:
