@@ -1,7 +1,17 @@
+"""
+    This file contains miscellaneous functions used by all classes
+"""
 import logging
 import datetime
 
+
+# ==============
+#   Logger
+# ==============
 def initialise_logger():
+    """
+        initialise general logger, create general.log file in current directory
+    """
     logger = logging.getLogger("general_logger")
     logger.setLevel(logging.INFO)
     file_handler = logging.FileHandler('general.log', mode='w')
@@ -13,15 +23,22 @@ def initialise_logger():
 
 
 def initialise_test_logger():
+    """
+        initialise a console logger for testing classes
+    """
     logger = logging.getLogger("test_logger")
     logger.setLevel(logging.DEBUG)
     return logger
+
 
 # ==============
 #   Movie Data
 # ==============
 def get_movie_data_dict(actors, country, director, genre, imdb_id, language, plot, poster_url,
                         production_year, rated, released, runtime, title, type):
+    """
+        this is the data model of movie data.
+    """
     movie_data = {
         "movie_id": imdb_id,
         "title": title,
@@ -42,6 +59,9 @@ def get_movie_data_dict(actors, country, director, genre, imdb_id, language, plo
 
 
 def get_movie_rating_dict(score, votes, imdb_id, rating_source):
+    """
+        this is the data model of movie rating
+    """
     rating_sources = {
         "IMDb": '1',
         "Douban": '2',
@@ -58,9 +78,13 @@ def get_movie_rating_dict(score, votes, imdb_id, rating_source):
 
 
 def imdb_id_builder(i):
+    """
+        this function takes in an integer and converts it to an imdb id
+    """
     current_imdb_number = "{0:0=7d}".format(i)
     imdb_id = "tt" + current_imdb_number
     return imdb_id
+
 
 def split_release_and_country_imdb(release_country):
     """
@@ -71,6 +95,7 @@ def split_release_and_country_imdb(release_country):
     released, country = release_country.replace(")", "").split("(")
     released = released.strip()  # remove last white space
     return released, country
+
 
 def transform_time_imdb(runtime):
     """
@@ -85,6 +110,7 @@ def transform_time_imdb(runtime):
             minutes = 0
         runtime = int(hours) * 60 + int(minutes)
     return str(runtime)
+
 
 def transform_date_imdb(input_text):
     """
