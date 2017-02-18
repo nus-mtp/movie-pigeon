@@ -35,4 +35,5 @@ class TestTransformer(unittest.TestCase):
         self.assertEqual(self.transformer.transform_time_imdb("1h   40min   "), "100")
         self.assertEqual(self.transformer.transform_time_imdb("1h   40min"), "100")
 
-
+if __name__ == '__main__':
+    unittest.main()

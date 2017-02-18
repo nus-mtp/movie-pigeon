@@ -3,7 +3,7 @@ import random
 import data.utils as utils
 from bs4 import BeautifulSoup
 from urllib import request, error
-from imdbsoup import IMDbSoup
+from data.etl.imdbsoup import IMDbSoup
 
 
 class TestIMDbSoup(unittest.TestCase):
