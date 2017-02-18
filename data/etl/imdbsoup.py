@@ -1,3 +1,6 @@
+"""
+    data class for all imdb movies
+"""
 from bs4 import BeautifulSoup
 from urllib import request, error
 import html
@@ -95,13 +98,13 @@ class IMDbSoup:
         for item in credits_text:
             current_text = item.text
             if "Directors:" in current_text:
-                self.director = current_text.replace("Directors:", "").split("|")[0].replace("\n", "").\
-                    replace("  ", "").strip()
+                self.director = current_text.replace("Directors:", "").split("|")[0]\
+                    .replace("\n", "").replace("  ", "").strip()
             elif "Director:" in current_text:
                 self.director = current_text.replace("Director:", "").strip()
             elif "Stars" in current_text:
-                self.actors = current_text.replace("Stars:", "").split("|")[0].replace("\n", "").\
-                    replace("  ", "").strip()
+                self.actors = current_text.replace("Stars:", "").split("|")[0]\
+                    .replace("\n", "").replace("  ", "").strip()
             elif "Star" in current_text:
                 self.actors = current_text.replace("Star:", "").strip()
         return self.actors, self.director
@@ -117,6 +120,10 @@ class IMDbSoup:
         return self.plot
 
     def extract_subtext(self):
+        """
+        retrieve the subtext tag for other extraction nodes
+        :return:
+        """
         self.subtext = self.soup.find("div", {"class": "subtext"})
 
     def extract_rated(self):
@@ -138,21 +145,16 @@ class IMDbSoup:
                 release_text = anchor.text
                 if "Episode aired" in release_text:
                     self.type = "episode"
-                    release_text = release_text.replace("Episode aired", "")
-                    release_text = release_text.replace("\n", "")
-                    release_text = release_text.strip()
+                    release_text = release_text.replace("Episode aired", "").replace("\n", "").strip()
                     self.released = utils.transform_date_imdb(release_text)
                 elif "TV Series" in release_text:
                     self.type = "tv"
                 elif "TV Movie" in release_text:
                     self.type = "tv-movie"
-                    release_text = release_text.replace("TV Movie", "")
-                    release_text = release_text.replace("\n", "")
-                    release_text = release_text.strip()
+                    release_text = release_text.replace("TV Movie", "").replace("\n", "").strip()
                     self.released = utils.transform_date_imdb(release_text)
                 else:
-                    release_text = release_text.replace("\n", "")
-                    release_text = release_text.strip()
+                    release_text = release_text.replace("\n", "").strip()
                     self.released, self.country = utils.split_release_and_country_imdb(release_text)
                     self.released = utils.transform_date_imdb(self.released)
         return self.released, self.country, self.type
