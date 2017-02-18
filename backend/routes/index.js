@@ -4,6 +4,7 @@ var userControl = require('../controllers/user.js');
 var authController = require('../controllers/auth');
 var oauth2Controller = require('../controllers/oauth2');
 var clientController = require('../controllers/client');
+var bookmarkController = require('../controllers/bookmark');
 var movieController = require('../controllers/movie');
 var ratingController = require('../controllers/rate');
 
@@ -41,6 +42,11 @@ router.route('/movies/title')
 router.route('/movies/year')
   .get(authController.isAuthenticated,
     movieController.getMoviesByProductionYear);
+
+router.route('/bookmarks')
+  .post(authController.isAuthenticated, bookmarkController.postBookmarks)
+  .get(authController.isAuthenticated, bookmarkController.getBookmarks)
+  .delete(authController.isAuthenticated, bookmarkController.deleteBookmarks);
 
 router.route('/ratings')
   .post(authController.isAuthenticated, ratingController.postRates)

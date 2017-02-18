@@ -19,6 +19,9 @@ addons:
       - g++-4.8
 before_script:
   - psql -c 'create database test;' -U postgres
+  - cd models
+  - node sync.js
+  - cd ..
 before install:
   - sudo apt-get -y install python3-pip python-dev
   - python3 -V
