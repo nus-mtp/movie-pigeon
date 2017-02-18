@@ -93,7 +93,7 @@ class TestIMDbSoup(unittest.TestCase):
         # none plot
         self.assertEqual(IMDbSoup(self.test_id_list[3]).extract_plot(), None)
 
-    def test_extract(self):
+    def test_extract_rated(self):
         self.assertEqual(IMDbSoup(self.test_id_list[4]).extract_rated(), "PG")
         self.assertEqual(IMDbSoup(self.test_id_list[0]).extract_rated(), None)
 
