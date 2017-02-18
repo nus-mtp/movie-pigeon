@@ -31,5 +31,4 @@ install:
 script:
   - npm test
   - cd ..
-  - cd data
   - python3 -m unittest data/test/test_imdbsoup.py
