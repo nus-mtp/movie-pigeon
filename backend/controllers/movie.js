@@ -12,6 +12,8 @@ exports.getMoviesByTitle = function (req, res) {
     where: {
       title: {$ilike: searchString}
     },
+    limit: req.headers.limit,
+    offset: req.headers.offset,
     include: [{
       model: PublicRate,
       include: [
