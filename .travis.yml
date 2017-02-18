@@ -22,7 +22,7 @@ before_script:
   - cd models
   - node sync.js
   - cd ..
-before install:
+before_install:
   - cd data
   - sudo apt-get -y install python3-pip
   - sudo pip3 install -U bs4
