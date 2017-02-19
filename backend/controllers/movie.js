@@ -9,7 +9,7 @@ exports.getMoviesByTitle = function (req, res) {
   var title = req.headers.title;
   var searchString = title.trim().replace(' ', '%');
   searchString = '%' + searchString + '%';
-  Movie.findAll({
+  Movie.findAndCountAll({
     where: {
       title: {$ilike: searchString}
     },
@@ -26,7 +26,8 @@ exports.getMoviesByTitle = function (req, res) {
         model: UserRating,
         where: {
           user_id: req.user.id
-        }
+        },
+        required: false
       }
     ]
   })
