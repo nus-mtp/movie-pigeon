@@ -149,6 +149,10 @@ class IMDbSoup:
                     self.released = utils.transform_date_imdb(release_text)
                 elif "TV Series" in release_text:
                     self.type = "tv"
+                elif "TV Special" in release_text:
+                    self.type = "tv-special"
+                    release_text = release_text.replace("TV Special", "").replace("\n", "").strip()
+                    self.released = utils.transform_date_imdb(release_text)
                 elif "TV Mini-Series" in release_text:
                     self.type = "tv-mini"
                 elif "TV Movie" in release_text:
