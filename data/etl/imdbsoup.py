@@ -149,6 +149,8 @@ class IMDbSoup:
                     self.released = utils.transform_date_imdb(release_text)
                 elif "TV Series" in release_text:
                     self.type = "tv"
+                elif "TV Mini-Series" in release_text:
+                    self.type = "tv-mini"
                 elif "TV Movie" in release_text:
                     self.type = "tv-movie"
                     release_text = release_text.replace("TV Movie", "").replace("\n", "").strip()
@@ -174,7 +176,7 @@ class IMDbSoup:
         time_tag = self.subtext.find("time")
         try:
             time_text = time_tag['datetime']
-            self.runtime = int(time_text.replace("PT", "").replace("M", ""))
+            self.runtime = int(time_text.replace("PT", "").replace("M", "").replace(",", ""))
         except TypeError:
             return None
         return self.runtime
