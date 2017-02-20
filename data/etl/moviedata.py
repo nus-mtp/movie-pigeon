@@ -7,7 +7,7 @@ import html
 import data.utils as utils
 
 
-class IMDbSoup:
+class MovieData:
 
     # statics
     IMDB_URL_FORMAT = "http://www.imdb.com/title/{}/"

@@ -38,7 +38,7 @@ class ETLProcessor:
 
             # soup
             try:
-                movie_data = self.extractor.extract_imdb_data(imdb_id)
+                movie_data = self.extractor.extract_movie_data(imdb_id)
             except error.HTTPError:
                 self.logger.error("Movie ID is not valid." + imdb_id)
                 continue
