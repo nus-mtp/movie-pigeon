@@ -3,6 +3,7 @@ var bookmarks = require('../models/bookmarks.js');
 var movie = require('../models/movie.js');
 var publicRate = require('../models/PublicRate.js');
 var RatingSource = require('../models/ratingSource.js');
+var UserRating = require('../models/history.js');
 
 // Create endpoint /api/ratings for POST
 exports.postBookmarks = function (req, res) {
@@ -79,6 +80,13 @@ exports.getBookmarks = function (req, res) {
           user_id: req.user.id
         },
         required: true
+      },
+      {
+        model: UserRating,
+        where: {
+          user_id: req.user.id
+        },
+        required: false
       }
     ]
   }).then(function (movies) {
