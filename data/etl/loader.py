@@ -1,4 +1,4 @@
-import data.config as config
+import config as config
 import psycopg2
 import logging
 

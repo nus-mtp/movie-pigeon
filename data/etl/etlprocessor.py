@@ -1,8 +1,8 @@
-import extractor
-import transformer
-import loader
+import etl.extractor as extractor
+import etl.transformer as transformer
+import etl.loader as loader
 import logging
-import data.utils as utils
+import utils as utils
 import time
 from urllib import error
 

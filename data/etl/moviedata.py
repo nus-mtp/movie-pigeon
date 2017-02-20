@@ -4,7 +4,7 @@
 from bs4 import BeautifulSoup
 from urllib import request, error
 import html
-import data.utils as utils
+import utils as utils
 
 
 class MovieData:
