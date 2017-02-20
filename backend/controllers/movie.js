@@ -3,6 +3,7 @@ var Movie = require('../models/movie.js');
 var PublicRate = require('../models/PublicRate.js');
 var RatingSource = require('../models/ratingSource.js');
 var UserRating = require('../models/history.js');
+var Bookmark = require('../models/bookmarks.js');
 // Create endpoint /api/movie for GET
 exports.getMoviesByTitle = function (req, res) {
   // Use the Client model to find all clients
@@ -24,6 +25,13 @@ exports.getMoviesByTitle = function (req, res) {
       },
       {
         model: UserRating,
+        where: {
+          user_id: req.user.id
+        },
+        required: false
+      },
+      {
+        model: Bookmark,
         where: {
           user_id: req.user.id
         },
