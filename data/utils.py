@@ -129,3 +129,11 @@ def transform_date_imdb(input_text):
         else:
             input_text = datetime.datetime.strptime(input_text, '%Y').strftime('%Y-%m-%d')
     return input_text
+
+
+def is_numeric(number):
+    try:
+        float(number)
+    except ValueError:
+        return False
+    return True

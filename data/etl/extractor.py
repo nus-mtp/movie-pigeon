@@ -47,7 +47,8 @@ class Extractor:
     #   rating
     # ==========
     def extract_movie_rating(self):
-        pass
+        data_class = MovieRating(movie_id)
+        pass data_class.get_movie_ratings()
 
     def extract_trakt_rating(self, movie_id):
         """
