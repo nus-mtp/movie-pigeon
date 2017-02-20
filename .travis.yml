@@ -23,7 +23,7 @@ before_script:
   - node sync.js
   - cd ..
 before_install:
-  - export PYTHONPATH=/usr/lib/python3/dist-packages:/usr/local/lib/python3/dist-packages
+  - export PYTHONPATH=/usr/lib/python3.4/dist-packages:/usr/local/lib/python3.4/dist-packages
   - cd data
   - sudo apt-get -y install python3-pip
   - sudo apt-get -y install python3-lxml
