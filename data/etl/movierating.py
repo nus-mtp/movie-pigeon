@@ -1,6 +1,7 @@
 from urllib import request, error
 from bs4 import BeautifulSoup
 
+import data.utils as utils
 import json
 
 
@@ -29,7 +30,17 @@ class MovieRating:
         self.movie_id = movie_id
 
     def get_movie_ratings(self):
-        pass
+        movie_ratings = []
+
+        rating, votes = self.extract_trakt_rating()
+        movie_ratings.append(utils.get_movie_rating_dict(rating, votes, self.movie_id, 'Trakt'))
+
+        rating, votes = self.extract_imdb_rating()
+        movie_ratings.append(utils.get_movie_rating_dict(rating, votes, self.movie_id, 'IMDb'))
+
+        rating, votes = self.extract_douban_rating()
+        movie_ratings.append(utils.get_movie_rating_dict(rating, votes, self.movie_id, 'Douban'))
+        return movie_ratings
 
     def extract_trakt_rating(self):
         """
@@ -83,3 +94,18 @@ class MovieRating:
             return None, None
 
         return rating, votes
+
+    # def extract_metacritic_rating(self, imdb_id, search_string, director, release_date):
+    #     # bad request, on hold, need to use selenium
+    #     url = self.metacritic_url_format.format(html.escape(search_string))
+    #     call_result = request.urlopen(url).read()
+    #     soup = BeautifulSoup(call_result, "lxml")
+    #     results = soup.find('li', {'class': 'result'})
+    #     print(results)
+    #     pass
+    #
+    # def extract_rotten_tomatoes_rating(self, imdb_id):
+    #     pass
+    #
+    # def extract_letterboxd_rating(self, movie_id):
+    #     pass

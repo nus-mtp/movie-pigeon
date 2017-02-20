@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import json
 from transformer import Transformer
 from moviedata import MovieData
+from movierating import MovieRating
 
 
 class Extractor:
@@ -28,7 +29,6 @@ class Extractor:
 
     def __init__(self, logger):
         self.logger = logger
-        self.transformer = Transformer(logger)
 
     # ==========
     #   data
@@ -36,90 +36,26 @@ class Extractor:
     @staticmethod
     def extract_movie_data(movie_id):
         """
-        given imdb_id, return the current rating and total number of votes of this movie in imdb database
+        given imdb_id, return the metadata of that movie from imdb
         :param movie_id:
         :return: rating and votes in STRING format or False if it is a bad request
         """
-        data_class = MovieData(movie_id)
-        return data_class.get_movie_data()
+        data_model = MovieData(movie_id)
+        return data_model.get_movie_data()
 
     # ==========
     #   rating
     # ==========
-    def extract_movie_rating(self):
-        data_class = MovieRating(movie_id)
-        pass data_class.get_movie_ratings()
-
-    def extract_trakt_rating(self, movie_id):
+    @staticmethod
+    def extract_movie_rating(movie_id):
         """
-        given imdb_id, return the current rating and total number of votes of this movie in trakt.tv database
+        given imdb_id, return a list of dictionaries that contain respective rating and votes from
+        each ratings sources
         :param movie_id:
-        :return: rating and votes in STRING format
+        :return:
         """
-        request_result = request.Request('https://api.trakt.tv/movies/{}/ratings'.format(movie_id),
-                                          headers=self.trakt_header)
-        try:
-            json_result = json.loads(request.urlopen(request_result).read().decode("utf-8"))
-        except error.HTTPError:
-            self.logger.error("Rating is not available in Trakt")
-            return None, None
-
-        return str(json_result['rating']), str(json_result['votes'])
-
-    def extract_imdb_rating(self, movie_id):
-        """
-        given imdb_id, return the current rating and total number of votes of this movie in imdb database
-        :param movie_id:
-        :return: rating and votes in STRING format
-        """
-        url = self.imdb_url_format.format(movie_id)
-        request_result = request.urlopen(url).read()
-        soup = BeautifulSoup(request_result, "lxml")
-        div = soup.find('div', {'class': 'ratingValue'})
-
-        try:
-            parse_list = div.find("strong")['title'].split(" based on ")
-        except AttributeError:
-            self.logger.error("Rating is not available in IMDb.")
-            return None, None
-
-        rating = parse_list[0]
-        votes = parse_list[1].split(" ")[0].replace(",", "")
-        return rating, votes
-
-    def extract_douban_rating(self, movie_id):
-        """
-        given imdb_id, return the current rating and total number of votes of this movie in douban database
-        :param movie_id:
-        :return: rating and votes in STRING format
-        """
-        url = self.douban_url_format.format(movie_id)
-        request_result = request.urlopen(url).read()
-        soup = BeautifulSoup(request_result, "lxml")
-
-        try:
-            rating = soup.find("span", {'class': 'rating_nums'}).text
-            votes = soup.find("span", {'class': 'pl'}).text.replace("人评价","")[1: -1].replace(",", "")  # remove parenthesis and words
-        except AttributeError:
-            self.logger.error("Rating is not available in Douban.")
-            return None, None
-
-        return rating, votes
-
-    # def extract_metacritic_rating(self, imdb_id, search_string, director, release_date):
-    #     # bad request, on hold, need to use selenium
-    #     url = self.metacritic_url_format.format(html.escape(search_string))
-    #     call_result = request.urlopen(url).read()
-    #     soup = BeautifulSoup(call_result, "lxml")
-    #     results = soup.find('li', {'class': 'result'})
-    #     print(results)
-    #     pass
-    #
-    # def extract_rotten_tomatoes_rating(self, imdb_id):
-    #     pass
-    #
-    # def extract_letterboxd_rating(self, movie_id):
-    #     pass
+        data_model = MovieRating(movie_id)
+        return data_model.get_movie_ratings()
 
     # ===========
     #   showing
