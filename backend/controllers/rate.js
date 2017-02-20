@@ -1,6 +1,8 @@
 // Load required packages
 var rate = require('../models/history.js');
 var movie = require('../models/movie.js');
+var PublicRate = require('../models/PublicRate.js');
+var RatingSource = require('../models/ratingSource.js');
 
 // Create endpoint /api/ratings for POST
 exports.postRates = function (req, res) {
@@ -73,6 +75,12 @@ exports.getRates = function (req, res) {
 
   movie.findAll({
     include: [
+      {
+        model: PublicRate,
+        include: [
+          RatingSource
+        ]
+      },
       {
         model: rate,
         where: {

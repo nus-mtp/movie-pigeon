@@ -1,6 +1,8 @@
 // Load required packages
 var bookmarks = require('../models/bookmarks.js');
 var movie = require('../models/movie.js');
+var publicRate = require('../models/PublicRate.js');
+var RatingSource = require('../models/ratingSource.js');
 
 // Create endpoint /api/ratings for POST
 exports.postBookmarks = function (req, res) {
@@ -65,6 +67,12 @@ exports.getBookmarks = function (req, res) {
 
   movie.findAll({
     include: [
+      {
+        model: publicRate,
+        include: [
+          RatingSource
+        ]
+      },
       {
         model: bookmarks,
         where: {
