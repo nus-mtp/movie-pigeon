@@ -51,15 +51,29 @@ exports.deleteBookmarks = function (req, res) {
 
 // Create endpoint /api/bookmarks for GET
 exports.getBookmarks = function (req, res) {
-  bookmarks.findAll({
-    where: {
-      user_id: req.user.id
-    },
-    include: [{
-      model: movie
-    }]
-  })
-    .then(function (results) {
-      res.json(results);
-    });
+  // bookmarks.findAll({
+  //   where: {
+  //     user_id: req.user.id
+  //   },
+  //   include: [{
+  //     model: movie
+  //   }]
+  // })
+  //   .then(function (results) {
+  //     res.json(results);
+  //   });
+
+  movie.findAll({
+    include: [
+      {
+        model: bookmarks,
+        where: {
+          user_id: req.user.id
+        },
+        required: true
+      }
+    ]
+  }).then(function (movies) {
+    res.json(movies);
+  });
 };

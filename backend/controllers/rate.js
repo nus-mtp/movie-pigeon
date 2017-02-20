@@ -59,15 +59,29 @@ exports.postRates = function (req, res) {
 // Create endpoint /api/ratings for GET
 exports.getRates = function (req, res) {
   // Use the Ratings model to find all clients
-  rate.findAll({
-    where: {
-      user_id: req.user.id
-    },
-    include: [{
-      model: movie
-    }]
-  })
-    .then(function (ratings) {
-      res.json(ratings);
-    });
+  // rate.findAll({
+  //   where: {
+  //     user_id: req.user.id
+  //   },
+  //   include: [{
+  //     model: movie
+  //   }]
+  // })
+  //   .then(function (ratings) {
+  //     res.json(ratings);
+  //   });
+
+  movie.findAll({
+    include: [
+      {
+        model: rate,
+        where: {
+          user_id: req.user.id
+        },
+        required: true
+      }
+    ]
+  }).then(function (movies) {
+    res.json(movies);
+  });
 };
