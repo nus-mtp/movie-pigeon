@@ -149,9 +149,15 @@ class MovieData:
                     self.released = utils.transform_date_imdb(release_text)
                 elif "TV Series" in release_text:
                     self.type = "tv"
+                elif "TV Episode" in release_text:
+                    self.type = "episode"
                 elif "TV Special" in release_text:
                     self.type = "tv-special"
                     release_text = release_text.replace("TV Special", "").replace("\n", "").strip()
+                    self.released = utils.transform_date_imdb(release_text)
+                elif "Video" in release_text:
+                    self.type = "video"
+                    release_text = release_text.replace("Video", "").replace("\n", "").strip()
                     self.released = utils.transform_date_imdb(release_text)
                 elif "TV Mini-Series" in release_text:
                     self.type = "tv-mini"

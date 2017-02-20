@@ -1,7 +1,3 @@
-from urllib import request, error
-from bs4 import BeautifulSoup
-import json
-from transformer import Transformer
 from moviedata import MovieData
 from movierating import MovieRating
 

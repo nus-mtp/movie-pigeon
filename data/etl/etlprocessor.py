@@ -31,7 +31,7 @@ class ETLProcessor:
         self.logger.info("Initialise movie data retrieval process ...")
         existing_movies_id = self.loader.get_movie_id_list()
 
-        for index in range(54175, 9999999):  # iterate all possible titles
+        for index in range(67098, 9999999):  # iterate all possible titles
             imdb_id = utils.imdb_id_builder(index)
             if imdb_id in existing_movies_id:
                 continue
