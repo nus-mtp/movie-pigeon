@@ -3,6 +3,8 @@
 """
 from bs4 import BeautifulSoup
 from urllib import request, error
+
+import lxml
 import html
 import utils as utils
 
