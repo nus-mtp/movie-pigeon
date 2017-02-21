@@ -1,10 +1,11 @@
-import extractor
-import transformer
-import loader
+import etl.extractor as extractor
+import etl.transformer as transformer
+import etl.loader as loader
 import logging
-import data.utils as utils
+import utils as utils
 import time
 from urllib import error
+
 
 class ETLProcessor:
     """
@@ -30,14 +31,14 @@ class ETLProcessor:
         self.logger.info("Initialise movie data retrieval process ...")
         existing_movies_id = self.loader.get_movie_id_list()
 
-        for index in range(1, 9999999):  # iterate all possible titles
+        for index in range(67098, 9999999):  # iterate all possible titles
             imdb_id = utils.imdb_id_builder(index)
             if imdb_id in existing_movies_id:
                 continue
 
             # soup
             try:
-                movie_data = self.extractor.extract_imdb_data(imdb_id)
+                movie_data = self.extractor.extract_movie_data(imdb_id)
             except error.HTTPError:
                 self.logger.error("Movie ID is not valid." + imdb_id)
                 continue

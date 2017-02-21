@@ -1,5 +1,5 @@
 import unittest
-from transformer import Transformer
+from etl.transformer import Transformer
 
 
 class TestTransformer(unittest.TestCase):

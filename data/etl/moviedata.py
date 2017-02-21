@@ -4,10 +4,10 @@
 from bs4 import BeautifulSoup
 from urllib import request, error
 import html
-import data.utils as utils
+import utils as utils
 
 
-class IMDbSoup:
+class MovieData:
 
     # statics
     IMDB_URL_FORMAT = "http://www.imdb.com/title/{}/"
@@ -149,10 +149,24 @@ class IMDbSoup:
                     self.released = utils.transform_date_imdb(release_text)
                 elif "TV Series" in release_text:
                     self.type = "tv"
+                elif "TV Episode" in release_text:
+                    self.type = "episode"
+                elif "TV Special" in release_text:
+                    self.type = "tv-special"
+                    release_text = release_text.replace("TV Special", "").replace("\n", "").strip()
+                    self.released = utils.transform_date_imdb(release_text)
+                elif "Video" in release_text:
+                    self.type = "video"
+                    release_text = release_text.replace("Video", "").replace("\n", "").strip()
+                    self.released = utils.transform_date_imdb(release_text)
+                elif "TV Mini-Series" in release_text:
+                    self.type = "tv-mini"
                 elif "TV Movie" in release_text:
                     self.type = "tv-movie"
                     release_text = release_text.replace("TV Movie", "").replace("\n", "").strip()
                     self.released = utils.transform_date_imdb(release_text)
+                elif "TV Short" in release_text:
+                    self.type = "tv-short"
                 else:
                     release_text = release_text.replace("\n", "").strip()
                     self.released, self.country = utils.split_release_and_country_imdb(release_text)
@@ -172,7 +186,7 @@ class IMDbSoup:
         time_tag = self.subtext.find("time")
         try:
             time_text = time_tag['datetime']
-            self.runtime = int(time_text.replace("PT", "").replace("M", ""))
+            self.runtime = int(time_text.replace("PT", "").replace("M", "").replace(",", ""))
         except TypeError:
             return None
         return self.runtime
