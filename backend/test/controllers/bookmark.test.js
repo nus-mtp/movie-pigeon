@@ -68,7 +68,7 @@ describe('Bookmark controller test', function () {
       });
   });
 
-  it('should post a rate to the db', function (done) {
+  it('should post a bookmark to the db', function (done) {
     request(server)
       .post('/api/bookmarks')
       .set('Content-Type', 'application/x-www-form-urlencoded')
@@ -88,6 +88,21 @@ describe('Bookmark controller test', function () {
             bookmarks.should.not.equal(undefined);
             done();
           });
+      });
+  });
+
+  it('should report fail when bookmark existed', function (done) {
+    request(server)
+      .post('/api/bookmarks')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .auth('testemailmovietest', 'pass')
+      .send('movieId=test000001')
+      .expect(200)
+      .end(function (err, res) {
+        res.status.should.equal(200);
+        res.body.status.should.equal('fail');
+        res.body.message.should.equal('Bookmark Existed');
+        done();
       });
   });
 

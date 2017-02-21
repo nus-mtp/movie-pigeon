@@ -10,18 +10,29 @@ exports.postBookmarks = function (req, res) {
   var movieId = req.body.movieId;
   var userId = req.user.id;
 
-  // Save the bookmark and check for errors
-  bookmarks.build({
-    movie_id: movieId,
-    user_id: userId
-  })
-    .save()
-    .then(function () {
-      res.json({
-        status: 'success',
-        message: 'Bookmark Posted'
-      });
-    });
+  bookmarks.find({
+    where: {
+      user_id: userId,
+      movie_id: movieId
+    }
+  }).then(function (bookmarkResults) {
+    if (bookmarkResults) {
+      res.json({status: 'fail', message: 'Bookmark Existed'});
+    } else {
+      // Save the bookmark and check for errors
+      bookmarks.build({
+        movie_id: movieId,
+        user_id: userId
+      })
+        .save()
+        .then(function () {
+          res.json({
+            status: 'success',
+            message: 'Bookmark Posted'
+          });
+        });
+    }
+  });
 };
 
 exports.deleteBookmarks = function (req, res) {
