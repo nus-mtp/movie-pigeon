@@ -157,6 +157,8 @@ class MovieData:
                     self.type = "tv-special"
                     release_text = release_text.replace("TV Special", "").replace("\n", "").strip()
                     self.released = utils.transform_date_imdb(release_text)
+                elif "Video Game" in release_text:
+                    self.type = "video-game"
                 elif "Video" in release_text:
                     self.type = "video"
                     release_text = release_text.replace("Video", "").replace("\n", "").strip()
