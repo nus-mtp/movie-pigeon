@@ -10,6 +10,9 @@ var Cinema = sequelize.define('cinemas', {
   },
   cinema_name: {
     type: DataTypes.STRING
+  },
+  url: {
+    type: DataTypes.TEXT
   }
 });
 
