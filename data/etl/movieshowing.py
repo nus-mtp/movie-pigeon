@@ -1,6 +1,5 @@
 from urllib import request, error
 from bs4 import BeautifulSoup
-import json
 
 
 class MovieShowing:

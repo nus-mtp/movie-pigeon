@@ -6,7 +6,7 @@ from urllib import request, error
 
 import lxml
 import html
-import utils as utils
+import data.utils as utils
 
 
 class MovieData:
