@@ -40,4 +40,4 @@ install:
 script:
   - npm test
   - cd ..
-  - python3 -m unittest data/test/test_imdbsoup.py
+  - python3 -m unittest data/test/test_moviedata.py
