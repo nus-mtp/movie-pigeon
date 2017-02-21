@@ -1,7 +1,7 @@
 from urllib import request, error
 from bs4 import BeautifulSoup
 
-import utils
+import data.utils as utils
 import json
 
 

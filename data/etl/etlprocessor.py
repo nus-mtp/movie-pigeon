@@ -1,9 +1,8 @@
-import etl.extractor as extractor
-import etl.transformer as transformer
-import etl.loader as loader
-import logging
-import utils as utils
-import time
+import data.etl.extractor as extractor
+import data.etl.transformer as transformer
+import data.etl.loader as loader
+import data.utils as utils
+
 from urllib import error
 
 
@@ -23,7 +22,7 @@ class ETLProcessor:
         self.loader = loader.Loader(self.logger)
         self.transformer = transformer.Transformer(self.logger)
 
-    def retrieve_movie_data(self):
+    def update_movie_data(self):
         """
             updates movie data from databases (potentially more than one source)
             it is a one time process, i.e. data will not be updated constantly
@@ -45,7 +44,7 @@ class ETLProcessor:
 
             self.loader.load_movie_data(movie_data)
 
-    def updating_movie_rating(self):
+    def update_movie_rating(self):
         """
         updates movie rating from popcorn movies (may have to change to raaw implementation in the future)
         it is a continuous process and data will be updated constantly
@@ -69,13 +68,16 @@ class ETLProcessor:
             # break
         self.logger.info("Movie rating update process complete.")
 
-    def updating_movie_showing(self):
+    def update_movie_showing(self):
         """
         updates movie rating from various theatres official page
         it is a continuous process and data will be updated constantly
         """
         self.logger.info("Initialise movie showing update process ...")
         self.logger.info("Movie showing update process complete.")
+        pass
+
+    def update_cinema_list(self):
         pass
 
     # ===========================
@@ -94,11 +96,4 @@ class ETLProcessor:
 
         movie_rating = utils.get_movie_rating_dict(rating, votes, current_movie_id, source_name)
         self.loader.load_movie_rating(movie_rating)
-
-# ==================
-#   run main logic
-# ==================
-if __name__ == '__main__':
-    processor = ETLProcessor()
-    processor.retrieve_movie_data()
 

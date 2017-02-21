@@ -1,4 +1,4 @@
-from etl.extractor import Extractor
+from data.etl.extractor import Extractor
 
 import unittest
 
