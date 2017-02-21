@@ -4,7 +4,7 @@ language: node_js
 node_js:
   - "4"
 python:
-  - "3"
+  - "3.4"
 services:
   - postgresql
 env:
@@ -19,9 +19,25 @@ addons:
       - g++-4.8
 before_script:
   - psql -c 'create database test;' -U postgres
-before install:
-  - sudo apt-get -y install python3-pip python-dev
+  - cd models
+  - node sync.js
+  - cd ..
+before_install:
+  - export PYTHONPATH=/usr/lib/python3.4/dist-packages:/usr/local/lib/python3.4/dist-packages
+  - cd data
+  - sudo apt-get -y install python3-pip
+  - sudo apt-get -y install python3-lxml
+  - sudo apt-get install python-lxml
+  - sudo pip3 install -U bs4
+  - sudo pip3 install -U lxml
   - python3 -V
+  - pip3 -V
+  - pip3 list
+  - cd ..
 install:
   - cd backend
   - npm install
+script:
+  - npm test
+  - cd ..
+  - python3 -m unittest data/test/test_moviedata.py
