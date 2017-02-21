@@ -19,3 +19,6 @@ hs_err_pid*
 
 # Node modules
 backend/node_modules/
+
+#DB credentials
+backend/database.json
