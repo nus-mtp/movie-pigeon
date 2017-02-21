@@ -10,6 +10,7 @@ describe('User Model test', function () {
     });
     user.validPassword('anyhow').should.equal(false);
     user.validPassword('test').should.equal(true);
+    user.destroy();
     done();
   });
 });

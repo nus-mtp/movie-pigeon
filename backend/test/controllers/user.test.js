@@ -19,13 +19,13 @@ describe('User controller test', function () {
         user.find({where: {username: 'testname'}}).then(function (users) {
           users.validPassword('testpassword').should.equal(true);
           users.destroy();
+          done();
         });
-        done();
       });
   });
 
   it('should report fail when duplicated user', function (done) {
-    user.build({email: 'song@test.com', username: 'test', password: 'pass'})
+    user.build({email: 'song@test.com', username: 'testname', password: 'pass'})
       .save()
       .then(function () {
         request(server)
@@ -40,10 +40,9 @@ describe('User controller test', function () {
             res.body.status.should.equal('fail');
             res.body.message.should.equal('User Existed');
             user.find({where: {username: 'testname'}}).then(function (users) {
-              users.validPassword('testpassword').should.equal(true);
               users.destroy();
+              done();
             });
-            done();
           });
       });
   });
