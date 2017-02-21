@@ -25,9 +25,7 @@ before_script:
 before_install:
   - export PYTHONPATH=/usr/lib/python3.4/dist-packages:/usr/local/lib/python3.4/dist-packages
   - cd data
-  - sudo apt-get -y install python3-pip
-  - sudo apt-get -y install python3-lxml
-  - sudo apt-get install python-lxml
+  - sudo apt-get -y install python3-pip3
   - sudo pip3 install -U bs4
   - sudo pip3 install -U lxml
   - python3 -V
