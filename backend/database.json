@@ -3,13 +3,6 @@
     "driver": "postgres",
     "user": "postgres",
     "database": "test",
-	  "password": "root"
-  },
-
-  "production": {
-    "driver": "postgres",
-    "user": "perhaps",
-    "database": "myapp",
-    "password": "123"
+    "password": "root"
   }
 }
