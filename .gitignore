@@ -33,3 +33,5 @@ data/etl/general.log
 # DS store
 data/.DS_Store
 
+#DB credentials
+backend/database.json

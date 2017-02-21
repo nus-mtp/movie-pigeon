@@ -4,7 +4,9 @@ var userControl = require('../controllers/user.js');
 var authController = require('../controllers/auth');
 var oauth2Controller = require('../controllers/oauth2');
 var clientController = require('../controllers/client');
+var bookmarkController = require('../controllers/bookmark');
 var movieController = require('../controllers/movie');
+var ratingController = require('../controllers/rate');
 
 // on routes that end in /users
 // ----------------------------------------------------
@@ -12,43 +14,12 @@ router.route('/users')
   .post(userControl.postUser)
   .get(authController.isAuthenticated, userControl.getUser);
 
-/*
- // on routes that end in /users/:user_id
- // ----------------------------------------------------
- router.route('/users/:user_id')
+router.route('/users/username')
+  .put(authController.isAuthenticated, userControl.updateUsername);
 
- .put(authController.isAuthenticated, function(req, res) {
- var user = User.build();
+router.route('/users/password')
+  .put(authController.isAuthenticated, userControl.updatePassword);
 
- user.username = req.body.username;
- user.password = req.body.password;
-
- userControl.updateById(user, req.params.user_id, function(success) {
- console.log(success);
- if (success) {
- res.json({ message: 'User updated!' });
- } else {
- res.send(401, "User not found");
- }
- }, function(error) {
- res.send("User not found");
- });
- })
-
- .get(authController.isAuthenticated, function(req, res) {
- var user = User.build();
-
- userControl.retrieveById(req.params.user_id, function(users) {
- if (users) {
- res.json(users);
- } else {
- res.send(401, "User not found");
- }
- }, function(error) {
- res.send("User not found");
- });
- })
- */
 router.post('/users/login', authController.isAuthenticated, function (req, res) {
   return res.send('login successful');
 });
@@ -77,5 +48,14 @@ router.route('/movies/title')
 router.route('/movies/year')
   .get(authController.isAuthenticated,
     movieController.getMoviesByProductionYear);
+
+router.route('/bookmarks')
+  .post(authController.isAuthenticated, bookmarkController.postBookmarks)
+  .get(authController.isAuthenticated, bookmarkController.getBookmarks)
+  .delete(authController.isAuthenticated, bookmarkController.deleteBookmarks);
+
+router.route('/ratings')
+  .post(authController.isAuthenticated, ratingController.postRates)
+  .get(authController.isAuthenticated, ratingController.getRates);
 
 module.exports = router;
