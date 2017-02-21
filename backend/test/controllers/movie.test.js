@@ -75,8 +75,8 @@ describe('Movie controller test', function () {
       .expect(200)
       .end(function (err, res) {
         res.status.should.equal(200);
-        var data = res.body;
-        data.length.should.equal(1);
+        res.body.count.should.equal(1);
+        var data = res.body.raw;
         getObjects(data, 'movie_id', 'test000001').should.not.equal([]);
         done();
       });
@@ -91,8 +91,8 @@ describe('Movie controller test', function () {
       .expect(200)
       .end(function (err, res) {
         res.status.should.equal(200);
-        var data = res.body;
-        data.length.should.equal(2);
+        res.body.count.should.equal(2);
+        var data = res.body.raw;
         getObjects(data, 'movie_id', 'test000001').should.not.equal([]);
         getObjects(data, 'movie_id', 'test000003').should.not.equal([]);
         done();
@@ -109,8 +109,8 @@ describe('Movie controller test', function () {
         .expect(200)
         .end(function (err, res) {
           res.status.should.equal(200);
-          var data = res.body;
-          data.length.should.equal(1);
+          res.body.count.should.equal(1);
+          var data = res.body.raw;
           getObjects(data, 'movie_id', 'test000001').should.not.equal([]);
           done();
         });
@@ -126,8 +126,8 @@ describe('Movie controller test', function () {
         .expect(200)
         .end(function (err, res) {
           res.status.should.equal(200);
-          var data = res.body;
-          data.length.should.equal(1);
+          res.body.count.should.equal(1);
+          var data = res.body.raw;
           getObjects(data, 'movie_id', 'test000003').should.not.equal([]);
           done();
         });
@@ -145,8 +145,8 @@ describe('Movie controller test', function () {
         .expect(200)
         .end(function (err, res) {
           res.status.should.equal(200);
-          var data = res.body;
-          data.length.should.equal(3);
+          res.body.count.should.equal(5);
+          var data = res.body.raw;
           getObjects(data, 'movie_id', 'test000001').should.not.equal([]);
           getObjects(data, 'movie_id', 'test000002').should.not.equal([]);
           getObjects(data, 'movie_id', 'test000003').should.not.equal([]);
@@ -162,8 +162,8 @@ describe('Movie controller test', function () {
         .expect(200)
         .end(function (err, res) {
           res.status.should.equal(200);
-          var data = res.body;
-          data.length.should.equal(2);
+          res.body.count.should.equal(5);
+          var data = res.body.raw;
           getObjects(data, 'movie_id', 'test000004').should.not.equal([]);
           getObjects(data, 'movie_id', 'test000005').should.not.equal([]);
           done();

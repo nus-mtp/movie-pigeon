@@ -14,6 +14,12 @@ router.route('/users')
   .post(userControl.postUser)
   .get(authController.isAuthenticated, userControl.getUser);
 
+router.route('/users/username')
+  .put(authController.isAuthenticated, userControl.updateUsername);
+
+router.route('/users/password')
+  .put(authController.isAuthenticated, userControl.updatePassword);
+
 router.post('/users/login', authController.isAuthenticated, function (req, res) {
   return res.send('login successful');
 });

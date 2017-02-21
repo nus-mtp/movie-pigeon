@@ -95,6 +95,20 @@ server.exchange(oauth2orize.exchange.code(
         var clientId = authCode.clientId;
         var userId = authCode.userId;
 
+        Token.find({
+          where: {
+            userId: userId,
+            clientId: clientId
+          }
+        })
+          .then(function (tokens) {
+            if (tokens) {
+              tokens.destroy();
+            }
+          })
+          .catch(function (err) {
+            console.log(err);
+          });
         // Save the access token and check for errors
         Token.build({value: value, clientId: clientId, userId: userId})
           .save()

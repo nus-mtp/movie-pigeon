@@ -1,5 +1,9 @@
 // Load required packages
 var bookmarks = require('../models/bookmarks.js');
+var movie = require('../models/movie.js');
+var publicRate = require('../models/PublicRate.js');
+var RatingSource = require('../models/ratingSource.js');
+var UserRating = require('../models/history.js');
 
 // Create endpoint /api/ratings for POST
 exports.postBookmarks = function (req, res) {
@@ -50,12 +54,42 @@ exports.deleteBookmarks = function (req, res) {
 
 // Create endpoint /api/bookmarks for GET
 exports.getBookmarks = function (req, res) {
-  bookmarks.findAll({
-    where: {
-      user_id: req.user.id
-    }
-  })
-    .then(function (results) {
-      res.json(results);
-    });
+  // bookmarks.findAll({
+  //   where: {
+  //     user_id: req.user.id
+  //   },
+  //   include: [{
+  //     model: movie
+  //   }]
+  // })
+  //   .then(function (results) {
+  //     res.json(results);
+  //   });
+
+  movie.findAll({
+    include: [
+      {
+        model: publicRate,
+        include: [
+          RatingSource
+        ]
+      },
+      {
+        model: bookmarks,
+        where: {
+          user_id: req.user.id
+        },
+        required: true
+      },
+      {
+        model: UserRating,
+        where: {
+          user_id: req.user.id
+        },
+        required: false
+      }
+    ]
+  }).then(function (movies) {
+    res.json(movies);
+  });
 };
