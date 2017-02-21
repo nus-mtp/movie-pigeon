@@ -27,7 +27,7 @@ before_install:
   - cd data
   - sudo apt-get -y install python3-pip
   - sudo pip3 install -U bs4
-  - sudo pip3 install -U lxml
+  - sudo pip3 install lxml
   - python3 -V
   - pip3 -V
   - pip3 list
