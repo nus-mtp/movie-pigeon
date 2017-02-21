@@ -1,7 +1,8 @@
-import data.etl.extractor as extractor
-import data.etl.transformer as transformer
-import data.etl.loader as loader
-import data.utils as utils
+import etl.extractor as extractor
+import etl.transformer as transformer
+import etl.loader as loader
+import utils
+
 
 from urllib import error
 

@@ -1,5 +1,5 @@
-from data.etl.moviedata import MovieData
-from data.etl.movierating import MovieRating
+from etl.moviedata import MovieData
+from etl.movierating import MovieRating
 
 
 class Extractor:
