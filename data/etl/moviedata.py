@@ -31,17 +31,39 @@ class MovieData:
     soup = None
 
     def __init__(self, imdb_id):
+        """
+        it takes an imdb_id to instantiate a MovieData object, upon instantiation,
+        it will get relevant html content and store as instance attribute
+        :param imdb_id:
+        """
         self.imdb_id = imdb_id
-        self.build_soup()
-        self.extract_process()
 
     # main logic
-    def build_soup(self):
+    def get_html_content(self):
+        """
+        get html source based on imdb_id
+        :return: string
+        """
         url = self.IMDB_URL_FORMAT.format(self.imdb_id)
         request_result = html.unescape(request.urlopen(url).read().decode("utf-8"))
+        return request_result
+
+    def build_soup(self, request_result):
+        """
+        build soup based on html content in string format
+        :param request_result:
+        :return:
+        """
         self.soup = BeautifulSoup(request_result, "lxml")  # soup builder
 
+    def build_soup_for_test(self, html_file_io_wrapper):
+        self.soup = BeautifulSoup(html_file_io_wrapper, "lxml")
+
     def extract_process(self):
+        """
+        main logic for extraction of imdb data
+        :return:
+        """
         self.extract_title_and_year()
         self.extract_poster()
         self.extract_credits()
@@ -140,6 +162,11 @@ class MovieData:
         return self.rated
 
     def extract_release(self):
+        """
+        parse the last token in subtext element. it determines the type of the object,
+        it may also determine the release date and country
+        :return:
+        """
         self.type = 'movie'  # default movie type
         anchors = self.subtext.find_all("a")
         for anchor in anchors:
@@ -178,6 +205,10 @@ class MovieData:
         return self.released, self.country, self.type
 
     def extract_genre(self):
+        """
+        parse the html content and return the genre of the movie
+        :return:
+        """
         genre_list = []
         spans = self.subtext.find_all("span", {"class": "itemprop"})
         for span in spans:
@@ -187,6 +218,10 @@ class MovieData:
         return self.genre
 
     def extract_runtime(self):
+        """
+        parse the html content and return the runtime of the movie
+        :return:
+        """
         time_tag = self.subtext.find("time")
         try:
             time_text = time_tag['datetime']
