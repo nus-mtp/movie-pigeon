@@ -2,6 +2,7 @@ import etl.extractor as extractor
 import etl.transformer as transformer
 import etl.loader as loader
 import utils
+import psycopg2
 
 
 from urllib import error
@@ -31,7 +32,7 @@ class ETLProcessor:
         self.logger.info("Initialise movie data retrieval process ...")
         existing_movies_id = self.loader.get_movie_id_list()
 
-        for index in range(84376, 9999999):  # iterate all possible titles
+        for index in range(105000, 9999999):  # iterate all possible titles
             imdb_id = utils.imdb_id_builder(index)
             if imdb_id in existing_movies_id:
                 continue
@@ -45,8 +46,12 @@ class ETLProcessor:
             except:
                 self.logger.error("Movie ID type is not registered." + imdb_id)
                 continue
-
-            self.loader.load_movie_data(movie_data)
+            try:
+                self.loader.load_movie_data(movie_data)
+            except psycopg2.DataError:
+                self.logger.error("Invalid insertion!")
+                self.logger.error(movie_data)
+                continue
 
     def update_movie_rating(self):
         """
