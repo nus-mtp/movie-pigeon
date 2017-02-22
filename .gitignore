@@ -19,3 +19,19 @@ hs_err_pid*
 
 # Node modules
 backend/node_modules/
+
+# config file and various api keys
+data/config.py
+
+# python compiles
+data/__pycache__/
+data/etl/__pycache__/
+
+# log file
+data/etl/general.log
+
+# DS store
+data/.DS_Store
+
+#DB credentials
+backend/database.json
