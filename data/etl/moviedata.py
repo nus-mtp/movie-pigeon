@@ -186,6 +186,10 @@ class MovieData:
                     self.released = utils.transform_date_imdb(release_text)
                 elif "Video Game" in release_text:
                     self.type = "video-game"
+                elif "Video game released" in release_text:
+                    self.type = "video-game"
+                    release_text = release_text.replace("Video game released", "").replace("\n", "").strip()
+                    self.released = utils.transform_date_imdb(release_text)
                 elif "Video" in release_text:
                     self.type = "video"
                     release_text = release_text.replace("Video", "").replace("\n", "").strip()
