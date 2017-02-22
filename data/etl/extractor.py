@@ -37,6 +37,8 @@ class Extractor:
         :return: rating and votes in STRING format or False if it is a bad request
         """
         data_model = MovieData(movie_id)
+        data_model.build_soup(data_model.get_html_content())
+        data_model.extract_process()
         return data_model.get_movie_data()
 
     # ==========

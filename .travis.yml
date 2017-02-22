@@ -38,4 +38,5 @@ install:
 script:
   - npm test
   - cd ..
-  - python3 -m unittest data/test/test_moviedata.py
+  - cd data
+  - python3 -m unittest test/test_moviedata.py
