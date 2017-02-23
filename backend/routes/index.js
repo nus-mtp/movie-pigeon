@@ -7,6 +7,7 @@ var clientController = require('../controllers/client');
 var bookmarkController = require('../controllers/bookmark');
 var movieController = require('../controllers/movie');
 var ratingController = require('../controllers/rate');
+var thirdPartyController = require('../controllers/ratingExtractor.js');
 
 // on routes that end in /users
 // ----------------------------------------------------
@@ -57,5 +58,9 @@ router.route('/bookmarks')
 router.route('/ratings')
   .post(authController.isAuthenticated, ratingController.postRates)
   .get(authController.isAuthenticated, ratingController.getRates);
+
+router.route('/traktTV')
+  .get(thirdPartyController.checkTraktUser)
+  .post(thirdPartyController.getTraktRatings);
 
 module.exports = router;
