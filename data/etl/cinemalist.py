@@ -10,6 +10,8 @@ class CinemaList:
 
     cathay_cinema_list_home = "http://www.cathaycineplexes.com.sg/cinemas/"
 
+    sb_cinema_list_home = "http://www.shaw.sg/sw_cinema.aspx"
+
     def __init__(self):
         self.driver = webdriver.PhantomJS()
 
@@ -64,4 +66,35 @@ class CinemaList:
         return cinema_list
 
     def get_shaw_brother(self):
-        pass
+        """Get a list of dictionaries contain all SB cinema names,
+        and their corresponding urls
+        """
+        name_list = []
+        url_list = []
+        cinema_list = []
+
+        url = self.sb_cinema_list_home
+        web_content = request.urlopen(url).read().decode("utf-8")
+        soup = BeautifulSoup(web_content, "lxml")
+        divs = soup.find_all("a", {"class": "txtHeaderBold"})
+        for div in divs:
+            name_list.append(div.text)
+
+        buy_tickets = soup.find_all("a", {"class": "txtNormalDim"})
+        for item in buy_tickets:
+            current_link = item["href"]
+            if "buytickets" in current_link:
+                url_list.append("www.shaw.sg/" + item["href"])
+
+        assert len(name_list) == len(url_list)
+        for i in range(len(name_list)):
+            inserted_tuple = {
+                "cinema_name": name_list[i],
+                "url": url_list[i]
+            }
+            cinema_list.append(inserted_tuple)
+
+        return cinema_list
+
+
+

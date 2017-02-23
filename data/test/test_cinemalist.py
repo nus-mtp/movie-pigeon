@@ -12,5 +12,8 @@ class TestCinemaList(unittest.TestCase):
     #     cinemalist = CinemaList()
     #     cinemalist.get_golden_village_cinema_list()
 
-    def test_get_cathay(self):
-        self.cinema_list.get_cathay()
+    # def test_get_cathay(self):
+    #     self.cinema_list.get_cathay()
+
+    def test_get_shaw_brother(self):
+        self.cinema_list.get_shaw_brother()
