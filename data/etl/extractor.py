@@ -1,6 +1,6 @@
 from etl.moviedata import MovieData
 from etl.movierating import MovieRating
-
+from etl.cinemalist import CinemaList
 
 class Extractor:
 
@@ -58,8 +58,16 @@ class Extractor:
     # ===========
     #   showing
     # ===========
-    def extract_popcorn_showing(self):
-        pass
+    @staticmethod
+    def extract_cinema_list():
+        """return a list of dictionaries contains all the cinema names annd its respective urls"""
+        data_model = CinemaList()
+        final_list = []
+        final_list.extend(data_model.get_golden_village_cinema_list())
+        final_list.extend(data_model.get_cathay_cinema_list())
+        final_list.extend(data_model.get_shaw_brother_cinema_list())
+        return final_list
+
 
 
 

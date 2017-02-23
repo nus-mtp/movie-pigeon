@@ -53,6 +53,8 @@ class ETLProcessor:
                 self.logger.error(movie_data)
                 continue
 
+        self.logger.info("Movie data update process complete.")
+
     def update_movie_rating(self):
         """
         updates movie rating from popcorn movies (may have to change to raaw implementation in the future)
@@ -84,10 +86,13 @@ class ETLProcessor:
         """
         self.logger.info("Initialise movie showing update process ...")
         self.logger.info("Movie showing update process complete.")
-        pass
 
     def update_cinema_list(self):
-        pass
+        """update cinema list from various theatres websites"""
+        self.logger.info("Initialise cinema list update process ...")
+        cinema_list = self.extractor.extract_cinema_list()
+        self.loader.load_cinema_list(cinema_list)
+        self.logger.info("Cinema list update process complete.")
 
     # ===========================
     #   helper (private methods)

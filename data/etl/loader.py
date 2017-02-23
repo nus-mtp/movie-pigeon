@@ -36,6 +36,17 @@ class Loader:
                              movie_rating['movie_id'], movie_rating['source_id']))
         self.conn.commit()
 
+    def load_cinema_list(self, cinema_list):
+        for cinema in cinema_list:
+            self.cursor.execute("INSERT INTO cinemas (cinema_name, url) VALUES (%s, %s) "
+                                "ON CONFLICT (cinema_name) "
+                                "DO UPDATE SET (cinema_name, url) = (%s, %s)"
+                                "WHERE cinemas.cinema_name=%s",
+                                (cinema['cinema_name'], cinema['url'], cinema['cinema_name'], cinema['url'],
+                                 cinema['cinema_name']))
+
+            self.conn.commit()
+
     # ========
     #   GET
     # ========
