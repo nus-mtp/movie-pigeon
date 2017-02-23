@@ -6,7 +6,7 @@ var DataTypes = require('sequelize');
 // Define our showing schema
 var Showing = sequelize.define('showings', {
   cinema_id: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     primaryKey: true
   },
   movie_id: {
