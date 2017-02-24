@@ -35,12 +35,12 @@ class ETLProcessor:
             it is a one time process, i.e. data will not be updated constantly
         """
         self.logger.info("Initialise movie data retrieval process ...")
-        # existing_movies_id = self.loader.get_movie_id_list()
+        existing_movies_id = self.loader.get_movie_id_list()
 
         for index in range(lower, upper):  # iterate all possible titles
             imdb_id = utils.imdb_id_builder(index)
-            # if imdb_id in existing_movies_id:
-            #     continue
+            if imdb_id in existing_movies_id:
+                continue
 
             try:
                 movie_data = self.extractor.extract_movie_data(imdb_id)
