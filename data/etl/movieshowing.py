@@ -1,10 +1,17 @@
 from urllib import request, error
 from bs4 import BeautifulSoup
+import html
 
 
 class MovieShowing:
 
+    imdb_search_format = "http://www.imdb.com/find?&q={}"
+
     def __init__(self):
+        pass
+
+    def extract_cinema_schedule(self, cinema_url):
+        """Retrieve one cinema schedule based on the given url"""
         pass
 
     def extract(self):
@@ -19,6 +26,14 @@ class MovieShowing:
             if "/title" in current_href:
                 print(current_href)
 
+    def match(self):
+        print(self.build_search_url("Tu ying dang an"))
+
+    def build_search_url(self, search_title):
+        search_query = html.escape(search_title.lower())
+        return self.imdb_search_format.format(search_query)
+
+
 if __name__ == '__main__':
     app = MovieShowing()
-    app.extract()
+    app.match()
