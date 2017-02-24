@@ -1,3 +1,4 @@
+"""handles all interactions with database"""
 import config
 import psycopg2
 import logging
@@ -47,6 +48,9 @@ class Loader:
 
             self.conn.commit()
 
+    def load_cinema_schedule(self, cinema_schedule):
+        pass
+
     # ========
     #   GET
     # ========
@@ -62,3 +66,13 @@ class Loader:
         self.cursor.execute("SELECT title, released, director FROM movies WHERE movie_id=%s", (movie_id, ))
         data_object = self.cursor.fetchone()
         return data_object
+
+    def get_cinema_list(self):
+        """return a list of tuples that contains the information of
+        each cinema"""
+        self.cursor.execute("SELECT * FROM cinemas")
+        data_object= self.cursor.fetchall()
+        cinema_list = []
+        for item in data_object:
+            cinema_list.append(item)
+        return cinema_list

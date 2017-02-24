@@ -1,3 +1,4 @@
+"""Façade class for various lower level extractors"""
 from etl.moviedata import MovieData
 from etl.movierating import MovieRating
 from etl.cinemalist import CinemaList
@@ -37,12 +38,11 @@ class Extractor:
         final_list.extend(data_model.get_shaw_brother_cinema_list())
         return final_list
 
-
     @staticmethod
-    def extract_cinema_schedule():
-        data_model = MovieShowing()
-        pass
-
+    def extract_cinema_schedule(cinema):
+        data_model = MovieShowing(cinema)
+        data_model.extract_cinema_schedule()
+        return
 
 
 

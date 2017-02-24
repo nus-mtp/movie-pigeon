@@ -1,5 +1,8 @@
 from urllib import request, error
 from bs4 import BeautifulSoup
+from selenium import webdriver
+
+
 import html
 
 
@@ -7,12 +10,19 @@ class MovieShowing:
 
     imdb_search_format = "http://www.imdb.com/find?&q={}"
 
-    def __init__(self):
-        pass
+    def __init__(self, cinema):
+        self.driver = webdriver.PhantomJS()
+        self.cinema_id, self.cinema_name, self.cinema_url = cinema
 
-    def extract_cinema_schedule(self, cinema_url):
-        """Retrieve one cinema schedule based on the given url"""
-        pass
+    def extract_cinema_schedule(self):
+        """retrieve one cinema schedule based on the given url,
+        return a list of dictionaries contains """
+        # retrieve title, (type like 3D) and schedule time
+        print(self.cinema_url)
+        self.driver.get(self.cinema_url)
+
+        # find imdb id
+        # create tuple cinema_id, movie_id, type, schedule
 
     def extract(self):
         url = "http://www.imdb.com/find?&q=harry+potter+and+deathly+hallows"

@@ -54,7 +54,7 @@ class CinemaList:
         divs = soup.find_all("div", {"class": "description"})
         for div in divs:
             cinema_name = capwords(div.find("h1").text)
-            self.insert_cinema_data(cinema_list, cinema_name, None)
+            self.insert_cinema_data(cinema_list, cinema_name, "http://www.cathaycineplexes.com.sg/showtimes/")
         return cinema_list
 
     def get_shaw_brother_cinema_list(self):

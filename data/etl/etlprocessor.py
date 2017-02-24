@@ -76,8 +76,17 @@ class ETLProcessor:
         it is a continuous process and data will be updated constantly
         """
         self.logger.info("Initialise movie showing update process ...")
+        # get a list of cinemas
+        cinema_list = self.loader.get_cinema_list()  # [0]:cimena_id, [1]:cinema_name, [2]:url
+        # for each cinema
+        for cinema in cinema_list:
+            self.extractor.extract_cinema_schedule(cinema)
+
+            # get all schedules
+            # load into database based on cinema id and imdb id
+            break
+
         self.logger.info("Movie showing update process complete.")
-        pass
 
     def update_cinema_list(self):
         """update cinema list from various theatres websites"""
@@ -87,3 +96,6 @@ class ETLProcessor:
         self.logger.info("Cinema list update process complete.")
 
 
+if __name__ == '__main__':
+    app = ETLProcessor()
+    app.update_cinema_schedule()
