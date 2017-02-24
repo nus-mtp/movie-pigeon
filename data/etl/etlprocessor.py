@@ -30,14 +30,14 @@ class ETLProcessor:
         self.loader = loader.Loader(self.logger)
         self.transformer = transformer.Transformer(self.logger)
 
-    def update_movie_data(self):
+    def update_movie_data(self, lower, upper):
         """updates movie data from databases (potentially more than one source)
             it is a one time process, i.e. data will not be updated constantly
         """
         self.logger.info("Initialise movie data retrieval process ...")
         existing_movies_id = self.loader.get_movie_id_list()
 
-        for index in range(1, 9999999):  # iterate all possible titles
+        for index in range(lower, upper):  # iterate all possible titles
             imdb_id = utils.imdb_id_builder(index)
             if imdb_id in existing_movies_id:
                 continue
@@ -98,4 +98,4 @@ class ETLProcessor:
 
 if __name__ == '__main__':
     app = ETLProcessor()
-    app.update_cinema_schedule()
+    app.update_movie_data()
