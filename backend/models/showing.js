@@ -4,14 +4,20 @@ var Cinema = require('./cinema.js');
 var Movie = require('./movie.js');
 var DataTypes = require('sequelize');
 // Define our showing schema
-var Showing = sequelize.define('showing', {
+var Showing = sequelize.define('showings', {
   cinema_id: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     primaryKey: true
   },
   movie_id: {
     type: DataTypes.STRING,
     primaryKey: true
+  },
+  type: {
+    type: DataTypes.STRING
+  },
+  schedule: {
+    type: DataTypes.DATE
   }
 });
 
