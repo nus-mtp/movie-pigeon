@@ -15,6 +15,7 @@ import etl.loader as loader
 
 import utils
 import psycopg2
+import time
 
 
 from urllib import error
@@ -30,11 +31,12 @@ class ETLProcessor:
         self.loader = loader.Loader(self.logger)
         self.transformer = transformer.Transformer(self.logger)
 
-    def update_movie_data(self, lower, upper):
+    def update_movie_data(self, lower, upper, delay):
         """updates movie data from databases (potentially more than one source)
             it is a one time process, i.e. data will not be updated constantly
         """
         self.logger.info("Initialise movie data retrieval process ...")
+        time.sleep(delay)
         existing_movies_id = self.loader.get_movie_id_list()
 
         for index in range(lower, upper):  # iterate all possible titles
@@ -50,11 +52,11 @@ class ETLProcessor:
             except:  # need to find out the exact error type
                 self.logger.error("Movie ID type is not registered." + imdb_id)
                 continue
+
             try:
                 self.loader.load_movie_data(movie_data)
             except psycopg2.DataError:
                 self.logger.error("Invalid insertion! Due to the subtext are partially parsed.")
-                self.logger.error(movie_data)
                 continue
 
         self.logger.info("Movie data update process complete.")
@@ -95,7 +97,3 @@ class ETLProcessor:
         self.loader.load_cinema_list(cinema_list)
         self.logger.info("Cinema list update process complete.")
 
-
-if __name__ == '__main__':
-    app = ETLProcessor()
-    app.update_movie_data()
