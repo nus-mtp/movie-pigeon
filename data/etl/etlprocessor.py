@@ -36,11 +36,13 @@ class ETLProcessor:
             it is a one time process, i.e. data will not be updated constantly
         """
         self.logger.info("Initialise movie data retrieval process ...")
-        time.sleep(delay)
+
+        time.sleep(delay)  # delay to avoid conflict
         existing_movies_id = self.loader.get_movie_id_list()
 
         for index in range(lower, upper):  # iterate all possible titles
             imdb_id = utils.imdb_id_builder(index)
+
             if imdb_id in existing_movies_id:
                 continue
 
@@ -49,8 +51,9 @@ class ETLProcessor:
             except error.HTTPError:
                 self.logger.error("Movie ID is not valid." + imdb_id)
                 continue
-            except:  # need to find out the exact error type
+            except Exception as e:  # need to find out the exact error type
                 self.logger.error("Movie ID type is not registered." + imdb_id)
+                self.logger.error(e)
                 continue
 
             try:
