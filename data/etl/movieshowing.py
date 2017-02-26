@@ -4,8 +4,6 @@
 
 
 """
-
-
 from urllib import request, error
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -37,8 +35,8 @@ class MovieShowing:
 
     # extract_raw
     def extract_raw_golden_village(self):
-        # retrieve title, (type like 3D) and schedule time raw data
         self.driver.get(self.cinema_url)
+        # retrieve title, (type like 3D) and schedule time raw data
         tabs = self.driver.find_elements_by_class_name("ng-binding")
         for tab in tabs:
             if tab.get_attribute("ng-bind-html") == "day.day":
@@ -71,7 +69,7 @@ class MovieShowing:
     def extract_raw_shaw_brother(self):
         pass
 
-    # match
+    # match (to be moved into moviematcher class)
     def extract(self):
         url = "http://www.imdb.com/find?&q=harry+potter+and+deathly+hallows"
         soup = BeautifulSoup(request.urlopen(url).read().decode("utf-8"), "lxml")
