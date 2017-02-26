@@ -32,7 +32,8 @@ class MovieShowing:
             4. return the data
         """
         # self.extract_raw_golden_village()
-        self.extract_raw_cathay()
+        # self.extract_raw_cathay()
+        self.extract_raw_shaw_brother()
 
     # extract_raw
     def extract_raw_golden_village(self):
@@ -97,7 +98,31 @@ class MovieShowing:
             n += 1
 
     def extract_raw_shaw_brother(self):
-        pass
+        self.cinema_url = "http://www.shaw.sg/sw_buytickets.aspx?filmCode=&cplexCode=30 210 236 39 155 56 75 124 123 77 76 246 36 85 160 0&date="
+        self.cinema_name = "Shaw Theatres Lido"
+        self.driver.get(self.cinema_url)
+
+        show_dates = []
+        options = self.driver.find_element_by_id("ctl00_Content_ddlShowDate").find_elements_by_css_selector("option")
+        for show_date in options:
+            show_dates.append(show_date.get_attribute("value"))
+
+        for show_date in show_dates:  # each day
+            print(show_date)
+            self.driver.find_element_by_xpath("//select[@id='ctl00_Content_ddlShowDate']/option[@value='{}']".format(show_date)).click()
+            rows = self.driver.find_elements_by_class_name("panelSchedule")
+            for row in rows[2:]: # remove table header
+                name, schedule = row.text.strip().split("\n")
+                if "PM" in schedule or "AM" in schedule:
+                    name = name.split("   ")[1]
+                    schedule = schedule.replace("+", "").replace("*", "")
+                    schedule = schedule.replace(" PM", "PM").replace(" AM", "AM")
+                    schedule = schedule.split(" ")
+                    print(name, schedule)
+
+
+
+
 
     # getter
     def get_movie_schedule(self):
