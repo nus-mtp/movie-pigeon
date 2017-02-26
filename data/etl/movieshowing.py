@@ -18,7 +18,7 @@ class MovieShowing:
 
     def __init__(self, cinema):
         self.driver = webdriver.PhantomJS()
-        self.driver.set_window_size(1124, 850)  # set browser size.
+        self.driver.set_window_size(1124, 850)  # set browser size
         self.cinema_id, self.cinema_name, self.cinema_url = cinema
 
     def extract_cinema_schedule(self):
