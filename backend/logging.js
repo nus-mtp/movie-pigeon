@@ -14,7 +14,7 @@ var transporter = nodemailer.createTransport({
 
 var rule = new schedule.RecurrenceRule();
 rule.minute = 59;
-rule.hour = 15;
+rule.hour = 23;
 
 schedule.scheduleJob(rule, function () {
     // setup email data with unicode symbols
@@ -31,10 +31,10 @@ schedule.scheduleJob(rule, function () {
           path: '/home/perhaps/.pm2/logs/server-error-0.log'
         },
         {
-          path: '/home/perhaps/.pm2/logs/cron-out-0.log'
+          path: '/home/perhaps/.pm2/logs/cron-out-1.log'
         },
         {
-          path: '/home/perhaps/.pm2/logs/cron-error-0.log'
+          path: '/home/perhaps/.pm2/logs/cron-error-1.log'
         }
       ]
     };
@@ -58,7 +58,7 @@ schedule.scheduleJob(rule, function () {
 
 var rule2 = new schedule.RecurrenceRule();
 rule2.minute = 59;
-rule2.hour = 9;
+rule2.hour = 17;
 
 schedule.scheduleJob(rule2, function () {
     pm2.list(function (err, result) {
@@ -93,7 +93,7 @@ schedule.scheduleJob(rule2, function () {
               path: '/home/perhaps/.pm2/logs/server-error-0.log'
             },
             {
-              path: '/home/perhaps/.pm2/logs/cron-error-0.log'
+              path: '/home/perhaps/.pm2/logs/cron-error-1.log'
             }
           ]
         };
