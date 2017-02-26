@@ -14,7 +14,7 @@ var transporter = nodemailer.createTransport({
 
 var rule = new schedule.RecurrenceRule();
 rule.minute = 59;
-rule.hour = 23;
+rule.hour = 15;
 
 schedule.scheduleJob(rule, function () {
     // setup email data with unicode symbols
@@ -23,9 +23,20 @@ schedule.scheduleJob(rule, function () {
       to: 'movie.pigeon@gmail.com', // list of receivers
       subject: '[Movie Pigeon] Logging file', // Subject line
       text: new Date().toLocaleString(), // html body
-      attachments: [{
-        path: '/README.md'
-      }]
+      attachments: [
+        {
+          path: '/home/perhaps/.pm2/logs/server-out-0.log'
+        },
+        {
+          path: '/home/perhaps/.pm2/logs/server-error-0.log'
+        },
+        {
+          path: '/home/perhaps/.pm2/logs/cron-out-0.log'
+        },
+        {
+          path: '/home/perhaps/.pm2/logs/cron-error-0.log'
+        }
+      ]
     };
 
     // send mail with defined transport object
@@ -36,12 +47,10 @@ schedule.scheduleJob(rule, function () {
       console.log('Message %s sent: %s', info.messageId, info.response);
     });
 
-    pm2.flush('server', function (err) {
+    pm2.flush(function (err, ret) {
       console.log(err);
+      console.log(ret);
     });
 
-    pm2.flush('cron', function (err) {
-      console.log(err);
-    });
   }
 );
