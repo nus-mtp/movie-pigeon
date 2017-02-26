@@ -1,14 +1,14 @@
 """
     This class retrieves movie schedule from different sources,
     parse all data into required format, and match it with imdb id.
-
-
 """
 from urllib import request, error
 from bs4 import BeautifulSoup
-from selenium import webdriver
+from selenium import webdriver, common
+from pytz import timezone
+from datetime import datetime, timedelta
 
-
+import time
 import html
 
 
@@ -31,7 +31,8 @@ class MovieShowing:
             3. match and store imdb id
             4. return the data
         """
-        self.extract_raw_golden_village()
+        # self.extract_raw_golden_village()
+        self.extract_raw_cathay()
 
     # extract_raw
     def extract_raw_golden_village(self):
@@ -64,31 +65,54 @@ class MovieShowing:
         return
 
     def extract_raw_cathay(self):
-        pass
+        # data set up
+        self.cinema_url = "http://www.cathaycineplexes.com.sg/showtimes/"
+        self.cinema_name = "Cathay Cineplex Amk Hub"
+        
+        # engine set up
+        self.driver.get(self.cinema_url)
+        cathay_id = self._get_id_from_cathay_cinema_name(self.cinema_name)
+        outer_div = self.driver.find_element_by_id("ContentPlaceHolder1_wucST{}_tabs".format(cathay_id))
+        tabbers = outer_div.find_elements_by_class_name("tabbers")
+
+        n = 0
+        for tabber in tabbers: # for each day
+            print(self._get_singapore_date(n))
+            rows = tabber.find_elements_by_class_name("movie-container")
+            for row in rows:
+                try:
+                    row_content = row.get_attribute("innerHTML")
+                    soup = BeautifulSoup(row_content, "lxml")
+                    title = soup.find("strong").text
+
+                    time_list = []
+                    times = soup.find_all("a", {"class": "cine_time"})
+                    for show_time in times:
+                        time_list.append(show_time.text)
+
+                    print(title, time_list)
+                except AttributeError:
+                    break
+
+            n += 1
 
     def extract_raw_shaw_brother(self):
         pass
 
-    # match (to be moved into moviematcher class)
-    def extract(self):
-        url = "http://www.imdb.com/find?&q=harry+potter+and+deathly+hallows"
-        soup = BeautifulSoup(request.urlopen(url).read().decode("utf-8"), "lxml")
-        anchors = soup.find_all("a")
-        for item in anchors:
-            try:
-                current_href = item['href']
-            except KeyError:
-                continue
-            if "/title" in current_href:
-                print(current_href)
-
-    def match(self):
-        print(self.build_search_url("Tu ying dang an"))
-
-    def build_search_url(self, search_title):
-        search_query = html.escape(search_title.lower())
-        return self.imdb_search_format.format(search_query)
-
     # getter
     def get_movie_schedule(self):
         pass
+
+    @staticmethod
+    def _get_id_from_cathay_cinema_name(cinema_name):
+        """get cathay internal id from their cinema name for web elements"""
+        mapper = {
+            "Cathay Cineplex Amk Hub": ""
+        }
+        return mapper[cinema_name]
+
+    @staticmethod
+    def _get_singapore_date(n):
+        """get the date of n days from now in SGT"""
+        today = (datetime.fromtimestamp(time.time(), timezone("Singapore")) + timedelta(days=n)).strftime("%Y-%m-%d")
+        return today
