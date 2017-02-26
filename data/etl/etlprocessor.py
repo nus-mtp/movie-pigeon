@@ -98,4 +98,4 @@ class ETLProcessor:
 
 if __name__ == '__main__':
     app = ETLProcessor()
-    app.update_movie_data()
+    app.update_cinema_schedule()
