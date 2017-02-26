@@ -1,3 +1,11 @@
+"""
+    This class retrieves movie schedule from different sources,
+    parse all data into required format, and match it with imdb id.
+
+
+"""
+
+
 from urllib import request, error
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -15,14 +23,20 @@ class MovieShowing:
         self.driver.set_window_size(1124, 850)  # set browser size.
         self.cinema_id, self.cinema_name, self.cinema_url = cinema
 
-    # extract
     def extract_cinema_schedule(self):
         """retrieve one cinema schedule based on the given url,
         return a list of dictionaries of movie titles
-        """
-        self.extract_raw_timetable()
 
-    def extract_raw_timetable(self):
+        Main logic flow as follow:
+            1. extract_raw
+            2. transform and packaging
+            3. match and store imdb id
+            4. return the data
+        """
+        self.extract_raw_golden_village()
+
+    # extract_raw
+    def extract_raw_golden_village(self):
         # retrieve title, (type like 3D) and schedule time raw data
         self.driver.get(self.cinema_url)
         tabs = self.driver.find_elements_by_class_name("ng-binding")
@@ -51,6 +65,12 @@ class MovieShowing:
                             # create tuple cinema_id, movie_id, type, schedule
         return
 
+    def extract_raw_cathay(self):
+        pass
+
+    def extract_raw_shaw_brother(self):
+        pass
+
     # match
     def extract(self):
         url = "http://www.imdb.com/find?&q=harry+potter+and+deathly+hallows"
@@ -71,3 +91,6 @@ class MovieShowing:
         search_query = html.escape(search_title.lower())
         return self.imdb_search_format.format(search_query)
 
+    # getter
+    def get_movie_schedule(self):
+        pass
