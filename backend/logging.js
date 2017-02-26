@@ -47,10 +47,12 @@ schedule.scheduleJob(rule, function () {
       console.log('Message %s sent: %s', info.messageId, info.response);
     });
 
-    pm2.flush(function (err, ret) {
-      console.log(err);
-      console.log(ret);
-    });
+    setTimeout(function () {
+      pm2.flush(function (err, ret) {
+        console.log(err);
+        console.log(ret);
+      });
+    }, 1000);
 
   }
 );
