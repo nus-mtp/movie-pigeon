@@ -22,10 +22,9 @@ class Loader:
                                  movie_data['rated'],  movie_data['plot'], movie_data['actors'], movie_data['language'],
                                  movie_data['country'], movie_data['runtime'], movie_data['poster_url'],
                                  movie_data['genre'], movie_data['director'], movie_data['released'], movie_data['type']))
+            self.conn.commit()
         except psycopg2.IntegrityError:
-            logging.error("UNIQUE CONSTRAINT violated in Table: movies")
-
-        self.conn.commit()
+            logging.error("UNIQUE CONSTRAINT violated in Table: movies " + movie_data['movie_id'])
 
     def load_movie_rating(self, movie_rating):
         self.cursor.execute("INSERT INTO public_ratings (vote, score, movie_id, source_id) VALUES (%s, %s, %s, %s) "
