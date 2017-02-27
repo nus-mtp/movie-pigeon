@@ -1,3 +1,4 @@
+"""handles all interactions with database"""
 import config
 import psycopg2
 import logging
@@ -21,10 +22,9 @@ class Loader:
                                  movie_data['rated'],  movie_data['plot'], movie_data['actors'], movie_data['language'],
                                  movie_data['country'], movie_data['runtime'], movie_data['poster_url'],
                                  movie_data['genre'], movie_data['director'], movie_data['released'], movie_data['type']))
+            self.conn.commit()
         except psycopg2.IntegrityError:
-            logging.error("UNIQUE CONSTRAINT violated in Table: movies")
-
-        self.conn.commit()
+            logging.error("UNIQUE CONSTRAINT violated in Table: movies " + movie_data['movie_id'])
 
     def load_movie_rating(self, movie_rating):
         self.cursor.execute("INSERT INTO public_ratings (vote, score, movie_id, source_id) VALUES (%s, %s, %s, %s) "
@@ -35,6 +35,20 @@ class Loader:
                              movie_rating['source_id'], movie_rating['votes'], movie_rating['score'],
                              movie_rating['movie_id'], movie_rating['source_id']))
         self.conn.commit()
+
+    def load_cinema_list(self, cinema_list):
+        for cinema in cinema_list:
+            self.cursor.execute("INSERT INTO cinemas (cinema_name, url) VALUES (%s, %s) "
+                                "ON CONFLICT (cinema_name) "
+                                "DO UPDATE SET (cinema_name, url) = (%s, %s)"
+                                "WHERE cinemas.cinema_name=%s",
+                                (cinema['cinema_name'], cinema['url'], cinema['cinema_name'], cinema['url'],
+                                 cinema['cinema_name']))
+
+            self.conn.commit()
+
+    def load_cinema_schedule(self, cinema_schedule):
+        pass
 
     # ========
     #   GET
@@ -51,3 +65,13 @@ class Loader:
         self.cursor.execute("SELECT title, released, director FROM movies WHERE movie_id=%s", (movie_id, ))
         data_object = self.cursor.fetchone()
         return data_object
+
+    def get_cinema_list(self):
+        """return a list of tuples that contains the information of
+        each cinema"""
+        self.cursor.execute("SELECT * FROM cinemas")
+        data_object= self.cursor.fetchall()
+        cinema_list = []
+        for item in data_object:
+            cinema_list.append(item)
+        return cinema_list

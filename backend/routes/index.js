@@ -8,6 +8,7 @@ var bookmarkController = require('../controllers/bookmark');
 var movieController = require('../controllers/movie');
 var ratingController = require('../controllers/rate');
 var thirdPartyController = require('../controllers/ratingExtractor.js');
+var emailService = require('../email/email');
 
 // on routes that end in /users
 // ----------------------------------------------------
@@ -20,6 +21,9 @@ router.route('/users/username')
 
 router.route('/users/password')
   .put(authController.isAuthenticated, userControl.updatePassword);
+
+router.route('/users/resetPassword')
+  .post(emailService.buildResetRequest);
 
 router.post('/users/login', authController.isAuthenticated, function (req, res) {
   return res.send('login successful');
