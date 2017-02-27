@@ -14,24 +14,13 @@ import html
 
 class MovieIDMatcher:
 
-    __IMDB_SEARCH_URL = "http://www.imdb.com/find?&q=harry+potter+and+deathly+hallows"
+    _IMDB_SEARCH_URL_FORMAT = "http://www.imdb.com/find?&q={}"
 
-    def __init__(self, title, validation_info=None):
-        """contructor requires movie title and an optional argument of validation info
-        It should be a dictionary and it contains at most these following fields:
-        {
-            "director": ...
-        }
-        """
+    def __init__(self, title):
         self.title = title
 
-        if validation_info is None:
-            self.validation_info = None
-        else:
-            self.validation_info = validation_info
-
     def match_imdb_id(self):
-        """return the MOST possible imdb id of the movie"""
+        """return the MOST possible imdb id of the movie from all recent showing"""
         # extract possible list
         # conditional checks
         # return imdb id
@@ -39,22 +28,28 @@ class MovieIDMatcher:
 
     def extract_imdb_possible(self):
         """return a list of possible imdb id in string format"""
+        possible_list = []
+        search_query = self._imdb_search_query_builder(self.title)
+        url = self._IMDB_SEARCH_URL_FORMAT.format(search_query)
+        soup = self._build_soup(url)
+        elements = soup.find_all("tr", {"class": "findResult"})
+        for element in elements:
+            td = element.find("td", {"class": "result_text"})
+            # imdb id
+            current_imdb = td.find("a")['href'].split("/")[2]
+            current_text = td.text.strip()
+
+            if "tt" in current_imdb:  # simple check
+
+                possible_list.append((current_imdb, current_text))
+        return possible_list[:3]  # first 3 options
+
+    @staticmethod
+    def _build_soup(url):
         soup = BeautifulSoup(request.urlopen(url).read().decode("utf-8"), "lxml")
-        anchors = soup.find_all("a")
-        for item in anchors:
-            try:
-                current_href = item['href']
-            except KeyError:
-                continue
-            if "/title" in current_href:
-                print(current_href)
+        return soup
 
-    def match(self):
-        print(self.build_search_url("Tu ying dang an"))
-
-    def build_search_url(self, search_title):
-        search_query = html.escape(search_title.lower())
-        return self.imdb_search_format.format(search_query)
-
-    def _imdb_search_query_builder(self):
-        pass
+    @staticmethod
+    def _imdb_search_query_builder(movie_title):
+        """parse the movie title according to the query"""
+        return movie_title.lower()
