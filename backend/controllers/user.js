@@ -13,15 +13,18 @@ exports.postUser = function (req, res) {
   User.find({where: {email: email}})
     .then(function (users) {
       if (users) {
-        return res.json({status: 'fail', message: 'User Existed'});
+        res.json({status: 'fail', message: 'User Existed'});
+        return false;
       } else {
         User.build({email: email, username: username, password: password})
           .save()
           .then(function () {
             res.json({status: 'success', message: 'User Created'});
+            return true;
           })
           .catch(function (err) {
             res.send(err);
+            return false;
           });
       }
     });
