@@ -120,10 +120,6 @@ class MovieShowing:
                     schedule = schedule.split(" ")
                     print(name, schedule)
 
-
-
-
-
     # getter
     def get_movie_schedule(self):
         pass
