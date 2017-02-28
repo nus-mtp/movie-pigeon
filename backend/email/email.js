@@ -2,13 +2,14 @@
 var nodemailer = require('nodemailer');
 var user = require('../models/user.js');
 var token = require('../models/token.js');
+var config = require('../config.json');
 
 // create reusable transporter object using the default SMTP transport
 var transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: config.CustomerServiceEmail.service,
   auth: {
-    user: 'movie.pigeon.customerservice@gmail.com',
-    pass: 'hellopigeons'
+    user: config.CustomerServiceEmail.account,
+    pass: config.CustomerServiceEmail.password
   }
 });
 
