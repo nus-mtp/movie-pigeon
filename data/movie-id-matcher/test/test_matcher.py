@@ -43,3 +43,7 @@ class TestMovieIDMatcher(unittest.TestCase):
 
     def test_parse_imdb_search_text(self):
         self.matcher._parse_imdb_search_text("Collide (I) (2016)")
+        self.matcher._parse_imdb_search_text("Collide (2017) (Short)")
+        self.matcher._parse_imdb_search_text("Cook Up a Storm (2017)")
+        self.matcher._parse_imdb_search_text("Cooking Up a Storm (2015) (TV Episode)")
+        self.matcher._parse_imdb_search_text('The King of Queens (1998) (TV Series) aka "Kung av Queens"')

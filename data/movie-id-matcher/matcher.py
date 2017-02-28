@@ -48,13 +48,31 @@ class MovieIDMatcher:
     @staticmethod
     def _parse_imdb_search_text(text):
         """parse out the searched text generated from imdb search
-        query, two variable will be returned. First is the title
-        obtained, second return is a list that contains all possible
+        query, two variable will be returned. First is a list that
+        consists of the movie title obtained, possibly more than one.
+        Second return is a list that contains all possible
         information stored in a bracket, such as year, type and
-        other strange information"""
-        first_bracket_index = text.find("(")
-        title_found = text[]
+        other strange information
+        :return list, list
+        """
+        title_list = []
+        info_list = []
 
+        segments = text.split("aka")
+        segments = [segment.strip() for segment in segments]  # remove extra white space
+
+        for segment in segments:
+            first_bracket_index = segment.find("(")
+
+            # title list
+            title_found = segment[:first_bracket_index].strip().replace("\"", "")
+            title_list.append(title_found)
+
+            # info list
+            infos = segment[first_bracket_index:].split(")")[:-1]
+            infos = [info.replace("(", "").strip() for info in infos]
+            info_list.extend(infos)
+        return title_list, info_list
 
     @staticmethod
     def _build_soup(url):
