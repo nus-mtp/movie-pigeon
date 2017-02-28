@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver, common
 from pytz import timezone
 from datetime import datetime, timedelta
+from difflib import SequenceMatcher
 
 import time
 import html
@@ -45,6 +46,17 @@ class MovieIDMatcher:
         return possible_list[:3]  # first 3 options
 
     @staticmethod
+    def _parse_imdb_search_text(text):
+        """parse out the searched text generated from imdb search
+        query, two variable will be returned. First is the title
+        obtained, second return is a list that contains all possible
+        information stored in a bracket, such as year, type and
+        other strange information"""
+        first_bracket_index = text.find("(")
+        title_found = text[]
+
+
+    @staticmethod
     def _build_soup(url):
         soup = BeautifulSoup(request.urlopen(url).read().decode("utf-8"), "lxml")
         return soup
@@ -53,3 +65,10 @@ class MovieIDMatcher:
     def _imdb_search_query_builder(movie_title):
         """parse the movie title according to the query"""
         return movie_title.lower()
+
+    @staticmethod
+    def _get_similarity(origin, searched):
+        """find the string similarity between the original
+        title and searched title"""
+        return SequenceMatcher(None, origin, searched).ratio()
+
