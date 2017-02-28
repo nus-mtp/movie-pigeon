@@ -6,6 +6,8 @@ var cookieParser = require('cookie-parser');
 var uuid = require('uuid');
 var passport = require('passport');
 var path = require('path');
+var fs = require('fs');
+var https = require('https');
 
 var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
@@ -32,7 +34,14 @@ var router = require('./routes/index.js');
 
 app.use('/api', router);
 
-app.listen(app.get('port'), function () {
+// app.listen(app.get('port'), function () {
+//   console.log('Express server listening on port ' + app.get('port'));
+// });
+
+https.createServer({
+  key: fs.readFileSync('key.pem'),
+  cert: fs.readFileSync('server.crt')
+}, app).listen(app.get('port'), function () {
   console.log('Express server listening on port ' + app.get('port'));
 });
 
