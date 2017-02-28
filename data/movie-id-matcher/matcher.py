@@ -15,10 +15,11 @@ import html
 
 class MovieIDMatcher:
 
-    _IMDB_SEARCH_URL_FORMAT = "http://www.imdb.com/find?&q={}"
+    _IMDB_SEARCH_URL_FORMAT = "http://www.imdb.com/find?&q={}&s=tt&ttype=ft&exact=true"
 
     def __init__(self, title):
         self.title = title
+        self.driver = webdriver.PhantomJS()
 
     def match_imdb_id(self):
         """return the MOST possible imdb id of the movie from all recent showing"""
@@ -32,18 +33,30 @@ class MovieIDMatcher:
         possible_list = []
         search_query = self._imdb_search_query_builder(self.title)
         url = self._IMDB_SEARCH_URL_FORMAT.format(search_query)
-        soup = self._build_soup(url)
-        elements = soup.find_all("tr", {"class": "findResult"})
+        self.driver.get(url)
+        elements = self.driver.find_elements_by_class_name("findResult")
         for element in elements:
-            td = element.find("td", {"class": "result_text"})
-            # imdb id
-            current_imdb = td.find("a")['href'].split("/")[2]
+            td = element.find_element_by_class_name("result_text")
+            current_imdb = td.find_element_by_css_selector("a").get_attribute("href").split("/")[4]
             current_text = td.text.strip()
 
-            if "tt" in current_imdb:  # simple check
+            possible_list.append((current_imdb, current_text))
 
-                possible_list.append((current_imdb, current_text))
-        return possible_list[:3]  # first 3 options
+        return possible_list[:3]
+
+        # method using bs4, not doing well with exact search
+        # soup = self._build_soup(url)
+        # elements = soup.find_all("tr", {"class": "findResult"})
+        # for element in elements:
+        #     td = element.find("td", {"class": "result_text"})
+        #     # imdb id
+        #     current_imdb = td.find("a")['href'].split("/")[2]
+        #     current_text = td.text.strip()
+        #
+        #
+        # print(url)
+        # print(possible_list)
+        #   # first 3 options
 
     @staticmethod
     def _parse_imdb_search_text(text):
@@ -69,9 +82,9 @@ class MovieIDMatcher:
             title_list.append(title_found)
 
             # info list
-            infos = segment[first_bracket_index:].split(")")[:-1]
-            infos = [info.replace("(", "").strip() for info in infos]
-            info_list.extend(infos)
+            tags = segment[first_bracket_index:].split(")")[:-1]
+            tags = [info.replace("(", "").strip() for info in tags]
+            info_list.extend(tags)
         return title_list, info_list
 
     @staticmethod
@@ -83,10 +96,3 @@ class MovieIDMatcher:
     def _imdb_search_query_builder(movie_title):
         """parse the movie title according to the query"""
         return movie_title.lower()
-
-    @staticmethod
-    def _get_similarity(origin, searched):
-        """find the string similarity between the original
-        title and searched title"""
-        return SequenceMatcher(None, origin, searched).ratio()
-
