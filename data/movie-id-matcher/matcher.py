@@ -2,15 +2,9 @@
 given title and some additional information of a movie
 match certain id (e.g. imdb id)
 """
-from urllib import request, error
+from urllib import request
 from bs4 import BeautifulSoup
-from selenium import webdriver, common
-from pytz import timezone
-from datetime import datetime, timedelta
-from difflib import SequenceMatcher
-
-import time
-import html
+from selenium import webdriver
 
 
 class MovieIDMatcher:
@@ -21,12 +15,25 @@ class MovieIDMatcher:
         self.title = title
         self.driver = webdriver.PhantomJS()
 
-    def match_imdb_id(self):
+    def match_imdb_id_for_cinema_schedule(self):
         """return the MOST possible imdb id of the movie from all recent showing"""
-        # extract possible list
-        # conditional checks
-        # return imdb id
-        pass
+        possible_result = []
+        possible_imdb_list = self.extract_imdb_possible()
+
+        for movie in possible_imdb_list:
+            movie_id, movie_title = movie
+            titles, infos = self._parse_imdb_search_text(movie_title)
+            # check year
+            if "2016" in infos or "2017" in infos:
+                possible_result.append(movie_id)
+            # check type is not tv
+            if "Short" is not infos and "TV" is not infos:
+                possible_result.append(movie_id)
+
+        # use the first
+        imdb_id = possible_result[0]
+
+        return imdb_id
 
     def extract_imdb_possible(self):
         """return a list of possible imdb id in string format"""
@@ -43,20 +50,6 @@ class MovieIDMatcher:
             possible_list.append((current_imdb, current_text))
 
         return possible_list[:3]
-
-        # method using bs4, not doing well with exact search
-        # soup = self._build_soup(url)
-        # elements = soup.find_all("tr", {"class": "findResult"})
-        # for element in elements:
-        #     td = element.find("td", {"class": "result_text"})
-        #     # imdb id
-        #     current_imdb = td.find("a")['href'].split("/")[2]
-        #     current_text = td.text.strip()
-        #
-        #
-        # print(url)
-        # print(possible_list)
-        #   # first 3 options
 
     @staticmethod
     def _parse_imdb_search_text(text):
