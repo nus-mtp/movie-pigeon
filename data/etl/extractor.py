@@ -33,9 +33,9 @@ class Extractor:
         """
         data_model = CinemaList()
         final_list = []
-        final_list.extend(data_model.get_golden_village_cinema_list())
-        final_list.extend(data_model.get_cathay_cinema_list())
-        final_list.extend(data_model.get_shaw_brother_cinema_list())
+        final_list.extend(data_model._extract_gv_cinema_list())
+        final_list.extend(data_model._extract_cathay_cinema_list())
+        final_list.extend(data_model._extract_sb_cinema_list())
         return final_list
 
     @staticmethod

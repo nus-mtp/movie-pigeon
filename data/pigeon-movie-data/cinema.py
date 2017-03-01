@@ -11,9 +11,120 @@ from datetime import datetime, timedelta
 import time
 import html
 
+from bs4 import BeautifulSoup
+from urllib import request, error
+from selenium import webdriver
+from string import capwords
+
 
 class CinemaList:
-    pass
+
+    GOLDEN_VILLAGE_LIST_HOME = "https://www.gv.com.sg/GVCinemas"
+
+    CATHAY_LIST_HOME = "http://www.cathaycineplexes.com.sg/cinemas/"
+
+    SHAW_BROTHER_LIST_HOME = "http://www.shaw.sg/sw_cinema.aspx"
+
+    def __init__(self):
+        self.driver = webdriver.PhantomJS()
+
+    def get_latest_cinema_list(self):
+        """
+        return the latest cinema list to the processor in the format
+        of
+        {
+            "url": ...
+            "cinema_name: ...
+            "provider": ...
+        }
+        :return: list
+        """
+        cinema_list = []
+        cinema_list.extend(self._extract_cathay_cinema_list())
+        cinema_list.extend(self._extract_gv_cinema_list())
+        cinema_list.extend(self._extract_sb_cinema_list())
+        return cinema_list
+
+    def _extract_gv_cinema_list(self):
+        """
+        return a list of dictionaries contain all Golden Village
+        cinema names, and their corresponding url.
+        """
+        url = self.GOLDEN_VILLAGE_LIST_HOME
+
+        cinema_list = []
+
+        # get raw cinema list
+        raw_cinema_url = []
+        self.driver.get(url)
+        anchors = self.driver.find_element_by_class_name("cinemas-list").find_elements_by_class_name("ng-binding")
+        for anchor in anchors:
+            raw_cinema_url.append(anchor.get_attribute("href"))
+
+        # get actual list, in each url it may contain more than one cinema
+        for cinema_url in raw_cinema_url:
+            self.driver = webdriver.PhantomJS()  # reinstantiate to avoid detach from DOM
+            self.driver.get(cinema_url)
+            div = self.driver.find_elements_by_class_name("ng-binding")
+            for item in div:
+                if item.get_attribute("ng-bind-html") == "cinema.name":
+                    cinema_name = item.text
+                    self.insert_cinema_data(cinema_list, cinema_name, cinema_url, "gv")
+        return cinema_list
+
+    def _extract_cathay_cinema_list(self):
+        """Get a list of dictionaries contain all cathay cinema names.
+        It's corresponding url is None because cathay does not show movies
+        schedule based on individual cinemas in their web page layouts.
+        """
+        cinema_list = []
+
+        url = self.CATHAY_LIST_HOME
+        web_content = request.urlopen(url).read().decode("utf-8")
+        soup = BeautifulSoup(web_content, "lxml")
+        divs = soup.find_all("div", {"class": "description"})
+        for div in divs:
+            cinema_name = capwords(div.find("h1").text)
+            self.insert_cinema_data(cinema_list, cinema_name, "http://www.cathaycineplexes.com.sg/showtimes/", "cathay")
+        return cinema_list
+
+    def _extract_sb_cinema_list(self):
+        """Get a list of dictionaries contain all SB cinema names,
+        and their corresponding urls
+        """
+        name_list = []
+        url_list = []
+        cinema_list = []
+
+        # get names
+        url = self.SHAW_BROTHER_LIST_HOME
+        web_content = request.urlopen(url).read().decode("utf-8")
+        soup = BeautifulSoup(web_content, "lxml")
+        divs = soup.find_all("a", {"class": "txtHeaderBold"})
+        for div in divs:
+            name_list.append(div.text)
+
+        # get url
+        buy_tickets = soup.find_all("a", {"class": "txtNormalDim"})
+        for item in buy_tickets:
+            current_link = item["href"]
+            if "buytickets" in current_link:
+                url_list.append("http://" + "www.shaw.sg/" + item["href"])
+
+        assert len(name_list) == len(url_list)  # check whether there is mistake in matching cinema name and url
+
+        for i in range(len(name_list)):
+            self.insert_cinema_data(cinema_list, name_list[i], url_list[i], "sb")
+        return cinema_list
+
+    @staticmethod
+    def insert_cinema_data(cinema_list, cinema_name, cinema_url, provider):
+        inserted_tuple = {
+            "url": cinema_url,
+            "cinema_name": cinema_name,
+            "provider": provider
+        }
+        cinema_list.append(inserted_tuple)
 
 
 class CinemaSchedule:
@@ -41,10 +152,10 @@ class CinemaSchedule:
         tabs = self.driver.find_elements_by_class_name("ng-binding")
 
         cinema_schedule = {}
-        n = 0
+        date_counter = 0
         for tab in tabs:
             if tab.get_attribute("ng-bind-html") == "day.day":
-                current_date = self._get_singapore_date(n)
+                current_date = self._get_singapore_date(date_counter)
                 if tab.text == "Advance Sales":  # reach the end of tabs
                     break
 
@@ -75,15 +186,10 @@ class CinemaSchedule:
                         else:
                             cinema_schedule[current_title] = current_time
 
-            n += 1
+            date_counter += 1
         return cinema_schedule
 
     def _extract_cathay(self):
-        # data set up
-        self.cinema_url = "http://www.cathaycineplexes.com.sg/showtimes/"
-        self.cinema_name = "Cathay Cineplex Amk Hub"
-
-        # engine set up
         self.driver.get(self.cinema_url)
         cathay_id = self._get_id_from_cathay_cinema_name(self.cinema_name)
         outer_div = self.driver.find_element_by_id("ContentPlaceHolder1_wucST{}_tabs".format(cathay_id))
