@@ -18,29 +18,24 @@ class CinemaList:
 
 class CinemaSchedule:
 
-    imdb_search_format = "http://www.imdb.com/find?&q={}"
-
     def __init__(self, cinema):
         self.driver = webdriver.PhantomJS()
         self.driver.set_window_size(1124, 850)  # set browser size
         self.cinema_id, self.cinema_name, self.cinema_url = cinema
 
-    def extract_cinema_schedule(self):
-        """retrieve one cinema schedule based on the given url,
-        return a list of dictionaries of movie titles
-
-        Main logic flow as follow:
-            1. extract_raw
-            2. transform and packaging
-            3. match and store imdb id
-            4. return the data
+    def generic_cinema_extractor(self):
         """
-        # self.extract_raw_golden_village()
-        # self.extract_raw_cathay()
-        self.extract_raw_shaw_brother()
+        it will auto select the extract method based on the url
+        or cinema name given, return the formatted data object
+        that can be used by Loader
+        :return: dictionary
+        """
+        self._extract_golden_village()
+        self._extract_cathay()
+        self._extract_shaw_brother()
 
     # extract_raw
-    def _extract_raw_golden_village(self):
+    def _extract_golden_village(self):
         self.driver.get(self.cinema_url)
         # retrieve title, (type like 3D) and schedule time raw data
         tabs = self.driver.find_elements_by_class_name("ng-binding")
@@ -83,7 +78,7 @@ class CinemaSchedule:
             n += 1
         return cinema_schedule
 
-    def extract_raw_cathay(self):
+    def _extract_cathay(self):
         # data set up
         self.cinema_url = "http://www.cathaycineplexes.com.sg/showtimes/"
         self.cinema_name = "Cathay Cineplex Amk Hub"
@@ -115,7 +110,7 @@ class CinemaSchedule:
 
             n += 1
 
-    def extract_raw_shaw_brother(self):
+    def _extract_shaw_brother(self):
         self.cinema_url = "http://www.shaw.sg/sw_buytickets.aspx?filmCode=&cplexCode=30 210 236 39 155 56 75 124 123 77 76 246 36 85 160 0&date="
         self.cinema_name = "Shaw Theatres Lido"
         self.driver.get(self.cinema_url)
@@ -140,8 +135,25 @@ class CinemaSchedule:
                     schedule = schedule.split(" ")
                     print(name, schedule)
 
-    # getter
-    def get_movie_schedule(self):
+    def _parse_cinema_object_to_data(self):
+        """
+        parse the cinema object in the format:
+        {
+            movie_title: a list of movie schedule
+        }
+        to the format that can be consumed by loader class and
+        subsequently being stored into the database
+        {
+            "imdb_id": ...,
+            "schedule": [...],
+            "type": ...
+
+        In the process, it will complete 2 additional tasks
+        besides rearranging the dictionary -- parse the movie
+        title into title and additional information such as
+        "3D" "Dolby Digital", and match the title to imdb id
+        :return: dictionary
+        """
         pass
 
     @staticmethod
@@ -161,6 +173,11 @@ class CinemaSchedule:
 
     @staticmethod
     def _convert_12_to_24_hour_time(time_string):
+        """
+        convert time in 12 hour string format to 24 hour string format
+        :param time_string: string
+        :return: string
+        """
         return datetime.strptime(time_string, "%I:%M%p").strftime("%H:%M:%S")
 
 

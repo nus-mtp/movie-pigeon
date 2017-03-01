@@ -41,7 +41,7 @@ class Extractor:
     @staticmethod
     def extract_cinema_schedule(cinema):
         data_model = MovieShowing(cinema)
-        data_model.extract_cinema_schedule()
+        data_model.generic_cinema_extractor()
         return
 
 

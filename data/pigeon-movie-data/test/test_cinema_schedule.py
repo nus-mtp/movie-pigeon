@@ -13,7 +13,14 @@ class TestCinemaSchedule(unittest.TestCase):
                                                                     '123 77 76 246 36 85 160 0&date='))
 
     def test_extract_raw_golden_village(self):
-        self.gv_schedule._extract_raw_golden_village()
+        self.gv_schedule._extract_golden_village()
+
+    def test_extract_raw_golden_village(self):
+        self.gv_schedule._extract_golden_village()
+
+    def test_extract_raw_golden_village(self):
+        self.gv_schedule._extract_golden_village()
 
     def test_convert_12_to_24_hour(self):
+        # to be added in more test cases
         self.assertEqual(self.gv_schedule._convert_12_to_24_hour_time("8:25pm"), "20:25:00")

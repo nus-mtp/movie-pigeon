@@ -80,7 +80,7 @@ class ETLProcessor:
         cinema_list = self.loader.get_cinema_list()  # [0]:cimena_id, [1]:cinema_name, [2]:url
         # for each cinema
         for cinema in cinema_list:
-            self.extractor.extract_cinema_schedule(cinema)
+            self.extractor.generic_cinema_extractor(cinema)
 
             # get all schedules
             # load into database based on cinema id and imdb id
