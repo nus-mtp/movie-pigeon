@@ -24,3 +24,6 @@ var Cinema = sequelize.define('cinemas', {
 sequelize.sync({});
 // Export the model
 module.exports = Cinema;
+module.exports.getAllCinema = function () {
+  return Cinema.findAll();
+};
