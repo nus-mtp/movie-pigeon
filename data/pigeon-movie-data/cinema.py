@@ -41,8 +41,8 @@ class CinemaList:
         """
         cinema_list = []
         cinema_list.extend(self._extract_cathay_cinema_list())
-        cinema_list.extend(self._extract_gv_cinema_list())
         cinema_list.extend(self._extract_sb_cinema_list())
+        cinema_list.extend(self._extract_gv_cinema_list())
         return cinema_list
 
     def _extract_gv_cinema_list(self):
@@ -132,7 +132,7 @@ class CinemaSchedule:
     def __init__(self, cinema):
         self.driver = webdriver.PhantomJS()
         self.driver.set_window_size(1124, 850)  # set browser size
-        self.cinema_id, self.cinema_name, self.cinema_url = cinema
+        self.cinema_id, self.cinema_name, self.cinema_url, self.provider = cinema
 
     def generic_cinema_extractor(self):
         """
@@ -195,51 +195,72 @@ class CinemaSchedule:
         outer_div = self.driver.find_element_by_id("ContentPlaceHolder1_wucST{}_tabs".format(cathay_id))
         tabbers = outer_div.find_elements_by_class_name("tabbers")
 
-        n = 0
+        date_counter = 0
+        cinema_schedule = {}
         for tabber in tabbers:  # for each day
-            print(self._get_singapore_date(n))
+            current_date = self._get_singapore_date(date_counter)
             rows = tabber.find_elements_by_class_name("movie-container")
             for row in rows:
                 try:
                     row_content = row.get_attribute("innerHTML")
                     soup = BeautifulSoup(row_content, "lxml")
-                    title = soup.find("strong").text
+                    current_title = soup.find("strong").text
 
-                    time_list = []
+                    current_time = []
                     times = soup.find_all("a", {"class": "cine_time"})
                     for show_time in times:
-                        time_list.append(show_time.text)
+                        current_time.append(current_date + " " + show_time.text + ":00")
 
-                    print(title, time_list)
+                    if current_title is not None:
+                        if current_title in cinema_schedule:
+                            cinema_schedule[current_title].extend(current_time)
+                        else:
+                            cinema_schedule[current_title] = current_time
                 except AttributeError:
                     break
 
-            n += 1
+            date_counter += 1
+        return cinema_schedule
 
     def _extract_shaw_brother(self):
-        self.cinema_url = "http://www.shaw.sg/sw_buytickets.aspx?filmCode=&cplexCode=30 210 236 39 155 56 75 124 123 77 76 246 36 85 160 0&date="
-        self.cinema_name = "Shaw Theatres Lido"
         self.driver.get(self.cinema_url)
-
         show_dates = []
         options = self.driver.find_element_by_id("ctl00_Content_ddlShowDate").find_elements_by_css_selector(
             "option")
         for show_date in options:
             show_dates.append(show_date.get_attribute("value"))
 
+        cinema_schedule = {}
         for show_date in show_dates:  # each day
-            print(show_date)
+            current_date = datetime.strptime(show_date, "%m/%d/%Y").strftime("%Y-%m-%d")
             self.driver.find_element_by_xpath(
                 "//select[@id='ctl00_Content_ddlShowDate']/option[@value='{}']".format(show_date)).click()
             rows = self.driver.find_elements_by_class_name("panelSchedule")
             for row in rows[2:]:  # remove table header
-                name, schedule = row.text.strip().split("\n")
+                current_title, schedule = row.text.strip().split("\n", 1)
                 if "PM" in schedule or "AM" in schedule:
-                    name = name.split("   ")[1]
+                    # title
+                    current_title = current_title.split("   ")[1]
+
+                    # time
+                    current_time = []
                     schedule = schedule.replace("+", "").replace("*", "")
-                    schedule = schedule.replace(" PM", "PM").replace(" AM", "AM")
+                    schedule = schedule.replace(" PM", "PM").replace(" AM", "AM").replace("\n", " ")
+                    if "(" in schedule:
+                        bracket_index = schedule.find("(")
+                        schedule = schedule[:bracket_index]  # remove anything behind bracket
                     schedule = schedule.split(" ")
-                    print(name, schedule)
+
+                    for item in schedule:
+                        if item != "":
+                            current_time.append(current_date + " " + self._convert_12_to_24_hour_time(item))
+
+                    if current_title is not None:
+                        if current_title in cinema_schedule:
+                            cinema_schedule[current_title].extend(current_time)
+                        else:
+                            cinema_schedule[current_title] = current_time
+        return cinema_schedule
 
     def _parse_cinema_object_to_data(self):
         """
@@ -266,7 +287,13 @@ class CinemaSchedule:
     def _get_id_from_cathay_cinema_name(cinema_name):
         """get cathay internal id from their cinema name for web elements"""
         mapper = {
-            "Cathay Cineplex Amk Hub": ""
+            "Cathay Cineplex Amk Hub": "",
+            "Cathay Cineplex Causeway Point": "1",
+            "Cathay Cineplex Cineleisure Orchard": "2",
+            "Cathay Cineplex Downtown East": "3",
+            "Cathay Cineplex Jem": "4",
+            "The Cathay Cineplex": "5",
+            "Cathay Cineplex West Mall": "6"
         }
         return mapper[cinema_name]
 
