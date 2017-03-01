@@ -2,19 +2,14 @@
     This class retrieves movie schedule from different sources,
     parse all data into required format, and match it with imdb id.
 """
-from urllib import request, error
-from bs4 import BeautifulSoup
-from selenium import webdriver, common
 from pytz import timezone
 from datetime import datetime, timedelta
-
-import time
-import html
-
 from bs4 import BeautifulSoup
-from urllib import request, error
+from urllib import request
 from selenium import webdriver
 from string import capwords
+
+import time
 
 
 class CinemaList:
@@ -265,6 +260,7 @@ class CinemaSchedule:
     def _parse_cinema_object_to_data(self):
         """
         parse the cinema object in the format:
+        (based on self.provider, parsing strategy may vary)
         {
             movie_title: a list of movie schedule
         }
