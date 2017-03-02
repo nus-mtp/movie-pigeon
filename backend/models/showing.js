@@ -14,10 +14,12 @@ var Showing = sequelize.define('showings', {
     primaryKey: true
   },
   type: {
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    primaryKey: true
   },
   schedule: {
-    type: DataTypes.DATE
+    type: DataTypes.DATE,
+    primaryKey: true
   }
 });
 
