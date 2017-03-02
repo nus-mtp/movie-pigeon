@@ -11,6 +11,7 @@
         4. update cinema schedule for each cinema available
 """
 from cinema import CinemaList, CinemaSchedule
+from movie import MovieData
 from loader import Loader
 
 
@@ -40,15 +41,19 @@ class ETLController:
             cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
             current_schedules, imdb_check_list = cinema_schedule.extract_cinema_schedule()
 
-            # check list and crawl
-            movie_list = self.loader.get_movie_id_list()
-            for new_imdb_id in imdb_check_list:
-                if new_imdb_id not in movie_list:
-                    # get movie data
-                    print("stub")
-
             # load schedule
             self.loader.load_cinema_schedule(cinema_id, current_schedules)
+
+    def _temp(self):
+        movie_list = self.loader.get_movie_id_list()
+        imdb_check_list = ['tt4846340', 'tt0498381', 'tt4465564', 'tt1691916', None, 'tt3783958',
+                           'tt3315342', 'tt2763304', 'tt1753383', 'tt2126235']
+        for new_imdb_id in imdb_check_list:
+            if new_imdb_id not in movie_list and new_imdb_id is not None:
+                data_model = MovieData(new_imdb_id)
+                data_model.build_soup(data_model.get_html_content())
+                data_model.extract_process()
+                self.loader.load_movie_data(data_model.get_movie_data())
 
 if __name__ == '__main__':
     controller = ETLController()

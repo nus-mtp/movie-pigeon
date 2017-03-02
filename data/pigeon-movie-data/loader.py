@@ -55,7 +55,7 @@ class Loader:
             for timing in schedule_list:
                 self.cursor.execute("INSERT INTO showings (cinema_id, movie_id, type, schedule) VALUES (%s, %s, %s, %s)",
                                     (cinema_id, movie_id, additional_info, timing))
-            self.cursor.commit()
+            self.conn.commit()
 
     # ========
     #   GET
