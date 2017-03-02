@@ -36,9 +36,16 @@ class ETLController:
         for cinema in cinema_list:
             cinema_id, cinema_name, provider, cinema_url = cinema
 
-            # get schedule
+            # get schedule and check list
             cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
-            current_schedules = cinema_schedule.extract_cinema_schedule()
+            current_schedules, imdb_check_list = cinema_schedule.extract_cinema_schedule()
+
+            # check list and crawl
+            movie_list = self.loader.get_movie_id_list()
+            for new_imdb_id in imdb_check_list:
+                if new_imdb_id not in movie_list:
+                    # get movie data
+                    print("stub")
 
             # load schedule
             self.loader.load_cinema_schedule(cinema_id, current_schedules)

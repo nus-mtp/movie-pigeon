@@ -286,10 +286,14 @@ class CinemaSchedule:
         besides rearranging the dictionary -- parse the movie
         title into title and additional information such as
         "3D" "Dolby Digital", and match the title to imdb id
-        :return: dictionary
+
+        It will also return another list of imdb id found in this
+        process and subjected to movie data extraction process if
+        imdb id is not present in database
+        :return: dictionary, list
         """
         data_object = []
-
+        imdb_id_check_list = []
         # parse title
         for key, value in cinema_object.items():
             title, additional_info = self._movie_title_parser(key)
@@ -297,7 +301,7 @@ class CinemaSchedule:
             # get imdb id
             matcher = MovieIDMatcher(title)
             imdb_id = matcher.match_imdb_id_for_cinema_schedule()
-
+            imdb_id_check_list.append(imdb_id)
             # reformat dict
             data_object.append(
                 {
@@ -306,7 +310,7 @@ class CinemaSchedule:
                     "type": additional_info
                 }
             )
-        return data_object
+        return data_object, imdb_id_check_list
 
     def _movie_title_parser(self, title):
         additional_info = []
