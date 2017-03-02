@@ -8,6 +8,8 @@ from bs4 import BeautifulSoup
 from urllib import request
 from selenium import webdriver
 from string import capwords
+from matcher import MovieIDMatcher
+
 
 import time
 
@@ -277,12 +279,25 @@ class CinemaSchedule:
         "3D" "Dolby Digital", and match the title to imdb id
         :return: dictionary
         """
+        data_object = []
+
         # parse title
         for key, value in cinema_object.items():
             title, additional_info = self.movie_title_parser(key)
 
-        # match id
-        return
+            # get imdb id
+            matcher = MovieIDMatcher(title)
+            imdb_id = matcher.match_imdb_id_for_cinema_schedule()
+
+            # reformat dict
+            data_object.append(
+                {
+                    "imdb_id": imdb_id,
+                    "schedule": value,
+                    "type": additional_info
+                }
+            )
+        return data_object
 
     def movie_title_parser(self, title):
         additional_info = []

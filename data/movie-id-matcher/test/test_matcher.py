@@ -12,7 +12,7 @@ class TestMovieIDMatcher(unittest.TestCase):
 
         def helper(title, expect_result):
             matcher = MovieIDMatcher(title)
-            test_result = matcher.extract_imdb_possible()
+            test_result = matcher._extract_imdb_possible()
             self.assertEqual(test_result, expect_result)
 
         helper("Collide", [

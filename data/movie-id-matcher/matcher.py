@@ -18,7 +18,7 @@ class MovieIDMatcher:
     def match_imdb_id_for_cinema_schedule(self):
         """return the MOST possible imdb id of the movie from all recent showing"""
         possible_result = []
-        possible_imdb_list = self.extract_imdb_possible()
+        possible_imdb_list = self._extract_imdb_possible()
 
         for movie in possible_imdb_list:
             movie_id, movie_title = movie
@@ -31,11 +31,13 @@ class MovieIDMatcher:
                 possible_result.append(movie_id)
 
         # use the first
-        imdb_id = possible_result[0]
-
+        try:
+            imdb_id = possible_result[0]
+        except IndexError:
+            return None
         return imdb_id
 
-    def extract_imdb_possible(self):
+    def _extract_imdb_possible(self):
         """return a list of possible imdb id in string format"""
         possible_list = []
         search_query = self._imdb_search_query_builder(self.title)
