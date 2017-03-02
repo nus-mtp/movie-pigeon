@@ -257,7 +257,7 @@ class CinemaSchedule:
                             cinema_schedule[current_title] = current_time
         return cinema_schedule
 
-    def _parse_cinema_object_to_data(self):
+    def _parse_cinema_object_to_data(self, cinema_object):
         """
         parse the cinema object in the format:
         (based on self.provider, parsing strategy may vary)
@@ -277,7 +277,41 @@ class CinemaSchedule:
         "3D" "Dolby Digital", and match the title to imdb id
         :return: dictionary
         """
-        pass
+        # parse title
+        for key, value in cinema_object.items():
+            title, additional_info = self.movie_title_parser(key)
+
+        # match id
+        return
+
+    def movie_title_parser(self, title):
+        additional_info = []
+        if self.provider == "gv":
+            if "*" in title:
+                title = title.replace("*", "")
+                additional_info.append("No free pass")
+        elif self.provider == "cathay":
+            if "*" in title:
+                title = title.replace("*", "")
+                # have not figure out the meaning of *
+            if "(Dolby Digital)" in title:
+                tokens = title.split(" ")
+                splitter = tokens.index("(Dolby")
+                title = " ".join(tokens[:splitter - 1])
+                additional_info.append("Dolby Digital")
+        else:  # shaw
+            if "[D]" in title:
+                title = title.replace("[D]", "")
+                additional_info.append("Digital")
+            if "[IMAX]" in title:
+                title = title.replace("[IMAX]", "")
+                additional_info.append("IMAX")
+            if "[M]" in title:
+                title = title.replace("[M]", "")
+
+        title = title.strip()
+        return title, additional_info
+
 
     @staticmethod
     def _get_id_from_cathay_cinema_name(cinema_name):
