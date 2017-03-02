@@ -126,23 +126,32 @@ class CinemaList:
 
 class CinemaSchedule:
 
-    def __init__(self, cinema):
+    def __init__(self, cinema_name, cinema_url, cinema_provider):
         self.driver = webdriver.PhantomJS()
         self.driver.set_window_size(1124, 850)  # set browser size
-        self.cinema_id, self.cinema_name, self.cinema_url, self.provider = cinema
 
-    def generic_cinema_extractor(self):
+        self.cinema_name = cinema_name
+        self.cinema_url = cinema_url
+        self.provider = cinema_provider
+
+    def extract_cinema_schedule(self):
         """
         it will auto select the extract method based on the url
         or cinema name given, return the formatted data object
         that can be used by Loader
-        :return: dictionary
+        :return: a list of dictionary
         """
-        self._extract_golden_village()
-        self._extract_cathay()
-        self._extract_shaw_brother()
+        if self.provider == "gv":
+            cinema_object = self._extract_golden_village()
+        elif self.provider == "sb":
+            cinema_object = self._extract_shaw_brother()
+        elif self.provider == "cathay":
+            cinema_object = self._extract_cathay()
+        else:
+            raise Exception("Invalid Cinema provider")
 
-    # extract_raw
+        return self._parse_cinema_object_to_data(cinema_object)
+
     def _extract_golden_village(self):
         self.driver.get(self.cinema_url)
         # retrieve title, (type like 3D) and schedule time raw data
@@ -283,7 +292,7 @@ class CinemaSchedule:
 
         # parse title
         for key, value in cinema_object.items():
-            title, additional_info = self.movie_title_parser(key)
+            title, additional_info = self._movie_title_parser(key)
 
             # get imdb id
             matcher = MovieIDMatcher(title)
@@ -299,7 +308,7 @@ class CinemaSchedule:
             )
         return data_object
 
-    def movie_title_parser(self, title):
+    def _movie_title_parser(self, title):
         additional_info = []
         if self.provider == "gv":
             if "*" in title:
@@ -314,7 +323,7 @@ class CinemaSchedule:
                 splitter = tokens.index("(Dolby")
                 title = " ".join(tokens[:splitter - 1])
                 additional_info.append("Dolby Digital")
-        else:  # shaw
+        elif self.provider == "sb":
             if "[D]" in title:
                 title = title.replace("[D]", "")
                 additional_info.append("Digital")
@@ -323,10 +332,11 @@ class CinemaSchedule:
                 additional_info.append("IMAX")
             if "[M]" in title:
                 title = title.replace("[M]", "")
+        else:
+            raise Exception("Invalid cinema provider")
 
         title = title.strip()
         return title, additional_info
-
 
     @staticmethod
     def _get_id_from_cathay_cinema_name(cinema_name):

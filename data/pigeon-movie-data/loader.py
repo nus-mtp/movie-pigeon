@@ -47,8 +47,15 @@ class Loader:
 
         self.conn.commit()
 
-    def load_cinema_schedule(self, cinema_schedule):
-        pass
+    def load_cinema_schedule(self, cinema_id, cinema_schedule):
+        for cinema_content in cinema_schedule:
+            movie_id = cinema_content['imdb_id']
+            schedule_list = cinema_content['schedule']
+            additional_info = cinema_content['type']
+            for timing in schedule_list:
+                self.cursor.execute("INSERT INTO showings (cinema_id, movie_id, type, schedule) VALUES (%s, %s, %s, %s)",
+                                    (cinema_id, movie_id, additional_info, timing))
+            self.cursor.commit()
 
     # ========
     #   GET
@@ -67,11 +74,6 @@ class Loader:
         return data_object
 
     def get_cinema_list(self):
-        """return a list of tuples that contains the information of
-        each cinema"""
         self.cursor.execute("SELECT * FROM cinemas")
-        data_object= self.cursor.fetchall()
-        cinema_list = []
-        for item in data_object:
-            cinema_list.append(item)
-        return cinema_list
+        data_object = self.cursor.fetchall()
+        return data_object
