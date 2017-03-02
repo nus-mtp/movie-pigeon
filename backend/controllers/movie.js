@@ -1,44 +1,17 @@
 // Load required packages
-var Movie = require('../models/movie.js');
-var PublicRate = require('../models/PublicRate.js');
-var RatingSource = require('../models/ratingSource.js');
-var UserRating = require('../models/history.js');
-var Bookmark = require('../models/bookmarks.js');
+var Movie = require('../proxy/movie.js');
+
+function processSearchString(searchString) {
+  searchString = searchString.trim().replace(' ', '%');
+  searchString = '%' + searchString + '%';
+  return searchString;
+}
+
 // Create endpoint /api/movie for GET
 exports.getMoviesByTitle = function (req, res) {
   // Use the Client model to find all clients
-  var title = req.headers.title;
-  var searchString = title.trim().replace(' ', '%');
-  searchString = '%' + searchString + '%';
-  Movie.findAndCountAll({
-    where: {
-      title: {$ilike: searchString}
-    },
-    limit: req.headers.limit,
-    offset: req.headers.offset,
-    include: [
-      {
-        model: PublicRate,
-        include: [
-          RatingSource
-        ]
-      },
-      {
-        model: UserRating,
-        where: {
-          user_id: req.user.id
-        },
-        required: false
-      },
-      {
-        model: Bookmark,
-        where: {
-          user_id: req.user.id
-        },
-        required: false
-      }
-    ]
-  })
+  var searchString = processSearchString(req.headers.title);
+  Movie.getMovieByTitle(req.user.id, searchString, req.headers.offset, req.headers.limit)
     .then(function (movies) {
       res.json(movies);
     }).catch(function (err) {
