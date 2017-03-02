@@ -1,4 +1,4 @@
-var showing = require('../models/showing.js');
+var showing = require('../proxy/showing.js');
 
 exports.getShowingByCinema = function (req, res) {
   showing.getShowingByCinema(req.user.id, req.headers.cinema_id)

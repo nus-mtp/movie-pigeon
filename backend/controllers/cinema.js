@@ -1,5 +1,5 @@
 // Load required packages
-var cinema = require('../models/cinema.js');
+var cinema = require('../proxy/cinema.js');
 
 // Create endpoint /api/ratings for GET
 exports.getCinemas = function (req, res) {
