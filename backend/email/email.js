@@ -29,8 +29,12 @@ exports.buildResetRequest = function (req, res) {
           clientId: clientId,
           userId: users.id
         })
-          .then(function (success) {
+          .then(function (tokens) {
             res.json({status: 'success', message: 'Email Sent'});
+
+            setTimeout(function () {
+              tokens.destroy();
+            }, 600000);
           })
           .catch(function (err) {
             if (err) {
@@ -41,13 +45,14 @@ exports.buildResetRequest = function (req, res) {
         res.json({status: 'fail', message: 'Email Not Found'});
       }
     });
+
 };
 
 /**
  * Send Verification Code to the specified email
  */
 function sendEmail(email, username, code) {
-  var verificationCode = uid(128);
+  var verificationCode = uid(5);
   // var text = getText(verificationCode, users.username);
   var text = getText(verificationCode, username);
   // setup email data with unicode symbols
