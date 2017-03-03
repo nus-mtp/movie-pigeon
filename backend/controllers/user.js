@@ -1,19 +1,18 @@
-var User = require('../models/user.js');
+var User = require('../proxy/user.js');
+var UserModel = require('../models/user.js');
 
 exports.postUser = function (req, res) {
   var username = req.body.username;
   var password = req.body.password;
   var email = req.body.email;
 
-  password = User.getHashedPassword(password);
-  User.find({where: {email: email}})
+  User.getUserByEmail(email)
     .then(function (users) {
       if (users) {
         res.json({status: 'fail', message: 'User Existed'});
         return false;
       } else {
-        User.build({email: email, username: username, password: password})
-          .save()
+        User.saveUser(email, username, password)
           .then(function () {
             res.json({status: 'success', message: 'User Created'});
             return true;
@@ -54,11 +53,10 @@ exports.updateUsername = function (req, res) {
     if (user.username === username) {
       res.json({status: 'fail', message: 'Same Username'});
     } else {
-      user.updateAttributes({
-        username: username
-      }).then(function () {
-        res.json({status: 'success', message: 'Username Updated'});
-      });
+      User.updateUserUsername(user, username)
+        .then(function () {
+          res.json({status: 'success', message: 'Username Updated'});
+        });
     }
   } else {
     res.json({status: 'fail', message: 'No Username Provided'});
@@ -70,18 +68,13 @@ exports.updatePassword = function (req, res) {
   var user = req.user;
 
   if (password) {
-    var shasum = crypto.createHash('sha1');
-    shasum.update(password);
-    password = shasum.digest('hex');
-
-    if (user.password === password) {
+    if (user.password === UserModel.getHashedPassword(password)) {
       res.json({status: 'fail', message: 'Same Password'});
     } else {
-      user.updateAttributes({
-        password: password
-      }).then(function () {
-        res.json({status: 'success', message: 'Password Updated'});
-      });
+      User.updateUserPassword(user, password)
+        .then(function () {
+          res.json({status: 'success', message: 'Password Updated'});
+        });
     }
   } else {
     res.json({status: 'fail', message: 'No Password Provided'});
