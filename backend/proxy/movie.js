@@ -35,3 +35,11 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
     ]
   })
 };
+
+module.exports.getMovieById = function (movieId) {
+  return Movie.find({
+    where: {
+      movie_id: movieId
+    }
+  })
+};

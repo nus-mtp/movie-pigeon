@@ -17,7 +17,10 @@ exports.postBookmarks = function (req, res) {
     }
   }).then(function (bookmarkResults) {
     if (bookmarkResults) {
-      res.json({status: 'fail', message: 'Bookmark Existed'});
+      res.json({
+        status: 'fail',
+        message: 'Bookmark Existed'
+      });
     } else {
       // Save the bookmark and check for errors
       bookmarks.build({
@@ -49,13 +52,19 @@ exports.deleteBookmarks = function (req, res) {
       if (bookmarkResult) {
         bookmarkResult.destroy()
           .then(function () {
-            res.json({status: 'success', message: 'Bookmark Deleted'});
+            res.json({
+              status: 'success',
+              message: 'Bookmark Deleted'
+            });
           })
           .catch(function (err) {
             console.log(err);
           });
       } else {
-        res.json({status: 'fail', message: 'Bookmark Not Found'});
+        res.json({
+          status: 'fail',
+          message: 'Bookmark Not Found'
+        });
       }
     })
     .catch(function () {

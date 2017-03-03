@@ -9,12 +9,18 @@ exports.postUser = function (req, res) {
   User.getUserByEmail(email)
     .then(function (users) {
       if (users) {
-        res.json({status: 'fail', message: 'User Existed'});
+        res.json({
+          status: 'fail',
+          message: 'User Existed'
+        });
         return false;
       } else {
         User.saveUser(email, username, password)
           .then(function () {
-            res.json({status: 'success', message: 'User Created'});
+            res.json({
+              status: 'success',
+              message: 'User Created'
+            });
             return true;
           })
           .catch(function (err) {
@@ -51,15 +57,24 @@ exports.updateUsername = function (req, res) {
 
   if (username) {
     if (user.username === username) {
-      res.json({status: 'fail', message: 'Same Username'});
+      res.json({
+        status: 'fail',
+        message: 'Same Username'
+      });
     } else {
       User.updateUserUsername(user, username)
         .then(function () {
-          res.json({status: 'success', message: 'Username Updated'});
+          res.json({
+            status: 'success',
+            message: 'Username Updated'
+          });
         });
     }
   } else {
-    res.json({status: 'fail', message: 'No Username Provided'});
+    res.json({
+      status: 'fail',
+      message: 'No Username Provided'
+    });
   }
 };
 
@@ -69,15 +84,24 @@ exports.updatePassword = function (req, res) {
 
   if (password) {
     if (user.password === UserModel.getHashedPassword(password)) {
-      res.json({status: 'fail', message: 'Same Password'});
+      res.json({
+        status: 'fail',
+        message: 'Same Password'
+      });
     } else {
       User.updateUserPassword(user, password)
         .then(function () {
-          res.json({status: 'success', message: 'Password Updated'});
+          res.json({
+            status: 'success',
+            message: 'Password Updated'
+          });
         });
     }
   } else {
-    res.json({status: 'fail', message: 'No Password Provided'});
+    res.json({
+      status: 'fail',
+      message: 'No Password Provided'
+    });
   }
 };
 
