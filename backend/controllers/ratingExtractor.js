@@ -1,7 +1,7 @@
 var request = require('request');
-var rate = require('../models/history.js');
+var rate = require('../proxy/rate.js');
 var user = require('../controllers/user.js');
-var User = require('../models/user.js');
+var User = require('../proxy/user.js');
 
 function getRatings(id, callback) {
   var url = 'https://api.trakt.tv/users/' + id + '/ratings/movies';
@@ -44,47 +44,35 @@ function checkUsername(id, callback) {
 
 function processData(userEmail, body) {
   var data = body;
-  User.find({
-    where: {
-      email: userEmail
-    }
-  }).then(function (user) {
-    (function next(index) {
-      if (index === data.length) {
-        return;
-      }
-      var rating = data[index].rating;
-      var movieId = data[index].movie.ids.imdb;
-
-      rate.find({
-        where: {
-          user_id: user.id,
-          movie_id: movieId
+  User.getUserByEmail(userEmail)
+    .then(function (user) {
+      (function next(index) {
+        if (index === data.length) {
+          return;
         }
-      })
-        .then(function (ratings) {
-          if (ratings) {
-            console.log('fail');
-          } else {
-            rate.create({
-              user_id: user.id,
-              movie_id: movieId,
-              score: rating
-            })
-              .then(function () {
-                next(index + 1);
-                return;
-              })
-              .catch(function (err) {
-                console.log(err);
-              });
-          }
-        })
-        .catch(function (err) {
-          console.log(err);
-        });
-    })(0);
-  });
+        var rating = data[index].rating;
+        var movieId = data[index].movie.ids.imdb;
+
+        rate.getSpecificRate(user.id, movieId)
+          .then(function (ratings) {
+            if (ratings) {
+              console.log('fail');
+            } else {
+              rate.postRates(rating, movieId, user.id)
+                .then(function () {
+                  next(index + 1);
+                  return;
+                })
+                .catch(function (err) {
+                  console.log(err);
+                });
+            }
+          })
+          .catch(function (err) {
+            console.log(err);
+          });
+      })(0);
+    });
 
 }
 
