@@ -3,7 +3,6 @@ var request = require('supertest');
 var should = require('should');
 var movie = require('../../models/movie.js');
 var user = require('../../models/user.js');
-var crypto = require('crypto');
 
 var getObjects = function (obj, key, val) {
   var objects = [];
@@ -33,10 +32,7 @@ describe('Movie controller test', function () {
       {movie_id: 'test000004', title: 'test dummy movie1'},
       {movie_id: 'test000005', title: 'test dummy movie2'}
     ]).then(function () {
-      var password = 'pass';
-      var shasum = crypto.createHash('sha1');
-      shasum.update(password);
-      password = shasum.digest('hex');
+      var password = user.getHashedPassword('pass');
 
       user.create({
         email: 'testemailmovietest',

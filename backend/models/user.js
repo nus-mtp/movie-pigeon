@@ -29,6 +29,14 @@ var User = sequelize.define('users', {
         password = shasum.digest('hex');
         return password === this.password;
       }
+    },
+    classMethods: {
+      getHashedPassword: function (password) {
+        var shasum = crypto.createHash('sha1');
+        shasum.update(password);
+        password = shasum.digest('hex');
+        return password;
+      }
     }
   }
 );

@@ -3,14 +3,10 @@ var request = require('supertest');
 var should = require('should');
 var client = require('../../models/client.js');
 var user = require('../../models/user.js');
-var crypto = require('crypto');
 
 describe('Client controller test', function () {
   it('should add a client to the db', function (done) {
-    var password = 'testpassword';
-    var shasum = crypto.createHash('sha1');
-    shasum.update(password);
-    password = shasum.digest('hex');
+    var password = user.getHashedPassword('testpassword');
 
     user.build({
       username: 'testname',

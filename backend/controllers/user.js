@@ -1,15 +1,11 @@
 var User = require('../models/user.js');
-var crypto = require('crypto');
 
 exports.postUser = function (req, res) {
   var username = req.body.username;
   var password = req.body.password;
   var email = req.body.email;
 
-  var shasum = crypto.createHash('sha1');
-  shasum.update(password);
-  password = shasum.digest('hex');
-
+  password = User.getHashedPassword(password);
   User.find({where: {email: email}})
     .then(function (users) {
       if (users) {
