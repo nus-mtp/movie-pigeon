@@ -74,17 +74,6 @@ exports.deleteBookmarks = function (req, res) {
 
 // Create endpoint /api/bookmarks for GET
 exports.getBookmarks = function (req, res) {
-  // bookmarks.findAll({
-  //   where: {
-  //     user_id: req.user.id
-  //   },
-  //   include: [{
-  //     model: movie
-  //   }]
-  // })
-  //   .then(function (results) {
-  //     res.json(results);
-  //   });
 
   movie.findAll({
     include: [

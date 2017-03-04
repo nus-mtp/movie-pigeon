@@ -9,6 +9,8 @@ var movieController = require('../controllers/movie');
 var ratingController = require('../controllers/rate');
 var thirdPartyController = require('../controllers/ratingExtractor.js');
 var emailService = require('../email/email');
+var cinemaController = require('../controllers/cinema.js');
+var showingController = require('../controllers/showing.js');
 
 // on routes that end in /users
 // ----------------------------------------------------
@@ -66,5 +68,11 @@ router.route('/ratings')
 router.route('/traktTV')
   .get(thirdPartyController.checkTraktUser)
   .post(thirdPartyController.getTraktRatings);
+
+router.route('/cinemas')
+  .get(authController.isAuthenticated, cinemaController.getCinemas);
+
+router.route('/showing')
+  .get(authController.isAuthenticated, showingController.getShowingByCinema);
 
 module.exports = router;
