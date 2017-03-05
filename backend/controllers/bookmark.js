@@ -1,53 +1,36 @@
 // Load required packages
-var bookmarks = require('../models/bookmarks.js');
-var movie = require('../models/movie.js');
-var publicRate = require('../models/PublicRate.js');
-var RatingSource = require('../models/ratingSource.js');
-var UserRating = require('../models/history.js');
+var bookmarks = require('../proxy/bookmark.js');
 
 // Create endpoint /api/ratings for POST
 exports.postBookmarks = function (req, res) {
   var movieId = req.body.movieId;
   var userId = req.user.id;
 
-  bookmarks.find({
-    where: {
-      user_id: userId,
-      movie_id: movieId
-    }
-  }).then(function (bookmarkResults) {
-    if (bookmarkResults) {
-      res.json({
-        status: 'fail',
-        message: 'Bookmark Existed'
-      });
-    } else {
-      // Save the bookmark and check for errors
-      bookmarks.build({
-        movie_id: movieId,
-        user_id: userId
-      })
-        .save()
-        .then(function () {
-          res.json({
-            status: 'success',
-            message: 'Bookmark Posted'
-          });
+  bookmarks.getSpecificBookmark(userId, movieId)
+    .then(function (bookmarkResults) {
+      if (bookmarkResults) {
+        res.json({
+          status: 'fail',
+          message: 'Bookmark Existed'
         });
-    }
-  });
+      } else {
+        // Save the bookmark and check for errors
+        bookmarks.postBookmark(movieId, userId)
+          .then(function () {
+            res.json({
+              status: 'success',
+              message: 'Bookmark Posted'
+            });
+          });
+      }
+    });
 };
 
 exports.deleteBookmarks = function (req, res) {
   var movieId = req.body.movieId;
   var userId = req.user.id;
 
-  bookmarks.find({
-    where: {
-      movie_id: movieId,
-      user_id: userId
-    }
-  })
+  bookmarks.getSpecificBookmark(userId, movieId)
     .then(function (bookmarkResult) {
       if (bookmarkResult) {
         bookmarkResult.destroy()
@@ -67,7 +50,7 @@ exports.deleteBookmarks = function (req, res) {
         });
       }
     })
-    .catch(function () {
+    .catch(function (err) {
       console.log(err);
     });
 };
@@ -75,30 +58,8 @@ exports.deleteBookmarks = function (req, res) {
 // Create endpoint /api/bookmarks for GET
 exports.getBookmarks = function (req, res) {
 
-  movie.findAll({
-    include: [
-      {
-        model: publicRate,
-        include: [
-          RatingSource
-        ]
-      },
-      {
-        model: bookmarks,
-        where: {
-          user_id: req.user.id
-        },
-        required: true
-      },
-      {
-        model: UserRating,
-        where: {
-          user_id: req.user.id
-        },
-        required: false
-      }
-    ]
-  }).then(function (movies) {
-    res.json(movies);
-  });
+  bookmarks.getAllBookmarks(req.user.id)
+    .then(function (movies) {
+      res.json(movies);
+    });
 };
