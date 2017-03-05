@@ -31,24 +31,8 @@ exports.postUser = function (req, res) {
     });
 };
 
-var retrieveAll = function (onSuccess, onError) {
-  User.findAll({}, {raw: true}).then(onSuccess).catch(onError);
-};
-
 exports.getUser = function (req, res) {
-  retrieveAll(function (users) {
-    if (users) {
-      res.json(users);
-    } else {
-      res.send(401, 'User not found');
-    }
-  }, function (err) {
-    res.send('User not found');
-  });
-};
-
-exports.retrieveById = function (userId, onSuccess, onError) {
-  User.find({where: {id: userId}}, {raw: true}).then(onSuccess).catch(onError);
+  res.json({email: req.user.email, username: req.user.username});
 };
 
 exports.updateUsername = function (req, res) {
@@ -103,8 +87,4 @@ exports.updatePassword = function (req, res) {
       message: 'No Password Provided'
     });
   }
-};
-
-exports.removeById = function (user_id, onSuccess, onError) {
-  User.destroy({where: {id: user_id}}).then(onSuccess).catch(onError);
 };
