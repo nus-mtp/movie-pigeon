@@ -12,7 +12,7 @@ module.exports.postRates = function (score, movieId, userId) {
   })
 };
 
-module.exports.getAllRates = function () {
+module.exports.getAllRates = function (userId) {
   return movie.findAll({
     include: [
       {
@@ -24,14 +24,14 @@ module.exports.getAllRates = function () {
       {
         model: rate,
         where: {
-          user_id: req.user.id
+          user_id: userId
         },
         required: true
       },
       {
         model: Bookmark,
         where: {
-          user_id: req.user.id
+          user_id: userId
         },
         required: false
       }

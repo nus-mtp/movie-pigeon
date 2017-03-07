@@ -48,7 +48,7 @@ exports.postRates = function (req, res) {
 
 // Create endpoint /api/ratings for GET
 exports.getRates = function (req, res) {
-  rate.getAllRates()
+  rate.getAllRates(req.user.id)
     .then(function (movies) {
       res.json(movies);
     });
