@@ -4,8 +4,16 @@ var RatingSource = require('../models/ratingSource.js');
 var UserRating = require('../models/history.js');
 var Bookmark = require('../models/bookmarks.js');
 
+exports.getMovieByTitleCount = function (searchString) {
+  return Movie.count({
+    where: {
+      title: {$ilike: searchString}
+    }
+  })
+};
+
 exports.getMovieByTitle = function (userId, searchString, offset, limit) {
-  return Movie.findAndCountAll({
+  return Movie.findAll({
     where: {
       title: {$ilike: searchString}
     },

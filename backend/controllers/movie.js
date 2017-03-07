@@ -11,12 +11,15 @@ function processSearchString(searchString) {
 exports.getMoviesByTitle = function (req, res) {
   // Use the Client model to find all clients
   var searchString = processSearchString(req.headers.title);
-  Movie.getMovieByTitle(req.user.id, searchString, req.headers.offset, req.headers.limit)
-    .then(function (movies) {
-      res.json(movies);
-    }).catch(function (err) {
-    }
-  );
+  Movie.getMovieByTitleCount(searchString)
+    .then(function (count) {
+      Movie.getMovieByTitle(req.user.id, searchString, req.headers.offset, req.headers.limit)
+        .then(function (movies) {
+          res.json({count: count, raw: movies});
+        }).catch(function (err) {
+        }
+      );
+    });
 };
 
 // Create endpoint /api/movie for GET
