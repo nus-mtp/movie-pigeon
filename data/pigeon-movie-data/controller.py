@@ -32,17 +32,39 @@ class ETLController:
         self.loader.load_cinema_list(cinema_list)
 
     def update_cinema_schedule(self):
-        """update latest cinema schedule from cinema list"""
+        """update latest cinema schedule from cinema list
+        It passes an empty dictionary to each cinema schedule object,
+        every iteration it will append that cinema's schedule to the
+        dictionary.
+
+        The dictionary should be structured using title and imdb_id
+        as the top level keys, follow by other data
+        {
+            "title": ...
+            "imdb_id": ...
+            "content": {
+                "cinema_id": ...
+                "schedule": [...]
+            }
+        }
+
+        IMDb ID is obtained using MovieMatcher module
+        """
+        cinema_schedule_data = {}
+
         cinema_list = self.loader.get_cinema_list()
         for cinema in cinema_list:
             cinema_id, cinema_name, provider, cinema_url = cinema
 
-            # get schedule and check list
+            # get schedule
             cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
-            current_schedules, imdb_check_list = cinema_schedule.extract_cinema_schedule()
+            current_schedules = cinema_schedule.extract_cinema_schedule()
 
-            # load schedule
-            self.loader.load_cinema_schedule(cinema_id, current_schedules)
+            # parse schedules and update data
+
+            # load data
+            # self.loader.load_cinema_schedule(cinema_id, current_schedules)
+            break
 
     def _temp(self):
         movie_list = self.loader.get_movie_id_list()

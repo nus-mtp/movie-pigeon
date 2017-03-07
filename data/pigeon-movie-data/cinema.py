@@ -278,7 +278,7 @@ class CinemaSchedule:
         to the format that can be consumed by loader class and
         subsequently being stored into the database
         {
-            "imdb_id": ...,
+            "title": ...,
             "schedule": [...],
             "type": ...
 
@@ -290,27 +290,21 @@ class CinemaSchedule:
         It will also return another list of imdb id found in this
         process and subjected to movie data extraction process if
         imdb id is not present in database
-        :return: dictionary, list
+        :return: dictionary
         """
         data_object = []
-        imdb_id_check_list = []
         # parse title
         for key, value in cinema_object.items():
             title, additional_info = self._movie_title_parser(key)
-
-            # get imdb id
-            matcher = MovieIDMatcher(title)
-            imdb_id = matcher.match_imdb_id_for_cinema_schedule()
-            imdb_id_check_list.append(imdb_id)
             # reformat dict
             data_object.append(
                 {
-                    "imdb_id": imdb_id,
+                    "title": title,
                     "schedule": value,
                     "type": additional_info
                 }
             )
-        return data_object, imdb_id_check_list
+        return data_object
 
     def _movie_title_parser(self, title):
         additional_info = []
