@@ -1,6 +1,5 @@
 var request = require('request');
 var rate = require('../proxy/rate.js');
-var user = require('../controllers/user.js');
 var User = require('../proxy/user.js');
 
 function getRatings(id, callback) {
@@ -78,11 +77,37 @@ function processData(userEmail, body) {
 
 exports.getTraktRatings = function (req, res) {
   var id = req.body.traktTVId;
-  var result = user.postUser(req, res);
-  console.log(result);
+  var username = req.body.username;
+  var password = req.body.password;
+  var email = req.body.email;
+
+  var result = false;
+
+  User.getUserByEmail(email)
+    .then(function (users) {
+      if (users) {
+        res.json({
+          status: 'fail',
+          message: 'User Existed'
+        });
+      } else {
+        User.saveUser(email, username, password)
+          .then(function () {
+            result = true;
+            res.json({
+              status: 'success',
+              message: 'User Created'
+            });
+
+          })
+          .catch(function (err) {
+            res.send(err);
+          });
+      }
+    });
+
   setTimeout(function () {
     if (result === true) {
-      console.log('here');
       getRatings(id, function (err, body) {
         if (err) {
           console.log(err);
@@ -91,7 +116,7 @@ exports.getTraktRatings = function (req, res) {
         }
       });
     }
-  }, 800);
+  }, 500);
 };
 
 exports.checkTraktUser = function (req, res) {

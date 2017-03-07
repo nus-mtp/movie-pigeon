@@ -13,19 +13,18 @@ exports.postUser = function (req, res) {
           status: 'fail',
           message: 'User Existed'
         });
-        return false;
       } else {
         User.saveUser(email, username, password)
           .then(function () {
+            flag = true;
             res.json({
               status: 'success',
               message: 'User Created'
             });
-            return true;
+
           })
           .catch(function (err) {
             res.send(err);
-            return false;
           });
       }
     });
