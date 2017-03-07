@@ -79,8 +79,10 @@ function processData(userEmail, body) {
 exports.getTraktRatings = function (req, res) {
   var id = req.body.traktTVId;
   var result = user.postUser(req, res);
+  console.log(result);
   setTimeout(function () {
     if (result === true) {
+      console.log('here');
       getRatings(id, function (err, body) {
         if (err) {
           console.log(err);
