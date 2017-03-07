@@ -325,6 +325,13 @@ class CinemaSchedule:
                 additional_info.append("Dolby Atmos")
                 title = title.replace("Atmos", "")
         elif self.provider == "sb":
+            # special rules
+            if "Kungfu" in title:
+                title = title.replace("Kungfu", "Kung-fu")
+
+            # general rules
+            if "`" in title:
+                title = title.replace("`", "\'")
             if "[D]" in title:
                 title = title.replace("[D]", "")
                 additional_info.append("Digital")
@@ -333,6 +340,11 @@ class CinemaSchedule:
                 additional_info.append("IMAX")
             if "[M]" in title:
                 title = title.replace("[M]", "")
+            if "[IMAX 3D]" in title:
+                title = title.replace("[IMAX 3D]", "")
+                additional_info.append("IMAX")
+                additional_info.append("3D")
+
         else:
             raise Exception("Invalid cinema provider")
 
