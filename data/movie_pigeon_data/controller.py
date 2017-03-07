@@ -61,14 +61,15 @@ class ETLController:
         cinema_list = self.loader.get_cinema_list()
         self._cinema_schedule_retrieve(cinema_list, cinema_schedule_data)
 
+        # match id and check existence
         matcher = MovieIDMatcher()
         for title, content in cinema_schedule_data.items():
-            print(title)
             imdb_id = matcher.match_imdb_id_for_cinema_schedule(title)
-            print(imdb_id)
+            content['imdb_id'] = imdb_id
+            self._update_movie_data_if_not_exist(imdb_id)
 
         # load data
-        # self.loader.load_cinema_schedule(cinema_id, current_schedules)
+        self.loader.load_cinema_schedule(cinema_schedule_data)
 
     @staticmethod
     def _cinema_schedule_retrieve(cinema_list, cinema_schedule_data):
@@ -92,16 +93,13 @@ class ETLController:
                 movie['cinema_id'] = cinema_id
                 current_title['content'].append(movie)
 
-    def _temp(self):
+    def _update_movie_data_if_not_exist(self, movie_id):
         movie_list = self.loader.get_movie_id_list()
-        imdb_check_list = ['tt4846340', 'tt0498381', 'tt4465564', 'tt1691916', None, 'tt3783958',
-                           'tt3315342', 'tt2763304', 'tt1753383', 'tt2126235']
-        for new_imdb_id in imdb_check_list:
-            if new_imdb_id not in movie_list and new_imdb_id is not None:
-                data_model = MovieData(new_imdb_id)
-                data_model.build_soup(data_model.get_html_content())
-                data_model.extract_process()
-                self.loader.load_movie_data(data_model.get_movie_data())
+        if movie_id not in movie_list:
+            data_model = MovieData(movie_id)
+            data_model.build_soup(data_model.get_html_content())
+            data_model.extract_process()
+            self.loader.load_movie_data(data_model.get_movie_data())
 
 if __name__ == '__main__':
     controller = ETLController()

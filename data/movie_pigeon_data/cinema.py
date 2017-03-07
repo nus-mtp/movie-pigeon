@@ -331,6 +331,7 @@ class CinemaSchedule:
             raise Exception("Invalid cinema provider")
 
         title = title.strip()
+        additional_info = ",".join(additional_info)
         return title, additional_info
 
     @staticmethod

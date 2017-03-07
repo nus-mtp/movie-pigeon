@@ -47,15 +47,21 @@ class Loader:
 
         self.conn.commit()
 
-    def load_cinema_schedule(self, cinema_id, cinema_schedule):
-        for cinema_content in cinema_schedule:
+    def load_cinema_schedule(self, cinema_schedule):
+        for title, cinema_content in cinema_schedule.items():
             movie_id = cinema_content['imdb_id']
-            schedule_list = cinema_content['schedule']
-            additional_info = cinema_content['type']
-            for timing in schedule_list:
-                self.cursor.execute("INSERT INTO showings (cinema_id, movie_id, type, schedule) VALUES (%s, %s, %s, %s)",
-                                    (cinema_id, movie_id, additional_info, timing))
-            self.conn.commit()
+            for cinema in cinema_content['content']:
+                cinema_id = cinema['cinema_id']
+                additional_info = cinema['type']
+                schedule_list = cinema['schedule']
+                for timing in schedule_list:
+                    self.cursor.execute("INSERT INTO showings (cinema_id, movie_id, type, schedule) "
+                                        "VALUES (%s, %s, %s, %s) "
+                                        "ON CONFLICT (cinema_id, movie_id, schedule, type) "
+                                        "DO UPDATE SET (cinema_id, movie_id, schedule, type) = (%s, %s, %s, %s)"
+                                        , (cinema_id, movie_id, additional_info, timing,
+                                           cinema_id, movie_id, additional_info, timing))
+                self.conn.commit()
 
     # ========
     #   GET
