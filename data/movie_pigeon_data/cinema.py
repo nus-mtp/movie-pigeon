@@ -8,7 +8,6 @@ from bs4 import BeautifulSoup
 from urllib import request
 from selenium import webdriver
 from string import capwords
-from matcher import MovieIDMatcher
 
 
 import time
@@ -296,14 +295,12 @@ class CinemaSchedule:
         # parse title
         for key, value in cinema_object.items():
             title, additional_info = self._movie_title_parser(key)
-            # reformat dict
             data_object.append(
                 {
                     "title": title,
                     "schedule": value,
                     "type": additional_info
-                }
-            )
+                })
         return data_object
 
     def _movie_title_parser(self, title):

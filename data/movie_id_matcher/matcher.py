@@ -11,14 +11,13 @@ class MovieIDMatcher:
 
     _IMDB_SEARCH_URL_FORMAT = "http://www.imdb.com/find?&q={}&s=tt&ttype=ft&exact=true"
 
-    def __init__(self, title):
-        self.title = title
+    def __init__(self):
         self.driver = webdriver.PhantomJS()
 
-    def match_imdb_id_for_cinema_schedule(self):
+    def match_imdb_id_for_cinema_schedule(self, title):
         """return the MOST possible imdb id of the movie from all recent showing"""
         possible_result = []
-        possible_imdb_list = self._extract_imdb_possible()
+        possible_imdb_list = self._extract_imdb_possible(title)
 
         for movie in possible_imdb_list:
             movie_id, movie_title = movie
@@ -37,10 +36,12 @@ class MovieIDMatcher:
             return None
         return imdb_id
 
-    def _extract_imdb_possible(self):
+    def _extract_imdb_possible(self, title):
         """return a list of possible imdb id in string format"""
+        if " :" in title:
+            title = title.replace(" :", ":")
         possible_list = []
-        search_query = self._imdb_search_query_builder(self.title)
+        search_query = self._imdb_search_query_builder(title)
         url = self._IMDB_SEARCH_URL_FORMAT.format(search_query)
         self.driver.get(url)
         elements = self.driver.find_elements_by_class_name("findResult")
@@ -48,7 +49,6 @@ class MovieIDMatcher:
             td = element.find_element_by_class_name("result_text")
             current_imdb = td.find_element_by_css_selector("a").get_attribute("href").split("/")[4]
             current_text = td.text.strip()
-
             possible_list.append((current_imdb, current_text))
 
         return possible_list[:3]
