@@ -66,6 +66,7 @@ class ETLController:
         for title, content in cinema_schedule_data.items():
             imdb_id = matcher.match_imdb_id_for_cinema_schedule(title)
             content['imdb_id'] = imdb_id
+            print(title, imdb_id)
             self._update_movie_data_if_not_exist(imdb_id)
 
         # load data
@@ -73,9 +74,9 @@ class ETLController:
 
     @staticmethod
     def _cinema_schedule_retrieve(cinema_list, cinema_schedule_data):
-        for cinema in cinema_list[:3]:
+        for cinema in cinema_list[7:8]:
             cinema_id, cinema_name, provider, cinema_url = cinema
-
+            print(cinema_id)
             cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
             current_schedules = cinema_schedule.extract_cinema_schedule()
 
@@ -97,8 +98,11 @@ class ETLController:
         movie_list = self.loader.get_movie_id_list()
         if movie_id not in movie_list:
             data_model = MovieData(movie_id)
-            data_model.build_soup(data_model.get_html_content())
-            data_model.extract_process()
+            try:
+                data_model.build_soup(data_model.get_html_content())
+                data_model.extract_process()
+            except:
+                print(movie_id)
             self.loader.load_movie_data(data_model.get_movie_data())
 
 if __name__ == '__main__':

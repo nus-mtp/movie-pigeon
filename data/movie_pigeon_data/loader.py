@@ -57,10 +57,12 @@ class Loader:
                 for timing in schedule_list:
                     try:
                         self.cursor.execute("INSERT INTO showings (cinema_id, movie_id, type, schedule) "
-                                            "VALUES (%s, %s, %s, %s) ", (cinema_id, movie_id, additional_info, timing))
+                                            "VALUES (%s, %s, %s, %s)", (cinema_id, movie_id, additional_info, timing))
                     except psycopg2.IntegrityError:
                         continue
-                self.conn.commit()
+                    except psycopg2.InternalError:
+                        continue
+            self.conn.commit()
 
     # ========
     #   GET

@@ -318,6 +318,12 @@ class CinemaSchedule:
                 splitter = tokens.index("(Dolby")
                 title = " ".join(tokens[:splitter - 1])
                 additional_info.append("Dolby Digital")
+            if "(Dolby Atmos)" in title:
+                tokens = title.split(" ")
+                splitter = tokens.index("(Dolby")
+                title = " ".join(tokens[:splitter - 1])
+                additional_info.append("Dolby Atmos")
+                title = title.replace("Atmos", "")
         elif self.provider == "sb":
             if "[D]" in title:
                 title = title.replace("[D]", "")
