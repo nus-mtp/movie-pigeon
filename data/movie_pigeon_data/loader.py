@@ -55,12 +55,11 @@ class Loader:
                 additional_info = cinema['type']
                 schedule_list = cinema['schedule']
                 for timing in schedule_list:
-                    self.cursor.execute("INSERT INTO showings (cinema_id, movie_id, type, schedule) "
-                                        "VALUES (%s, %s, %s, %s) "
-                                        "ON CONFLICT (cinema_id, movie_id, schedule, type) "
-                                        "DO UPDATE SET (cinema_id, movie_id, schedule, type) = (%s, %s, %s, %s)"
-                                        , (cinema_id, movie_id, additional_info, timing,
-                                           cinema_id, movie_id, additional_info, timing))
+                    try:
+                        self.cursor.execute("INSERT INTO showings (cinema_id, movie_id, type, schedule) "
+                                            "VALUES (%s, %s, %s, %s) ", (cinema_id, movie_id, additional_info, timing))
+                    except psycopg2.IntegrityError:
+                        continue
                 self.conn.commit()
 
     # ========
