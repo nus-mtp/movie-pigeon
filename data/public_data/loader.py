@@ -1,5 +1,5 @@
 """handles all interactions with database"""
-from data import config
+import config
 import psycopg2
 import logging
 
@@ -62,7 +62,7 @@ class Loader:
                         continue
                     except psycopg2.InternalError:
                         continue
-            self.conn.commit()
+        self.conn.commit()
 
     # ========
     #   GET

@@ -19,7 +19,6 @@ from movie_id_matcher.matcher import MovieIDMatcher
 class ETLController:
 
     def __init__(self):
-        # basic class
         self.loader = Loader()
 
         self.cinema_list_object = CinemaList()
@@ -66,7 +65,6 @@ class ETLController:
         for title, content in cinema_schedule_data.items():
             imdb_id = matcher.match_imdb_id_for_cinema_schedule(title)
             content['imdb_id'] = imdb_id
-            print(title, imdb_id)
             self._update_movie_data_if_not_exist(imdb_id)
 
         # load data
@@ -98,7 +96,7 @@ class ETLController:
         if movie_id not in movie_list:
             data_model = MovieData(movie_id)
             try:
-                data_model.build_soup(data_model.get_html_content())
+                data_model._build_soup(data_model._get_html_content())
                 data_model.extract_process()
             except:
                 print(movie_id)

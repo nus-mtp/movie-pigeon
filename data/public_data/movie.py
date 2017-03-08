@@ -1,17 +1,16 @@
-"""
-    data class for all imdb movies
-"""
 from bs4 import BeautifulSoup
-from urllib import request, error
+from urllib import request
 
 import html
 import utils
 
 
 class MovieData:
-
+    """
+    This class handles all operations related to movie data
+    extraction
+    """
     # statics
-    IMDB_URL_FORMAT = "http://www.imdb.com/title/{}/"
 
     title = None
     production_year = None
@@ -37,43 +36,22 @@ class MovieData:
         """
         self.imdb_id = imdb_id
 
-    # main logic
-    def get_html_content(self):
-        """
-        get html source based on imdb_id
-        :return: string
-        """
-        url = self.IMDB_URL_FORMAT.format(self.imdb_id)
-        request_result = html.unescape(request.urlopen(url).read().decode("utf-8"))
-        return request_result
-
-    def build_soup(self, request_result):
-        """
-        build soup based on html content in string format
-        :param request_result:
-        :return:
-        """
-        self.soup = BeautifulSoup(request_result, "lxml")  # soup builder
-
-    def build_soup_for_test(self, html_file_io_wrapper):
-        self.soup = BeautifulSoup(html_file_io_wrapper, "lxml")
-
+    # public
     def extract_process(self):
         """
         main logic for extraction of imdb data
         :return:
         """
-        self.extract_title_and_year()
-        self.extract_poster()
-        self.extract_credits()
-        self.extract_plot()
-        self.extract_subtext()
-        self.extract_rated()
-        self.extract_genre()
-        self.extract_release()
-        self.extract_runtime()
+        self._extract_title_and_year()
+        self._extract_poster()
+        self._extract_credits()
+        self._extract_plot()
+        self._extract_subtext()
+        self._extract_rated()
+        self._extract_genre()
+        self._extract_release()
+        self._extract_runtime()
 
-    # get
     def get_movie_data(self):
         """
         return a dict that contains all data to extractor
@@ -84,8 +62,29 @@ class MovieData:
                                                self.released, self.runtime, self.title, self.type)
         return movie_data
 
-    # extraction nodes
-    def extract_title_and_year(self):
+    # private helper
+    def _get_html_content(self):
+        """
+        get html source based on imdb_id
+        :return: string
+        """
+        url = utils.UrlFormatter.IMDB_URL_FORMAT.format(self.imdb_id)
+        request_result = html.unescape(request.urlopen(url).read().decode("utf-8"))
+        return request_result
+
+    def _build_soup(self, request_result):
+        """
+        build soup based on html content in string format
+        :param request_result:
+        :return:
+        """
+        self.soup = BeautifulSoup(request_result, "lxml")  # soup builder
+
+    def _build_soup_for_test(self, html_file_io_wrapper):
+        self.soup = BeautifulSoup(html_file_io_wrapper, "lxml")
+
+    # private extractor
+    def _extract_title_and_year(self):
         """
         return title and production year of a movie
         :return: title in string, production year in integer or None
@@ -98,7 +97,7 @@ class MovieData:
             return self.title, self.production_year
         return self.title, int(self.production_year)
 
-    def extract_poster(self):
+    def _extract_poster(self):
         """
         return the url of poster of one movie
         :return:
@@ -110,7 +109,7 @@ class MovieData:
             self.poster_url = None
         return self.poster_url
 
-    def extract_credits(self):
+    def _extract_credits(self):
         """
         return the directors and actors of the movie. If there is more than
         one director or actor, it will display a string with multiple tokens,
@@ -132,7 +131,7 @@ class MovieData:
                 self.actors = current_text.replace("Star:", "").strip()
         return self.actors, self.director
 
-    def extract_plot(self):
+    def _extract_plot(self):
         """
         return the plot of one movie
         :return: plot in string format or None
@@ -142,14 +141,14 @@ class MovieData:
             self.plot = None
         return self.plot
 
-    def extract_subtext(self):
+    def _extract_subtext(self):
         """
         retrieve the subtext tag for other extraction nodes
         :return:
         """
         self.subtext = self.soup.find("div", {"class": "subtext"})
 
-    def extract_rated(self):
+    def _extract_rated(self):
         """
         return the rating of a movie
         :return:
@@ -160,7 +159,7 @@ class MovieData:
                 self.rated = meta['content']
         return self.rated
 
-    def extract_release(self):
+    def _extract_release(self):
         """
         parse the last token in subtext element. it determines the type of the object,
         it may also determine the release date and country
@@ -207,7 +206,7 @@ class MovieData:
                     self.released = utils.transform_date_imdb(self.released)
         return self.released, self.country, self.type
 
-    def extract_genre(self):
+    def _extract_genre(self):
         """
         parse the html content and return the genre of the movie
         :return:
@@ -220,7 +219,7 @@ class MovieData:
             self.genre = ", ".join(genre_list)
         return self.genre
 
-    def extract_runtime(self):
+    def _extract_runtime(self):
         """
         parse the html content and return the runtime of the movie
         :return:
@@ -232,3 +231,7 @@ class MovieData:
         except TypeError:
             return None
         return self.runtime
+
+
+class MovieRating:
+    pass
