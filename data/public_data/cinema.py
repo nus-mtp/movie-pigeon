@@ -2,14 +2,12 @@
     This class retrieves movie schedule from different sources and
     parse all data into required format
 """
-from pytz import timezone
-from datetime import datetime, timedelta
+from datetime import datetime
 from bs4 import BeautifulSoup
 from urllib import request
 from selenium import webdriver
 from string import capwords
-
-import time
+from transformer import CinemaScheduleTransformer, GeneralTransformer
 
 
 class CinemaList:
@@ -127,7 +125,10 @@ class CinemaList:
 
 
 class CinemaSchedule:
-
+    """
+    This class handles all operations related to the extraction
+    of movie schedules in cinemas
+    """
     def __init__(self, cinema_name, cinema_url, cinema_provider):
         self.driver = webdriver.PhantomJS()
         self.driver.set_window_size(1124, 850)  # set browser size
@@ -152,7 +153,7 @@ class CinemaSchedule:
         else:
             raise Exception("Invalid Cinema provider")
 
-        return self._parse_cinema_object_to_data(cinema_object)
+        return CinemaScheduleTransformer.parse_cinema_object_to_data(cinema_object)
 
     def _extract_golden_village(self):
         self.driver.get(self.cinema_url)
@@ -163,7 +164,7 @@ class CinemaSchedule:
         date_counter = 0
         for tab in tabs:
             if tab.get_attribute("ng-bind-html") == "day.day":
-                current_date = self._get_singapore_date(date_counter)
+                current_date = GeneralTransformer.get_singapore_date(date_counter)
                 if tab.text == "Advance Sales":  # reach the end of tabs
                     break
 
@@ -185,7 +186,8 @@ class CinemaSchedule:
                     buttons = row.find_elements_by_css_selector("button")
                     for button in buttons:
                         if button.get_attribute("ng-bind-html") == "time.time":
-                            current_time.append(current_date + " " + self._convert_12_to_24_hour_time(button.text))
+                            current_time.append(current_date + " " +
+                                                GeneralTransformer.convert_12_to_24_hour_time(button.text))
 
                     # store
                     if current_title is not None:
@@ -199,14 +201,14 @@ class CinemaSchedule:
 
     def _extract_cathay(self):
         self.driver.get(self.cinema_url)
-        cathay_id = self._get_id_from_cathay_cinema_name(self.cinema_name)
+        cathay_id = CinemaScheduleTransformer.get_id_from_cathay_cinema_name(self.cinema_name)
         outer_div = self.driver.find_element_by_id("ContentPlaceHolder1_wucST{}_tabs".format(cathay_id))
         tabbers = outer_div.find_elements_by_class_name("tabbers")
 
         date_counter = 0
         cinema_schedule = {}
         for tabber in tabbers:  # for each day
-            current_date = self._get_singapore_date(date_counter)
+            current_date = GeneralTransformer.get_singapore_date(date_counter)
             rows = tabber.find_elements_by_class_name("movie-container")
             for row in rows:
                 try:
@@ -261,7 +263,8 @@ class CinemaSchedule:
 
                     for item in schedule:
                         if item != "":
-                            current_time.append(current_date + " " + self._convert_12_to_24_hour_time(item))
+                            current_time.append(current_date + " " +
+                                                GeneralTransformer.convert_12_to_24_hour_time(item))
 
                     if current_title is not None:
                         if current_title in cinema_schedule:
@@ -269,137 +272,3 @@ class CinemaSchedule:
                         else:
                             cinema_schedule[current_title] = current_time
         return cinema_schedule
-
-    def _parse_cinema_object_to_data(self, cinema_object):
-        """
-        parse the cinema object in the format:
-        (based on self.provider, parsing strategy may vary)
-        {
-            movie_title: a list of movie schedule
-        }
-        to the format that can be consumed by loader class and
-        subsequently being stored into the database
-        {
-            "title": ...,
-            "schedule": [...],
-            "type": ...
-
-        In the process, it will complete 2 additional tasks
-        besides rearranging the dictionary -- parse the movie
-        title into title and additional information such as
-        "3D" "Dolby Digital", and match the title to imdb id
-
-        It will also return another list of imdb id found in this
-        process and subjected to movie data extraction process if
-        imdb id is not present in database
-        :return: dictionary
-        """
-        data_object = []
-
-        # parse title
-        for key, value in cinema_object.items():
-            if "Zen Zone" in key:  # strange thing in gv
-                continue
-            title, additional_info = self._movie_title_parser(key)
-            data_object.append(
-                {
-                    "title": title,
-                    "schedule": value,
-                    "type": additional_info
-                })
-        return data_object
-
-    def _movie_title_parser(self, title):
-        additional_info = []
-        if self.provider == "gv":
-            if "`" in title:
-                title = title.replace("`", "\'")
-            if "*" in title:
-                title = title.replace("*", "")
-                additional_info.append("No free pass")
-            if "(Eng Sub)" in title:
-                title = title.replace("(Eng Sub)", "")
-                additional_info.append("English sub only")
-            if "(Atmos)" in title:
-                title = title.replace("(Atmos)", "")
-                additional_info.append("Atmos")
-            if "Dessert Set" in title:
-                title = title.replace("Dessert Set", "")
-                additional_info.append("Dessert Set")
-            if "(D-Box)" in title:
-                title = title.replace("(D-Box)", "")
-                additional_info.append("(D-Box)")
-        elif self.provider == "cathay":
-            if "*" in title:
-                title = title.replace("*", "")
-                # have not figure out the meaning of *
-            if "(Dolby Digital)" in title:
-                tokens = title.split(" ")
-                splitter = tokens.index("(Dolby")
-                title = " ".join(tokens[:splitter - 1])
-                additional_info.append("Dolby Digital")
-            if "(Dolby Atmos)" in title:
-                tokens = title.split(" ")
-                splitter = tokens.index("(Dolby")
-                title = " ".join(tokens[:splitter - 1])
-                additional_info.append("Dolby Atmos")
-                title = title.replace("Atmos", "")
-        elif self.provider == "sb":
-            # special rules
-            if "Kungfu" in title:
-                title = title.replace("Kungfu", "Kung-fu")
-
-            # general rules
-            if "`" in title:
-                title = title.replace("`", "\'")
-            if "[D]" in title:
-                title = title.replace("[D]", "")
-                additional_info.append("Digital")
-            if "[IMAX]" in title:
-                title = title.replace("[IMAX]", "")
-                additional_info.append("IMAX")
-            if "[M]" in title:
-                title = title.replace("[M]", "")
-            if "[IMAX 3D]" in title:
-                title = title.replace("[IMAX 3D]", "")
-                additional_info.append("IMAX")
-                additional_info.append("3D")
-
-        else:
-            raise Exception("Invalid cinema provider")
-
-        title = title.strip()
-        additional_info = ",".join(additional_info)
-        return title, additional_info
-
-    @staticmethod
-    def _get_id_from_cathay_cinema_name(cinema_name):
-        """get cathay internal id from their cinema name for web elements"""
-        mapper = {
-            "Cathay Cineplex Amk Hub": "",
-            "Cathay Cineplex Causeway Point": "1",
-            "Cathay Cineplex Cineleisure Orchard": "2",
-            "Cathay Cineplex Downtown East": "3",
-            "Cathay Cineplex Jem": "4",
-            "The Cathay Cineplex": "5",
-            "Cathay Cineplex West Mall": "6"
-        }
-        return mapper[cinema_name]
-
-    @staticmethod
-    def _get_singapore_date(n):
-        """get the date of n days from now in SGT"""
-        today = (datetime.fromtimestamp(time.time(), timezone("Singapore")) + timedelta(days=n)).strftime(
-            "%Y-%m-%d")
-        return today
-
-    @staticmethod
-    def _convert_12_to_24_hour_time(time_string):
-        """
-        convert time in 12 hour string format to 24 hour string format
-        :param time_string: string
-        :return: string
-        """
-        return datetime.strptime(time_string, "%I:%M%p").strftime("%H:%M:%S")
-
-

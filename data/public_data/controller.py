@@ -14,6 +14,11 @@ from cinema import CinemaList, CinemaSchedule
 from movie import MovieData
 from loader import Loader
 from movie_id_matcher.matcher import MovieIDMatcher
+from urllib import error
+
+import psycopg2
+import time
+import logging
 
 
 class ETLController:
@@ -21,73 +26,72 @@ class ETLController:
     def __init__(self):
         self.loader = Loader()
 
-        self.cinema_list_object = CinemaList()
-
     def update_movie_data(self, lower, upper, delay):
-        """updates movie data from databases (potentially more than one source)
-            it is a one time process, i.e. data will not be updated constantly
         """
-        self.logger.info("Initialise movie data retrieval process ...")
+        updates movie data from IMDb
+        :param lower: integer
+        :param upper: integer
+        :param delay: integer
+        :return: None
+        """
+        logging.info("Initialise movie data retrieval process ...")
+        logging.info("Range: " + lower + " to " + upper + ", starting in " + delay + "s ...")
 
-        time.sleep(delay)  # delay to avoid conflict
+        time.sleep(delay)  # delay to avoid database transaction lock during multi-thread process
         existing_movies_id = self.loader.get_movie_id_list()
 
         for index in range(lower, upper):  # iterate all possible titles
-            imdb_id = utils.imdb_id_builder(index)
+            current_imdb_id = self._build_imdb_id(index)
 
-            if imdb_id in existing_movies_id:
+            if current_imdb_id in existing_movies_id:
                 continue
 
             try:
-                movie_data = self.extractor.extract_movie_data(imdb_id)
+                self._update_single_movie_data(current_imdb_id)
             except error.HTTPError:
-                self.logger.error("Movie ID is not valid." + imdb_id)
-                continue
-            except Exception as e:  # need to find out the exact error type
-                self.logger.error("Movie ID type is not registered." + imdb_id)
-                self.logger.error(e)
+                logging.error("Movie ID is not valid." + current_imdb_id)
                 continue
 
-            try:
-                self.loader.load_movie_data(movie_data)
-            except psycopg2.DataError:
-                self.logger.error("Invalid insertion! Due to the subtext are partially parsed.")
-                continue
-
-        self.logger.info("Movie data update process complete.")
+        logging.info("Movie data update process complete.")
 
     def update_movie_rating(self):
         """updates movie rating from popcorn movies (may have to change to raaw implementation in the future)
         it is a continuous process and data will be updated constantly
         """
-        self.logger.info("Initialise movie rating update process ...")
+        logging.info("Initialise movie rating update process ...")
 
         # get list of existing movies
         id_list = self.loader.get_movie_id_list()
 
-        self.logger.info("Movie rating update process complete.")
+        logging.info("Movie rating update process complete.")
 
     def update_cinema_list(self):
-        """update cinema list from various theatres websites"""
-        # get list
-        cinema_list = self.cinema_list_object.get_latest_cinema_list()
-
-        # load list
+        """
+        Update cinema list from various theatres websites
+        :return: None
+        """
+        cinema_list_object = CinemaList()
+        cinema_list = cinema_list_object.get_latest_cinema_list()
         self.loader.load_cinema_list(cinema_list)
 
     def update_cinema_schedule(self):
-        """update latest cinema schedule from cinema list
+        """
+        Update latest cinema schedule from cinema list.
+
         It passes an empty dictionary to each cinema schedule object,
         every iteration it will append that cinema's schedule to the
         dictionary.
 
+        IMDb ID is obtained using MovieMatcher module in the process.
+
+
         The dictionary should be structured using title and imdb_id
-        as the top level keys, follow by other data
+        as the top level keys, follow by other data.
+
         {
             title: {
                 "imdb_id": ...
-                "content": [
-                    {
+                "content": [{
                         "cinema_id": ...
                         "schedule": [...]
                         "type": ...
@@ -95,8 +99,6 @@ class ETLController:
                 ]
             }
         }
-
-        IMDb ID is obtained using MovieMatcher module
         """
         cinema_schedule_data = {}
 
@@ -109,10 +111,21 @@ class ETLController:
         for title, content in cinema_schedule_data.items():
             imdb_id = matcher.match_imdb_id_for_cinema_schedule(title)
             content['imdb_id'] = imdb_id
-            self._update_movie_data_if_not_exist(imdb_id)
+            self.movie_list = self.loader.get_movie_id_list()
+            self._update_single_movie_data(imdb_id)
 
         # load data
         self.loader.load_cinema_schedule(cinema_schedule_data)
+
+    def _update_single_movie_data(self, imdb_id):
+        """
+        given imdb id, extract movie data and store it in database
+        :param imdb_id: string
+        :return: None
+        """
+        data_model = MovieData(imdb_id)
+        current_movie_data = data_model.get_movie_data()
+        self.loader.load_movie_data(current_movie_data)
 
     @staticmethod
     def _cinema_schedule_retrieve(cinema_list, cinema_schedule_data):
@@ -135,57 +148,58 @@ class ETLController:
                 movie['cinema_id'] = cinema_id
                 current_title['content'].append(movie)
 
-    def _update_movie_data_if_not_exist(self, movie_id):
-        movie_list = self.loader.get_movie_id_list()
-        if movie_id not in movie_list:
-            data_model = MovieData(movie_id)
-            try:
-                data_model._build_soup(data_model._get_html_content())
-                data_model.extract_process()
-            except:
-                print(movie_id)
-            self.loader.load_movie_data(data_model.get_movie_data())
-
-class Extractor:
-
-    def __init__(self, logger):
-        self.logger = logger
-
     @staticmethod
-    def extract_movie_data(movie_id):
-        """given imdb_id, return the metadata of that movie from imdb"""
-        data_model = MovieData(movie_id)
-        data_model.build_soup(data_model.get_html_content())
-        data_model.extract_process()
-        return data_model.get_movie_data()
-
-    @staticmethod
-    def extract_movie_rating(movie_id):
-        """given imdb_id, return a list of dictionaries that contain respective
-        rating and votes from each ratings sources
+    def _build_imdb_id(i):
         """
-        data_model = MovieRating(movie_id)
-        return data_model.get_movie_ratings()
-
-    @staticmethod
-    def extract_cinema_list():
-        """return a list of dictionaries contains all the cinema names and its
-        respective urls
+        this function takes in an integer and converts it to an imdb id
+        :param i: integer
+        :return: string
         """
-        data_model = CinemaList()
-        final_list = []
-        final_list.extend(data_model._extract_gv_cinema_list())
-        final_list.extend(data_model._extract_cathay_cinema_list())
-        final_list.extend(data_model._extract_sb_cinema_list())
-        return final_list
-
-    @staticmethod
-    def extract_cinema_schedule(cinema):
-        data_model = MovieShowing(cinema)
-        data_model.generic_cinema_extractor()
-        return
+        current_imdb_number = "{0:0=7d}".format(i)
+        imdb_id = "tt" + current_imdb_number
+        return imdb_id
 
 if __name__ == '__main__':
     controller = ETLController()
-    controller.update_cinema_schedule()
+    controller._update_single_movie_data("tt2342341")
+
+# class Extractor:
+#
+#     def __init__(self, logger):
+#         self.logger = logger
+#
+#     @staticmethod
+#     def extract_movie_data(movie_id):
+#         """given imdb_id, return the metadata of that movie from imdb"""
+#         data_model = MovieData(movie_id)
+#         data_model.build_soup(data_model.get_html_content())
+#         data_model.extract_process()
+#         return data_model.get_movie_data()
+#
+#     @staticmethod
+#     def extract_movie_rating(movie_id):
+#         """given imdb_id, return a list of dictionaries that contain respective
+#         rating and votes from each ratings sources
+#         """
+#         data_model = MovieRating(movie_id)
+#         return data_model.get_movie_ratings()
+#
+#     @staticmethod
+#     def extract_cinema_list():
+#         """return a list of dictionaries contains all the cinema names and its
+#         respective urls
+#         """
+#         data_model = CinemaList()
+#         final_list = []
+#         final_list.extend(data_model._extract_gv_cinema_list())
+#         final_list.extend(data_model._extract_cathay_cinema_list())
+#         final_list.extend(data_model._extract_sb_cinema_list())
+#         return final_list
+#
+#     @staticmethod
+#     def extract_cinema_schedule(cinema):
+#         data_model = MovieShowing(cinema)
+#         data_model.generic_cinema_extractor()
+#         return
+
 

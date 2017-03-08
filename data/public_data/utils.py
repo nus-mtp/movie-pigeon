@@ -58,8 +58,7 @@ def transform_date_imdb(input_text):
 """
     This file contains miscellaneous functions used by all classes
 """
-import logging
-import datetime
+
 
 
 # ==============
@@ -134,13 +133,7 @@ def get_movie_rating_dict(score, votes, imdb_id, rating_source):
     return movie_rating
 
 
-def imdb_id_builder(i):
-    """
-        this function takes in an integer and converts it to an imdb id
-    """
-    current_imdb_number = "{0:0=7d}".format(i)
-    imdb_id = "tt" + current_imdb_number
-    return imdb_id
+
 
 
 
@@ -152,3 +145,4 @@ def is_numeric(number):
     except ValueError:
         return False
     return True
+

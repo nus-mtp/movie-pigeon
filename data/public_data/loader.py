@@ -15,17 +15,30 @@ class Loader:
     #   LOAD
     # ========
     def load_movie_data(self, movie_data):
-        try:
-            self.cursor.execute("INSERT INTO movies (movie_id, title, production_year, rated, plot, actors, "
-                                "language, country, runtime, poster_url, genre, director, released, type) "
-                                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                (movie_data['movie_id'], movie_data['title'], movie_data['production_year'],
-                                 movie_data['rated'],  movie_data['plot'], movie_data['actors'], movie_data['language'],
-                                 movie_data['country'], movie_data['runtime'], movie_data['poster_url'],
-                                 movie_data['genre'], movie_data['director'], movie_data['released'], movie_data['type']))
-        except psycopg2.IntegrityError:
-            logging.error("UNIQUE CONSTRAINT violated in Table: movies")
-
+        """
+        load movie data into database, if movie_id exists, it will update accordingly
+        :param movie_data: dictionary
+        :return: None
+        """
+        self.cursor.execute("INSERT INTO movies (movie_id, title, production_year, rated, plot, actors, "
+                            "language, country, runtime, poster_url, genre, director, released, type) "
+                            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+                            "ON CONFLICT (movie_id) "
+                            "DO UPDATE SET (title, production_year, rated, plot, actors, "
+                            "language, country, runtime, poster_url, genre, director, released, type) = "
+                            "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                            "WHERE movies.movie_id=%s",
+                            (movie_data['movie_id'], movie_data['title'], movie_data['production_year'],
+                             movie_data['rated'],  movie_data['plot'], movie_data['actors'], movie_data['language'],
+                             movie_data['country'], movie_data['runtime'], movie_data['poster_url'],
+                             movie_data['genre'], movie_data['director'], movie_data['released'],
+                             movie_data['type'],
+                             movie_data['title'], movie_data['production_year'],
+                             movie_data['rated'], movie_data['plot'], movie_data['actors'], movie_data['language'],
+                             movie_data['country'], movie_data['runtime'], movie_data['poster_url'],
+                             movie_data['genre'], movie_data['director'], movie_data['released'],
+                             movie_data['type'],
+                             movie_data['movie_id']))
         self.conn.commit()
 
     def load_movie_rating(self, movie_rating):
