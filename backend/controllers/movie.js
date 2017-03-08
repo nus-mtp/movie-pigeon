@@ -1,22 +1,16 @@
 // Load required packages
 var Movie = require('../proxy/movie.js');
 
-function processSearchString(searchString) {
-  searchString = searchString.trim().replace(' ', '%');
-  searchString = '%' + searchString + '%';
-  return searchString;
-}
-
 // Create endpoint /api/movie for GET
 exports.getMoviesByTitle = function (req, res) {
   // Use the Client model to find all clients
-  var searchString = processSearchString(req.headers.title);
-  Movie.getMovieByTitleCount(searchString)
+  Movie.getMovieByTitleCount(req.headers.title)
     .then(function (count) {
-      Movie.getMovieByTitle(req.user.id, searchString, req.headers.offset, req.headers.limit)
+      Movie.getMovieByTitle(req.user.id, req.headers.title, req.headers.offset, req.headers.limit)
         .then(function (movies) {
           res.json({count: count, raw: movies});
         }).catch(function (err) {
+          console.log(err);
         }
       );
     });
