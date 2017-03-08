@@ -294,6 +294,8 @@ class CinemaSchedule:
         data_object = []
         # parse title
         for key, value in cinema_object.items():
+            if "Zen Zone" in key:  # strange thing in gv
+                continue
             title, additional_info = self._movie_title_parser(key)
             data_object.append(
                 {
@@ -306,9 +308,23 @@ class CinemaSchedule:
     def _movie_title_parser(self, title):
         additional_info = []
         if self.provider == "gv":
+            if "`" in title:
+                title = title.replace("`", "\'")
             if "*" in title:
                 title = title.replace("*", "")
                 additional_info.append("No free pass")
+            if "(Eng Sub)" in title:
+                title = title.replace("(Eng Sub)", "")
+                additional_info.append("English sub only")
+            if "(Atmos)" in title:
+                title = title.replace("(Atmos)", "")
+                additional_info.append("Atmos")
+            if "Dessert Set" in title:
+                title = title.replace("Dessert Set", "")
+                additional_info.append("Dessert Set")
+            if "(D-Box)" in title:
+                title = title.replace("(D-Box)", "")
+                additional_info.append("(D-Box)")
         elif self.provider == "cathay":
             if "*" in title:
                 title = title.replace("*", "")

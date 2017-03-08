@@ -74,9 +74,8 @@ class ETLController:
 
     @staticmethod
     def _cinema_schedule_retrieve(cinema_list, cinema_schedule_data):
-        for cinema in cinema_list[10:15]:
+        for cinema in cinema_list:
             cinema_id, cinema_name, provider, cinema_url = cinema
-            print(cinema_id)
             cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
             current_schedules = cinema_schedule.extract_cinema_schedule()
 
