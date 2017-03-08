@@ -1,6 +1,6 @@
 """
-    This class retrieves movie schedule from different sources,
-    parse all data into required format, and match it with imdb id.
+    This class retrieves movie schedule from different sources and
+    parse all data into required format
 """
 from pytz import timezone
 from datetime import datetime, timedelta
@@ -8,7 +8,6 @@ from bs4 import BeautifulSoup
 from urllib import request
 from selenium import webdriver
 from string import capwords
-
 
 import time
 
@@ -28,11 +27,15 @@ class CinemaList:
         """
         return the latest cinema list to the processor in the format
         of
-        {
+        [{
             "url": ...
             "cinema_name: ...
             "provider": ...
-        }
+        }, {
+            "url": ...
+            "cinema_name: ...
+            "provider": ...
+        }]
         :return: list
         """
         cinema_list = []
@@ -292,6 +295,7 @@ class CinemaSchedule:
         :return: dictionary
         """
         data_object = []
+
         # parse title
         for key, value in cinema_object.items():
             if "Zen Zone" in key:  # strange thing in gv
