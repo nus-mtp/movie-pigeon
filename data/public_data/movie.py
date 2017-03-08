@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from urllib import request
 
 import html
-import utils
+import public_data.utils as utils
 
 
 class MovieData:
@@ -166,8 +166,9 @@ class MovieData:
 
     def _extract_release(self):
         """
-        parse the last token in subtext element.
-        it may also determine the release date and country
+        parse the last token in subtext element,
+        determine the release date and country
+        If it is not a movie, raise an exception
         :return:
         """
         self.type = 'movie'  # default movie type
