@@ -1,7 +1,11 @@
 from controller import ETLController
 from apscheduler.schedulers.blocking import BlockingScheduler
 
+import logging
+
+
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     scheduler = BlockingScheduler()
     controller = ETLController()
     scheduler.add_job(controller.update_movie_data, args=[1, 1000000, 0])

@@ -133,7 +133,8 @@ def get_movie_rating_dict(score, votes, imdb_id, rating_source):
     return movie_rating
 
 
-
+class InvalidMovieTypeException(Exception):
+    pass
 
 
 

@@ -54,15 +54,16 @@ class MovieData:
         main logic for extraction of imdb data
         :return:
         """
-        self._extract_title_and_year()
-        self._extract_poster()
-        self._extract_credits()
-        self._extract_plot()
         self._extract_subtext()
+        self._extract_release()
         self._extract_rated()
         self._extract_genre()
         self._extract_release()
         self._extract_runtime()
+        self._extract_title_and_year()
+        self._extract_poster()
+        self._extract_credits()
+        self._extract_plot()
 
     def _get_html_content(self):
         """
@@ -165,7 +166,7 @@ class MovieData:
 
     def _extract_release(self):
         """
-        parse the last token in subtext element. it determines the type of the object,
+        parse the last token in subtext element.
         it may also determine the release date and country
         :return:
         """
@@ -175,39 +176,28 @@ class MovieData:
             if anchor.has_attr('title'):
                 release_text = anchor.text
                 if "Episode aired" in release_text:
-                    self.type = "episode"
-                    release_text = release_text.replace("Episode aired", "").replace("\n", "").strip()
-                    self.released = utils.transform_date_imdb(release_text)
+                    raise utils.InvalidMovieTypeException
                 elif "TV Series" in release_text:
-                    self.type = "tv"
+                    raise utils.InvalidMovieTypeException
                 elif "TV Episode" in release_text:
-                    self.type = "episode"
+                    raise utils.InvalidMovieTypeException
                 elif "TV Special" in release_text:
-                    self.type = "tv-special"
-                    release_text = release_text.replace("TV Special", "").replace("\n", "").strip()
-                    self.released = utils.transform_date_imdb(release_text)
+                    raise utils.InvalidMovieTypeException
                 elif "Video Game" in release_text:
-                    self.type = "video-game"
+                    raise utils.InvalidMovieTypeException
                 elif "Video game released" in release_text:
-                    self.type = "video-game"
-                    release_text = release_text.replace("Video game released", "").replace("\n", "").strip()
-                    self.released = utils.transform_date_imdb(release_text)
+                    raise utils.InvalidMovieTypeException
                 elif "Video" in release_text:
-                    self.type = "video"
-                    release_text = release_text.replace("Video", "").replace("\n", "").strip()
-                    self.released = utils.transform_date_imdb(release_text)
+                    raise utils.InvalidMovieTypeException
                 elif "TV Mini-Series" in release_text:
-                    self.type = "tv-mini"
+                    raise utils.InvalidMovieTypeException
                 elif "TV Movie" in release_text:
-                    self.type = "tv-movie"
-                    release_text = release_text.replace("TV Movie", "").replace("\n", "").strip()
-                    self.released = utils.transform_date_imdb(release_text)
+                    raise utils.InvalidMovieTypeException
                 elif "TV Short" in release_text:
-                    self.type = "tv-short"
-                else:
-                    release_text = release_text.replace("\n", "").strip()
-                    self.released, self.country = utils.split_release_and_country_imdb(release_text)
-                    self.released = utils.transform_date_imdb(self.released)
+                    raise utils.InvalidMovieTypeException
+                release_text = release_text.replace("\n", "").strip()
+                self.released, self.country = utils.split_release_and_country_imdb(release_text)
+                self.released = utils.transform_date_imdb(self.released)
         return self.released, self.country, self.type
 
     def _extract_genre(self):
