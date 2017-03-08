@@ -20,6 +20,9 @@ class Loader:
         :param movie_data: dictionary
         :return: None
         """
+        if movie_data['type'] != "movie":  # does not store any non movie content
+            return
+
         self.cursor.execute("INSERT INTO movies (movie_id, title, production_year, rated, plot, actors, "
                             "language, country, runtime, poster_url, genre, director, released, type) "
                             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "

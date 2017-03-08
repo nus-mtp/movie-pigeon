@@ -136,7 +136,11 @@ class MovieData:
         return the plot of one movie
         :return: plot in string format or None
         """
-        self.plot = self.soup.find("div", {"class": "summary_text"}).text.replace("\n", "").strip().split("    ")[0]
+        try:
+            self.plot = self.soup.find("div", {"class": "summary_text"}).text.replace("\n", "").strip().split("    ")[0]
+        except AttributeError:
+            self.plot = None
+
         if "Add a Plot" in self.plot:
             self.plot = None
         return self.plot

@@ -16,7 +16,6 @@ from loader import Loader
 from movie_id_matcher.matcher import MovieIDMatcher
 from urllib import error
 
-import psycopg2
 import time
 import logging
 
@@ -35,7 +34,7 @@ class ETLController:
         :return: None
         """
         logging.info("Initialise movie data retrieval process ...")
-        logging.info("Range: " + lower + " to " + upper + ", starting in " + delay + "s ...")
+        logging.info("Range: " + str(lower) + " to " + str(upper) + ", starting in " + str(delay) + "s ...")
 
         time.sleep(delay)  # delay to avoid database transaction lock during multi-thread process
         existing_movies_id = self.loader.get_movie_id_list()
@@ -49,8 +48,11 @@ class ETLController:
             try:
                 self._update_single_movie_data(current_imdb_id)
             except error.HTTPError:
-                logging.error("Movie ID is not valid." + current_imdb_id)
                 continue
+            except Exception as e:
+                logging.error("Unknown error occurs. Please examine.")
+                logging.error(e)
+                logging.error(current_imdb_id)
 
         logging.info("Movie data update process complete.")
 
@@ -161,7 +163,7 @@ class ETLController:
 
 if __name__ == '__main__':
     controller = ETLController()
-    controller._update_single_movie_data("tt2342341")
+
 
 # class Extractor:
 #
