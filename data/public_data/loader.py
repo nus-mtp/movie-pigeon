@@ -1,7 +1,9 @@
 """handles all interactions with database"""
-import config
-import psycopg2
 import logging
+
+import psycopg2
+
+import config
 
 
 class Loader:

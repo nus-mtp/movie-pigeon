@@ -21,7 +21,7 @@ hs_err_pid*
 backend/node_modules/
 
 # config file and various api keys
-data/config.py
+data/public_data/config.py
 
 # python compiles
 data/__pycache__/
