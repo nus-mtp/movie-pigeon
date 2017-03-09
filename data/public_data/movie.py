@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from urllib import request
 
 import html
-import public_data.utils as utils
+import utils
 
 
 class MovieData:
@@ -177,25 +177,25 @@ class MovieData:
             if anchor.has_attr('title'):
                 release_text = anchor.text
                 if "Episode aired" in release_text:
-                    raise utils.InvalidMovieTypeException
+                    raise utils.InvalidMovieTypeException("Invalid movie type.")
                 elif "TV Series" in release_text:
-                    raise utils.InvalidMovieTypeException
+                    raise utils.InvalidMovieTypeException("Invalid movie type.")
                 elif "TV Episode" in release_text:
-                    raise utils.InvalidMovieTypeException
+                    raise utils.InvalidMovieTypeException("Invalid movie type.")
                 elif "TV Special" in release_text:
-                    raise utils.InvalidMovieTypeException
+                    raise utils.InvalidMovieTypeException("Invalid movie type.")
                 elif "Video Game" in release_text:
-                    raise utils.InvalidMovieTypeException
+                    raise utils.InvalidMovieTypeException("Invalid movie type.")
                 elif "Video game released" in release_text:
-                    raise utils.InvalidMovieTypeException
+                    raise utils.InvalidMovieTypeException("Invalid movie type.")
                 elif "Video" in release_text:
-                    raise utils.InvalidMovieTypeException
+                    raise utils.InvalidMovieTypeException("Invalid movie type.")
                 elif "TV Mini-Series" in release_text:
-                    raise utils.InvalidMovieTypeException
+                    raise utils.InvalidMovieTypeException("Invalid movie type.")
                 elif "TV Movie" in release_text:
-                    raise utils.InvalidMovieTypeException
+                    raise utils.InvalidMovieTypeException("Invalid movie type.")
                 elif "TV Short" in release_text:
-                    raise utils.InvalidMovieTypeException
+                    raise utils.InvalidMovieTypeException("Invalid movie type.")
                 release_text = release_text.replace("\n", "").strip()
                 self.released, self.country = utils.split_release_and_country_imdb(release_text)
                 self.released = utils.transform_date_imdb(self.released)

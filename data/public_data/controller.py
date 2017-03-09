@@ -72,9 +72,6 @@ class ETLController:
         updates movie rating from various websites
         """
         logging.info("Initialise movie rating update process ...")
-
-        id_list = self.loader.get_movie_id_list()
-
         logging.info("Movie rating update process complete.")
 
     def update_cinema_list(self):
