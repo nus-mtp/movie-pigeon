@@ -19,6 +19,7 @@ from urllib import error
 import utils
 import time
 import logging
+import psycopg2
 
 
 class ETLController:
@@ -43,6 +44,9 @@ class ETLController:
         for index in range(lower, upper):  # iterate all possible titles
             current_imdb_id = self._build_imdb_id(index)
 
+            if index % 1000 == 0:  # id monitor
+                logging.info("Currently at: " + current_imdb_id)
+
             if current_imdb_id in existing_movies_id:
                 continue
 
@@ -52,6 +56,10 @@ class ETLController:
                 continue
             except utils.InvalidMovieTypeException:
                 continue
+            except psycopg2.InterfaceError:
+                logging.error("Reestablishing database connection")
+                self.loader = Loader()
+                continue
             except Exception as e:
                 logging.error("Unknown error occurs. Please examine.")
                 logging.error(e)
@@ -60,12 +68,11 @@ class ETLController:
         logging.info("Movie data update process complete.")
 
     def update_movie_rating(self):
-        """updates movie rating from popcorn movies (may have to change to raaw implementation in the future)
-        it is a continuous process and data will be updated constantly
+        """
+        updates movie rating from various websites
         """
         logging.info("Initialise movie rating update process ...")
 
-        # get list of existing movies
         id_list = self.loader.get_movie_id_list()
 
         logging.info("Movie rating update process complete.")
