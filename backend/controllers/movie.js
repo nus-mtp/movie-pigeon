@@ -16,6 +16,16 @@ exports.getMoviesByTitle = function (req, res) {
     });
 };
 
+exports.getShowingMovieByTitle = function (req, res) {
+  Movie.getShowingMovieByTitle(req.user.id, req.headers.title)
+    .then(function (movies) {
+      res.json(movies);
+    }).catch(function (err) {
+      console.log(err);
+    }
+  );
+};
+
 // Create endpoint /api/movie for GET
 exports.getMoviesById = function (req, res) {
   // Use the Client model to find all clients

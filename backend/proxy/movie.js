@@ -4,6 +4,7 @@ var RatingSource = require('../models/ratingSource.js');
 var UserRating = require('../models/history.js');
 var Bookmark = require('../models/bookmarks.js');
 var sequelize = require('../models/db');
+var Showing  = require('../models/showing');
 
 
 function processSearchString(searchString) {
@@ -76,6 +77,10 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
           user_id: userId
         },
         required: false
+      },
+      {
+        model: Showing,
+        required: false
       }
     ],
     order: [
@@ -85,6 +90,51 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
                               'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' THEN 3 ' +
                               'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\' THEN 4 ' +
                               'ELSE 5  END, "movies"."production_year" DESC')]
+    ]
+  });
+};
+
+exports.getShowingMovieByTitle = function (userId, searchString) {
+
+  var rawString = searchString;
+  searchString = processSearchString(searchString);
+  return Movie.findAll({
+    where: {
+      title: {$ilike: searchString}
+    },
+    include: [
+      {
+        model: PublicRate,
+        include: [
+          RatingSource
+        ]
+      },
+      {
+        model: UserRating,
+        where: {
+          user_id: userId
+        },
+        required: false
+      },
+      {
+        model: Bookmark,
+        where: {
+          user_id: userId
+        },
+        required: false
+      },
+      {
+        model: Showing,
+        required: true
+      }
+    ],
+    order: [
+      [sequelize.literal('CASE WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' THEN 0 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' THEN 1 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' THEN 2 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' THEN 3 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\' THEN 4 ' +
+        'ELSE 5  END, "movies"."production_year" DESC')]
     ]
   });
 };
