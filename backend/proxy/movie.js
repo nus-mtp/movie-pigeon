@@ -27,11 +27,11 @@ function getSearchString(searchString, priority) {
       return searchString;
       break;
     case 4:
-      searchString = '% '+ searchString;
+      searchString = '% '+ searchString + ' %';
       return searchString;
       break;
     case 5:
-      searchString = searchString.replace(' ', ' % ');
+      searchString = searchString + ' %';
       return searchString;
       break;
   }
@@ -84,7 +84,7 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
                               'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' THEN 2 ' +
                               'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' THEN 3 ' +
                               'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\' THEN 4 ' +
-                              'ELSE 5  END, "movies"."production_year" DESC')]
+                              'END, "movies"."production_year" DESC')]
     ]
   });
 };
