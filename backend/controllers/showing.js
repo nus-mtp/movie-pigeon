@@ -6,7 +6,10 @@ exports.getShowingByCinema = function (req, res) {
       if (result) {
         res.status(200).json(result);
       } else {
-        res.status(280).json({status: 'fail', message: 'No Schedule For Cinema'});
+        res.status(404).json({
+          status: 'fail',
+          message: 'No Schedule For Cinema'
+        });
       }
     })
 };

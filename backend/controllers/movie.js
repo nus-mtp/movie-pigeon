@@ -8,7 +8,7 @@ exports.getMoviesByTitle = function (req, res) {
     .then(function (count) {
       Movie.getMovieByTitle(req.user.id, req.headers.title, req.headers.offset, req.headers.limit)
         .then(function (movies) {
-          res.json({count: count, raw: movies});
+          res.status(200).json({count: count, raw: movies});
         }).catch(function (err) {
           console.log(err);
         }

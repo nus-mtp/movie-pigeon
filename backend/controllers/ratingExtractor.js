@@ -86,7 +86,7 @@ exports.getTraktRatings = function (req, res) {
   User.getUserByEmail(email)
     .then(function (users) {
       if (users) {
-        res.json({
+        res.status(409).json({
           status: 'fail',
           message: 'User Existed'
         });
@@ -94,7 +94,7 @@ exports.getTraktRatings = function (req, res) {
         User.saveUser(email, username, password)
           .then(function () {
             result = true;
-            res.json({
+            res.status(200).json({
               status: 'success',
               message: 'User Created'
             });
@@ -126,9 +126,9 @@ exports.checkTraktUser = function (req, res) {
       console.log(err);
     } else {
       if (body === null) {
-        res.send(false);
+        res.status(404).send(false);
       } else {
-        res.send(true);
+        res.status(200).send(true);
       }
     }
   });
