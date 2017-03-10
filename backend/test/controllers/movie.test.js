@@ -3,6 +3,8 @@ var request = require('supertest');
 var should = require('should');
 var movie = require('../../models/movie.js');
 var user = require('../../models/user.js');
+var cinema = require('../../models/cinema.js');
+var showing = require('../../models/showing.js');
 
 var getObjects = function (obj, key, val) {
   var objects = [];
@@ -39,7 +41,15 @@ describe('Movie controller test', function () {
         username: 'testusername',
         password: password
       }).then(function () {
-        done();
+        cinema.bulkCreate([
+          {cinema_id: 1, cinema_name: 'testcinema1', provider: 'pigeon', url: 'pigeon.com'}
+        ]).then(function () {
+          showing.bulkCreate([
+            {cinema_id: 1, movie_id: 'test000001', type: 'type1', schedule: '2017-03-03 12:51:11+08'},
+            {cinema_id: 1, movie_id: 'test000002', type: 'type2', schedule: '2017-03-03 13:13:11+08'}
+          ]);
+          done();
+        });
       });
     });
   });
@@ -57,7 +67,14 @@ describe('Movie controller test', function () {
           }
         })
           .then(function () {
-            done();
+            cinema.destroy({
+              where: {
+                cinema_name: {$ilike: '%testcinema%'}
+              }
+            })
+              .then(function () {
+                done();
+              });
           });
       });
   });
@@ -162,6 +179,24 @@ describe('Movie controller test', function () {
           var data = res.body.raw;
           getObjects(data, 'movie_id', 'test000004').should.not.equal([]);
           getObjects(data, 'movie_id', 'test000005').should.not.equal([]);
+          done();
+        });
+    });
+
+  it('should get now showing movie from the db by its title substring',
+    function (done) {
+      request(server)
+        .get('/api/movies/showing')
+        .set('Content-Type', 'application/x-www-form-urlencoded')
+        .auth('testemailmovietest', 'pass')
+        .set('Title', 'test')
+        .expect(200)
+        .end(function (err, res) {
+          res.status.should.equal(200);
+          res.body.length.should.equal(2);
+          var data = res.body;
+          getObjects(data, 'movie_id', 'test000001').should.not.equal([]);
+          getObjects(data, 'movie_id', 'test000002').should.not.equal([]);
           done();
         });
     });
