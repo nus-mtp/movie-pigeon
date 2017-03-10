@@ -35,3 +35,6 @@ data/.DS_Store
 
 #DB credentials
 backend/database.json
+
+#Email credentials
+backend/config.json

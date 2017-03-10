@@ -8,10 +8,13 @@ exports.postClients = function (req, res) {
   var secret = req.body.secret;
   var userId = req.user.email;
   // Save the client and check for errors
-  Client.build({name: name, id: id, secret: secret, userId: userId})
-      .save().then(function (success) {
-        res.json({status: 'Success', message: 'Client Created'});
+  Client.create({name: name, id: id, secret: secret, userId: userId})
+    .then(function () {
+      res.json({
+        status: 'Success',
+        message: 'Client Created'
       });
+    });
 };
 
 // Create endpoint /api/clients for GET

@@ -1,0 +1,10 @@
+{
+  "CustomerServiceEmail": {
+    "service": "",
+    "account": "",
+    "password": ""
+  },
+  "HomeEmail": {
+    "account": ""
+  }
+}

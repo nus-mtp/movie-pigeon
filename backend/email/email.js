@@ -2,13 +2,14 @@
 var nodemailer = require('nodemailer');
 var user = require('../models/user.js');
 var token = require('../models/token.js');
+var config = require('../config.json');
 
 // create reusable transporter object using the default SMTP transport
 var transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: config.CustomerServiceEmail.service,
   auth: {
-    user: 'movie.pigeon.customerservice@gmail.com',
-    pass: 'hellopigeons'
+    user: config.CustomerServiceEmail.account,
+    pass: config.CustomerServiceEmail.password
   }
 });
 
@@ -28,8 +29,12 @@ exports.buildResetRequest = function (req, res) {
           clientId: clientId,
           userId: users.id
         })
-          .then(function (success) {
+          .then(function (tokens) {
             res.json({status: 'success', message: 'Email Sent'});
+
+            setTimeout(function () {
+              tokens.destroy();
+            }, 600000);
           })
           .catch(function (err) {
             if (err) {
@@ -40,13 +45,14 @@ exports.buildResetRequest = function (req, res) {
         res.json({status: 'fail', message: 'Email Not Found'});
       }
     });
+
 };
 
 /**
  * Send Verification Code to the specified email
  */
 function sendEmail(email, username, code) {
-  var verificationCode = uid(128);
+  var verificationCode = uid(5);
   // var text = getText(verificationCode, users.username);
   var text = getText(verificationCode, username);
   // setup email data with unicode symbols

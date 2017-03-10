@@ -1,24 +1,27 @@
-var User = require('../models/user.js');
-var crypto = require('crypto');
+var User = require('../proxy/user.js');
+var UserModel = require('../models/user.js');
 
 exports.postUser = function (req, res) {
   var username = req.body.username;
   var password = req.body.password;
   var email = req.body.email;
 
-  var shasum = crypto.createHash('sha1');
-  shasum.update(password);
-  password = shasum.digest('hex');
-
-  User.find({where: {email: email}})
+  User.getUserByEmail(email)
     .then(function (users) {
       if (users) {
-        return res.json({status: 'fail', message: 'User Existed'});
+        res.json({
+          status: 'fail',
+          message: 'User Existed'
+        });
       } else {
-        User.build({email: email, username: username, password: password})
-          .save()
+        User.saveUser(email, username, password)
           .then(function () {
-            res.json({status: 'success', message: 'User Created'});
+            flag = true;
+            res.json({
+              status: 'success',
+              message: 'User Created'
+            });
+
           })
           .catch(function (err) {
             res.send(err);
@@ -27,24 +30,8 @@ exports.postUser = function (req, res) {
     });
 };
 
-var retrieveAll = function (onSuccess, onError) {
-  User.findAll({}, {raw: true}).then(onSuccess).catch(onError);
-};
-
 exports.getUser = function (req, res) {
-  retrieveAll(function (users) {
-    if (users) {
-      res.json(users);
-    } else {
-      res.send(401, 'User not found');
-    }
-  }, function (err) {
-    res.send('User not found');
-  });
-};
-
-exports.retrieveById = function (userId, onSuccess, onError) {
-  User.find({where: {id: userId}}, {raw: true}).then(onSuccess).catch(onError);
+  res.json({email: req.user.email, username: req.user.username});
 };
 
 exports.updateUsername = function (req, res) {
@@ -53,16 +40,24 @@ exports.updateUsername = function (req, res) {
 
   if (username) {
     if (user.username === username) {
-      res.json({status: 'fail', message: 'Same Username'});
-    } else {
-      user.updateAttributes({
-        username: username
-      }).then(function () {
-        res.json({status: 'success', message: 'Username Updated'});
+      res.json({
+        status: 'fail',
+        message: 'Same Username'
       });
+    } else {
+      User.updateUserUsername(user, username)
+        .then(function () {
+          res.json({
+            status: 'success',
+            message: 'Username Updated'
+          });
+        });
     }
   } else {
-    res.json({status: 'fail', message: 'No Username Provided'});
+    res.json({
+      status: 'fail',
+      message: 'No Username Provided'
+    });
   }
 };
 
@@ -71,24 +66,24 @@ exports.updatePassword = function (req, res) {
   var user = req.user;
 
   if (password) {
-    var shasum = crypto.createHash('sha1');
-    shasum.update(password);
-    password = shasum.digest('hex');
-
-    if (user.password === password) {
-      res.json({status: 'fail', message: 'Same Password'});
-    } else {
-      user.updateAttributes({
-        password: password
-      }).then(function () {
-        res.json({status: 'success', message: 'Password Updated'});
+    if (user.password === UserModel.getHashedPassword(password)) {
+      res.json({
+        status: 'fail',
+        message: 'Same Password'
       });
+    } else {
+      User.updateUserPassword(user, password)
+        .then(function () {
+          res.json({
+            status: 'success',
+            message: 'Password Updated'
+          });
+        });
     }
   } else {
-    res.json({status: 'fail', message: 'No Password Provided'});
+    res.json({
+      status: 'fail',
+      message: 'No Password Provided'
+    });
   }
-};
-
-exports.removeById = function (user_id, onSuccess, onError) {
-  User.destroy({where: {id: user_id}}).then(onSuccess).catch(onError);
 };

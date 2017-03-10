@@ -2,13 +2,14 @@
 var nodemailer = require('nodemailer');
 var schedule = require('node-schedule');
 var pm2 = require('pm2');
+var config = require('./config.json');
 
 // create reusable transporter object using the default SMTP transport
 var transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: config.CustomerServiceEmail.service,
   auth: {
-    user: 'movie.pigeon.customerservice@gmail.com',
-    pass: 'hellopigeons'
+    user: config.CustomerServiceEmail.account,
+    pass: config.CustomerServiceEmail.password
   }
 });
 
@@ -20,7 +21,7 @@ schedule.scheduleJob(rule, function () {
     // setup email data with unicode symbols
     var mailOptions = {
       from: '"Movie Pigeon" <cs@movie-pigeon.com>', // sender address
-      to: 'movie.pigeon@gmail.com', // list of receivers
+      to: config.HomeEmail.account, // list of receivers
       subject: '[Movie Pigeon] Logging file', // Subject line
       text: new Date().toLocaleString(), // html body
       attachments: [
@@ -85,7 +86,7 @@ schedule.scheduleJob(rule2, function () {
         text = text + new Date().toLocaleString();
         var mailOptions = {
           from: '"Movie Pigeon" <cs@movie-pigeon.com>', // sender address
-          to: 'movie.pigeon@gmail.com', // list of receivers
+          to: config.HomeEmail.account, // list of receivers
           subject: '[Movie Pigeon] Server errored', // Subject line
           text: text, // html body
           attachments: [
