@@ -32,7 +32,7 @@ describe('Movie controller test', function () {
       {movie_id: 'test000002', title: 'test2: testmoviename LK'},
       {movie_id: 'test000003', title: 'test3: here'},
       {movie_id: 'test000004', title: 'test dummy movie1'},
-      {movie_id: 'test000005', title: 'test dummy movie2'}
+      {movie_id: 'test000005', title: 'test dummy movie2 pid'}
     ]).then(function () {
       var password = user.getHashedPassword('pass');
 
@@ -129,7 +129,7 @@ describe('Movie controller test', function () {
         });
     });
 
-  it('should get movie from the db by its title substring',
+  it('should get movie from the db by its title',
     function (done) {
       request(server)
         .get('/api/movies/title')
@@ -139,6 +139,7 @@ describe('Movie controller test', function () {
         .expect(200)
         .end(function (err, res) {
           res.status.should.equal(200);
+          console.log(res.body);
           res.body.count.should.equal(1);
           var data = res.body.raw;
           getObjects(data, 'movie_id', 'test000003').should.not.equal([]);
@@ -183,7 +184,7 @@ describe('Movie controller test', function () {
         });
     });
 
-  it('should get now showing movie from the db by its title substring',
+  it('should get now showing movie from the db by its title',
     function (done) {
       request(server)
         .get('/api/movies/showing')
@@ -197,6 +198,23 @@ describe('Movie controller test', function () {
           var data = res.body;
           getObjects(data, 'movie_id', 'test000001').should.not.equal([]);
           getObjects(data, 'movie_id', 'test000002').should.not.equal([]);
+          done();
+        });
+    });
+
+  it('should not get movie from the db by its title substring',
+    function (done) {
+      request(server)
+        .get('/api/movies/title')
+        .set('Content-Type', 'application/x-www-form-urlencoded')
+        .auth('testemailmovietest', 'pass')
+        .set('Title', 'pid')
+        .expect(200)
+        .end(function (err, res) {
+          res.status.should.equal(200);
+          res.body.raw.length.should.equal(1);
+          var data = res.body.raw;
+          getObjects(data, 'movie_id', 'test000005').should.not.equal([]);
           done();
         });
     });

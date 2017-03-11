@@ -52,9 +52,11 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
   var rawString = searchString;
   searchString = processSearchString(searchString);
   return Movie.findAll({
-    where: {
-      title: {$ilike: searchString}
-    },
+    where: sequelize.literal('"movies"."title" ILIKE \''+ getSearchString(rawString, 1) +'\' OR ' +
+                             '"movies"."title" ILIKE \''+ getSearchString(rawString, 2) +'\' OR ' +
+                             '"movies"."title" ILIKE \''+ getSearchString(rawString, 3) +'\' OR ' +
+                             '"movies"."title" ILIKE \''+ getSearchString(rawString, 4) +'\' OR ' +
+                             '"movies"."title" ILIKE \''+ getSearchString(rawString, 5) +'\''),
     limit: limit,
     offset: offset,
     include: [
@@ -92,7 +94,7 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
                               'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' THEN 2 ' +
                               'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' THEN 3 ' +
                               'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\' THEN 4 ' +
-                              'ELSE 5  END, "movies"."production_year" DESC')]
+                              'END, "movies"."production_year" DESC')]
     ]
   });
 };
@@ -102,9 +104,11 @@ exports.getShowingMovieByTitle = function (userId, searchString) {
   var rawString = searchString;
   searchString = processSearchString(searchString);
   return Movie.findAll({
-    where: {
-      title: {$ilike: searchString}
-    },
+    where: sequelize.literal('"movies"."title" ILIKE \''+ getSearchString(rawString, 1) +'\' OR ' +
+      '"movies"."title" ILIKE \''+ getSearchString(rawString, 2) +'\' OR ' +
+      '"movies"."title" ILIKE \''+ getSearchString(rawString, 3) +'\' OR ' +
+      '"movies"."title" ILIKE \''+ getSearchString(rawString, 4) +'\' OR ' +
+      '"movies"."title" ILIKE \''+ getSearchString(rawString, 5) +'\''),
     include: [
       {
         model: PublicRate,
