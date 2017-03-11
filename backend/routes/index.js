@@ -75,5 +75,7 @@ router.route('/cinemas')
 
 router.route('/showing')
   .get(authController.isAuthenticated, showingController.getShowingByCinema);
+router.route('/showing/all')
+  .get(authController.isAuthenticated, showingController.getAllShowingMovie);
 
 module.exports = router;

@@ -39,4 +39,35 @@ var getShowingByCinema = function (userId, cinemaId) {
   });
 };
 
+module.exports.getAllShowingMovie = function () {
+  return Movie.findAll({
+    include: [
+      {
+        model: PublicRate,
+        include: [
+          RatingSource
+        ]
+      },
+      {
+        model: UserRating,
+        where: {
+          user_id: userId
+        },
+        required: false
+      },
+      {
+        model: Bookmark,
+        where: {
+          user_id: userId
+        },
+        required: false
+      },
+      {
+        model: Showing,
+        required: true
+      }
+    ]
+  });
+};
+
 module.exports.getShowingByCinema = getShowingByCinema;
