@@ -5,7 +5,7 @@ var UserRating = require('../models/history.js');
 var Bookmark = require('../models/bookmarks.js');
 var sequelize = require('../models/db');
 var Showing  = require('../models/showing');
-
+var Cinema = require('../models/cinema');
 
 function processSearchString(searchString) {
   searchString = searchString.trim().replace(' ', '%');
@@ -80,6 +80,9 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
       },
       {
         model: Showing,
+        include: [
+          Cinema
+        ],
         required: false
       }
     ],
@@ -125,6 +128,9 @@ exports.getShowingMovieByTitle = function (userId, searchString) {
       },
       {
         model: Showing,
+        include: [
+          Cinema
+        ],
         required: true
       }
     ],
