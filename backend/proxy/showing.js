@@ -39,7 +39,7 @@ var getShowingByCinema = function (userId, cinemaId) {
   });
 };
 
-module.exports.getAllShowingMovie = function () {
+module.exports.getAllShowingMovie = function (userId) {
   return Movie.findAll({
     include: [
       {

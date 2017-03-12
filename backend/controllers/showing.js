@@ -12,7 +12,7 @@ exports.getShowingByCinema = function (req, res) {
 };
 
 exports.getAllShowingMovie = function (req, res) {
-  showing.getAllShowingMovie()
+  showing.getAllShowingMovie(req.user.id)
     .then(function (result) {
       if (result) {
         res.status(200).json(result);
