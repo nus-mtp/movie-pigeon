@@ -139,10 +139,7 @@ describe('Movie controller test', function () {
         .expect(200)
         .end(function (err, res) {
           res.status.should.equal(200);
-          console.log(res.body);
-          res.body.count.should.equal(1);
-          var data = res.body.raw;
-          getObjects(data, 'movie_id', 'test000003').should.not.equal([]);
+          res.body.count.should.equal(0);
           done();
         });
     });
@@ -211,6 +208,7 @@ describe('Movie controller test', function () {
         .set('Title', 'pid')
         .expect(200)
         .end(function (err, res) {
+          console.log(res.body);
           res.status.should.equal(200);
           res.body.raw.length.should.equal(1);
           var data = res.body.raw;
