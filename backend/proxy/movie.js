@@ -28,11 +28,11 @@ function getSearchString(searchString, priority) {
       return searchString;
       break;
     case 4:
-      searchString = '% '+ searchString;
+      searchString = '% '+ searchString + ' %';
       return searchString;
       break;
     case 5:
-      searchString = searchString.replace(' ', ' % ');
+      searchString = searchString + ' %';
       return searchString;
       break;
   }
