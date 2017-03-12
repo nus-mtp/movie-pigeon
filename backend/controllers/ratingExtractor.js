@@ -133,3 +133,131 @@ exports.checkTraktUser = function (req, res) {
     }
   });
 };
+
+function getTmdbToken(callback) {
+  var url = 'https://api.themoviedb.org/3/authentication/token/new?api_key=c3753c1a33a753893fefdd2e7f3b0dfa';
+  request({
+    method: 'GET',
+    url: url,
+    headers: {
+    }
+  }, function (error, response, body) {
+    if (response.statusCode === 404) {
+      return callback(null, null);
+    }
+    if (error || response.statusCode !== 200) {
+      return callback(error || {statusCode: response.statusCode});
+    }
+    callback(null, JSON.parse(body));
+  });
+}
+
+function checkTmdbUser(username, password, request_token, callback) {
+  var url = 'https://api.themoviedb.org/3/authentication/token/validate_with_login' +
+    '?api_key=c3753c1a33a753893fefdd2e7f3b0dfa&username='+ username +'&password='+ password + '&request_token=' + request_token;
+  request({
+    method: 'GET',
+    url: url,
+    headers: {
+    }
+  }, function (error, response, body) {
+    if (response.statusCode === 404) {
+      return callback(null, null);
+    }
+    if (error || response.statusCode !== 200) {
+      return callback(error || {statusCode: response.statusCode});
+    }
+    callback(null, JSON.parse(body));
+  });
+}
+
+function getTmdbSessionId(request_token, callback) {
+  var url = 'https://api.themoviedb.org/3/authentication/session/new?api_key=c3753c1a33a753893fefdd2e7f3b0dfa&request_token=' + request_token;
+  request({
+    method: 'GET',
+    url: url,
+    headers: {
+    }
+  }, function (error, response, body) {
+    if (response.statusCode === 404) {
+      return callback(null, null);
+    }
+    if (error || response.statusCode !== 200) {
+      return callback(error || {statusCode: response.statusCode});
+    }
+    callback(null, JSON.parse(body));
+  });
+}
+
+function  getTmdbRatings(sessionId, callback) {
+  var url = 'https://api.themoviedb.org/3/account/{account_id}/rated/movies' +
+    '?api_key=c3753c1a33a753893fefdd2e7f3b0dfa&language=en-US&session_id='+ sessionId +'&sort_by=created_at.asc';
+  request({
+    method: 'GET',
+    url: url,
+    headers: {
+    }
+  }, function (error, response, body) {
+    if (response.statusCode === 404) {
+      return callback(null, null);
+    }
+    if (error || response.statusCode !== 200) {
+      return callback(error || {statusCode: response.statusCode});
+    }
+    callback(null, JSON.parse(body));
+  });
+}
+
+exports.checkTmdbUser = function (req, res) {
+  var username = req.headers.username;
+  var password = req.headers.password;
+  getTmdbToken(function (err, body) {
+    console.log(body);
+    if (err) {
+      res.json({status: 'fail', message: 'TMDb server unavailable'});
+    } else {
+      checkTmdbUser(username, password, body.request_token, function (err, result) {
+        if (err) {
+          res.json(false);
+        } else {
+          if (result.success === true) {
+            res.json(true);
+          }
+        }
+      });
+    }
+  });
+};
+
+exports.getTmdbRatings = function (req, res) {
+  var username = req.headers.username;
+  var password = req.headers.password;
+  getTmdbToken(function (err, body) {
+    console.log(body);
+    if (err) {
+      res.json({status: 'fail', message: 'TMDb server unavailable'});
+    } else {
+      checkTmdbUser(username, password, body.request_token, function (err, result) {
+        if (err) {
+          res.status(401).json(false);
+        } else {
+          if (result.success === true) {
+            getTmdbSessionId(result.request_token, function (err, content) {
+              if (err) {
+                console.log(err);
+              } else {
+                getTmdbRatings(content.session_id, function (err, ratings) {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    console.log(ratings);
+                  }
+                });
+              }
+            })
+          }
+        }
+      });
+    }
+  });
+};
