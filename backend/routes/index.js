@@ -53,8 +53,9 @@ router.route('/movies/id')
 router.route('/movies/title')
   .get(authController.isAuthenticated, movieController.getMoviesByTitle);
 router.route('/movies/year')
-  .get(authController.isAuthenticated,
-    movieController.getMoviesByProductionYear);
+  .get(authController.isAuthenticated, movieController.getMoviesByProductionYear);
+router.route('/movies/showing')
+  .get(authController.isAuthenticated, movieController.getShowingMovieByTitle);
 
 router.route('/bookmarks')
   .post(authController.isAuthenticated, bookmarkController.postBookmarks)
@@ -74,5 +75,7 @@ router.route('/cinemas')
 
 router.route('/showing')
   .get(authController.isAuthenticated, showingController.getShowingByCinema);
+router.route('/showing/all')
+  .get(authController.isAuthenticated, showingController.getAllShowingMovie);
 
 module.exports = router;
