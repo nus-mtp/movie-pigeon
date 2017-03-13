@@ -102,3 +102,4 @@ class Loader:
         self.cursor.execute("SELECT * FROM cinemas")
         data_object = self.cursor.fetchall()
         return data_object
+

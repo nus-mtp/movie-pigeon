@@ -78,17 +78,22 @@ class MovieData:
         """
         build soup based on html content in string format
         :param request_result:
-        :return:
+        :return: None
         """
         self.soup = BeautifulSoup(request_result, "lxml")  # soup builder
 
     def _build_soup_for_test(self, html_file_io_wrapper):
+        """
+        build soup based on imported html source code file
+        :param html_file_io_wrapper:
+        :return: None
+        """
         self.soup = BeautifulSoup(html_file_io_wrapper, "lxml")
 
     def _extract_title_and_year(self):
         """
         return title and production year of a movie
-        :return: title in string, production year in integer or None
+        :return: string or None, int or None
         """
         title_wrapper = self.soup.find("h1").text.split("\xa0")
         self.title = title_wrapper[0]
@@ -101,7 +106,7 @@ class MovieData:
     def _extract_poster(self):
         """
         return the url of poster of one movie
-        :return:
+        :return: string or None
         """
         poster = self.soup.find("div", {"class": "poster"})
         try:
@@ -115,7 +120,7 @@ class MovieData:
         return the directors and actors of the movie. If there is more than
         one director or actor, it will display a string with multiple tokens,
         separated by comma
-        :return: credits info in string format or None
+        :return: string or None, string or None
         """
         credits_text = self.soup.find_all("div", {"class": "credit_summary_item"})
         for item in credits_text:
@@ -135,7 +140,7 @@ class MovieData:
     def _extract_plot(self):
         """
         return the plot of one movie
-        :return: plot in string format or None
+        :return: string or None
         """
         try:
             self.plot = self.soup.find("div", {"class": "summary_text"}).text.replace("\n", "").strip().split("    ")[0]
@@ -149,14 +154,15 @@ class MovieData:
     def _extract_subtext(self):
         """
         retrieve the subtext tag for other extraction nodes
-        :return:
+        :return: None
         """
         self.subtext = self.soup.find("div", {"class": "subtext"})
 
     def _extract_rated(self):
         """
-        return the rating of a movie
-        :return:
+        return the rating(i.e. PG, R, M) of a movie
+        Not to confused with user rating
+        :return: string or None
         """
         metas = self.subtext.find_all("meta")
         for meta in metas:
@@ -169,7 +175,7 @@ class MovieData:
         parse the last token in subtext element,
         determine the release date and country
         If it is not a movie, raise an exception
-        :return:
+        :return: datetime or None, string or None, string
         """
         self.type = 'movie'  # default movie type
         anchors = self.subtext.find_all("a")
@@ -204,7 +210,7 @@ class MovieData:
     def _extract_genre(self):
         """
         parse the html content and return the genre of the movie
-        :return:
+        :return: string or None
         """
         genre_list = []
         spans = self.subtext.find_all("span", {"class": "itemprop"})
@@ -217,7 +223,7 @@ class MovieData:
     def _extract_runtime(self):
         """
         parse the html content and return the runtime of the movie
-        :return:
+        :return: int or None
         """
         time_tag = self.subtext.find("time")
         try:

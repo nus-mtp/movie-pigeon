@@ -52,15 +52,15 @@ class ETLController:
 
             try:
                 self._update_single_movie_data(current_imdb_id)
-            except error.HTTPError:
+            except error.HTTPError:  # invalid id will cause an 404 error
                 continue
-            except utils.InvalidMovieTypeException:
+            except utils.InvalidMovieTypeException:  # ignore all non-movie types
                 continue
-            except psycopg2.InterfaceError:
+            except psycopg2.InterfaceError:  # database connection lost after a long time
                 logging.error("Reestablishing database connection")
                 self.loader = Loader()
                 continue
-            except Exception as e:
+            except Exception as e:  # unknown error
                 logging.error("Unknown error occurs. Please examine.")
                 logging.error(e)
                 logging.error(current_imdb_id)
