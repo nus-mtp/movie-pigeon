@@ -44,14 +44,15 @@ class Loader:
                              movie_data['movie_id']))
         self.conn.commit()
 
-    def load_movie_rating(self, movie_rating):
-        self.cursor.execute("INSERT INTO public_ratings (vote, score, movie_id, source_id) VALUES (%s, %s, %s, %s) "
-                            "ON CONFLICT (movie_id, source_id) "
-                            "DO UPDATE SET (vote, score) = (%s, %s) "
-                            "WHERE public_ratings.movie_id=%s AND public_ratings.source_id=%s",
-                            (movie_rating['votes'], movie_rating['score'], movie_rating['movie_id'],
-                             movie_rating['source_id'], movie_rating['votes'], movie_rating['score'],
-                             movie_rating['movie_id'], movie_rating['source_id']))
+    def load_movie_rating(self, movie_ratings):
+        for movie_rating in movie_ratings:
+            self.cursor.execute("INSERT INTO public_ratings (vote, score, movie_id, source_id) VALUES (%s, %s, %s, %s) "
+                                "ON CONFLICT (movie_id, source_id) "
+                                "DO UPDATE SET (vote, score) = (%s, %s) "
+                                "WHERE public_ratings.movie_id=%s AND public_ratings.source_id=%s",
+                                (movie_rating['votes'], movie_rating['score'], movie_rating['movie_id'],
+                                 movie_rating['source_id'], movie_rating['votes'], movie_rating['score'],
+                                 movie_rating['movie_id'], movie_rating['source_id']))
         self.conn.commit()
 
     def load_cinema_list(self, cinema_list):

@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
-from urllib import request
+from urllib import request, error
 
 import html
 import utils
+import json
 
 
 class MovieData:
@@ -10,7 +11,6 @@ class MovieData:
     This class handles all operations related to movie data
     extraction
     """
-    # statics
 
     title = None
     production_year = None
@@ -236,13 +236,11 @@ class MovieData:
 
 class MovieRating:
 
-    trakt_header = {
+    TRAKT_HEADER = {
         'Content-Type': 'application/json',
         'trakt-api-version': '2',
         'trakt-api-key': '411a8f0219456de5e3e10596486c545359a919b6ebb10950fa86896c1a8ac99b'
     }
-
-    wemakesites_api_key = "5a7e0693-af96-4d43-89a3-dc8ca00cf355"
 
     imdb_url_format = "http://www.imdb.com/title/{}/"
 
@@ -259,6 +257,10 @@ class MovieRating:
         self.movie_id = movie_id
 
     def get_movie_ratings(self):
+        """
+        get a list of votes and ratings from each source
+        :return:
+        """
         movie_ratings = []
 
         rating, votes = self.extract_trakt_rating()
@@ -278,7 +280,7 @@ class MovieRating:
         :return: rating and votes in STRING format
         """
         request_result = request.Request('https://api.trakt.tv/movies/{}/ratings'.format(self.movie_id),
-                                          headers=self.trakt_header)
+                                         headers=self.TRAKT_HEADER)
         try:
             json_result = json.loads(request.urlopen(request_result).read().decode("utf-8"))
         except error.HTTPError:
@@ -318,7 +320,9 @@ class MovieRating:
 
         try:
             rating = soup.find("span", {'class': 'rating_nums'}).text
-            votes = soup.find("span", {'class': 'pl'}).text.replace("人评价","")[1: -1].replace(",", "")  # remove parenthesis and words
+
+            # remove parenthesis and words
+            votes = soup.find("span", {'class': 'pl'}).text.replace("人评价","")[1: -1].replace(",", "")
         except AttributeError:
             return None, None
 

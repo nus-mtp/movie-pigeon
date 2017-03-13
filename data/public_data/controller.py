@@ -11,7 +11,7 @@
         4. update cinema schedule for each cinema available
 """
 from cinema import CinemaList, CinemaSchedule
-from movie import MovieData
+from movie import MovieData, MovieRating
 from loader import Loader
 from movie_id_matcher.matcher import MovieIDMatcher
 from urllib import error
@@ -35,8 +35,8 @@ class ETLController:
         :param delay: integer
         :return: None
         """
-        logging.info("Initialise movie data retrieval process ...")
-        logging.info("Range: " + str(lower) + " to " + str(upper) + ", starting in " + str(delay) + "s ...")
+        logging.warning("Initialise movie data retrieval process ...")
+        logging.warning("Range: " + str(lower) + " to " + str(upper) + ", starting in " + str(delay) + "s ...")
 
         time.sleep(delay)  # delay to avoid database transaction lock during multi-thread process
         existing_movies_id = self.loader.get_movie_id_list()
@@ -45,7 +45,7 @@ class ETLController:
             current_imdb_id = self._build_imdb_id(index)
 
             if index % 1000 == 0:  # id monitor
-                logging.info("Currently at: " + current_imdb_id)
+                logging.warning("Currently at: " + current_imdb_id)
 
             if current_imdb_id in existing_movies_id:
                 continue
@@ -60,19 +60,26 @@ class ETLController:
                 logging.error("Reestablishing database connection")
                 self.loader = Loader()
                 continue
-            except Exception as e:  # unknown error
-                logging.error("Unknown error occurs. Please examine.")
-                logging.error(e)
-                logging.error(current_imdb_id)
+            # except Exception as e:  # unknown error
+            #     logging.error("Unknown error occurs. Please examine.")
+            #     logging.error(e)
+            #     logging.error(current_imdb_id)
 
-        logging.info("Movie data update process complete.")
+        logging.warning("Movie data update process complete.")
 
     def update_movie_rating(self):
         """
         updates movie rating from various websites
         """
-        logging.info("Initialise movie rating update process ...")
-        logging.info("Movie rating update process complete.")
+        logging.warning("Initialise movie rating update process ...")
+
+        existing_movies_id = self.loader.get_movie_id_list()
+        for current_id in existing_movies_id:
+            self._update_single_movie_rating(current_id)
+
+        logging.warning("Movie rating update process complete.")
+
+
 
     def update_cinema_list(self):
         """
@@ -135,6 +142,17 @@ class ETLController:
         data_model = MovieData(imdb_id)
         current_movie_data = data_model.get_movie_data()
         self.loader.load_movie_data(current_movie_data)
+
+    def _update_single_movie_rating(self, current_id):
+        """
+        given imdb id, extract movie ratings from various sources and
+        store them in database
+        :param current_id: string
+        :return: None
+        """
+        data_model = MovieRating(current_id)
+        movie_rating = data_model.get_movie_ratings()
+        self.loader.load_movie_rating(movie_rating)
 
     @staticmethod
     def _cinema_schedule_retrieve(cinema_list, cinema_schedule_data):
