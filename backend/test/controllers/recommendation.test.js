@@ -84,4 +84,15 @@ describe('Bookmark controller test', function () {
       });
   });
 
+  it('should not get recommendations when auth fails', function (done) {
+    request(server)
+      .get('/api/recommendations')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .auth('testemailmovietest', 'passwrong')
+      .expect(401)
+      .end(function (err, res) {
+        res.status.should.equal(401);
+        done();
+      });
+  });
 });
