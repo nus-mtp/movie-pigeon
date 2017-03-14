@@ -2,7 +2,7 @@ var request = require('request');
 var rate = require('../proxy/rate.js');
 var User = require('../proxy/user.js');
 
-function getRatings(id, callback) {
+function getTraktRatings(id, callback) {
   var url = 'https://api.trakt.tv/users/' + id + '/ratings/movies';
   request({
     method: 'GET',
@@ -20,7 +20,7 @@ function getRatings(id, callback) {
   });
 }
 
-function checkUsername(id, callback) {
+function checkTraktUsername(id, callback) {
   var url = 'https://api.trakt.tv/users/' + id;
   request({
     method: 'GET',
@@ -41,7 +41,7 @@ function checkUsername(id, callback) {
   });
 }
 
-function processData(userEmail, body) {
+function processTraktData(userEmail, body) {
   var data = body;
   User.getUserByEmail(userEmail)
     .then(function (user) {
@@ -108,11 +108,11 @@ exports.getTraktRatings = function (req, res) {
 
   setTimeout(function () {
     if (result === true) {
-      getRatings(id, function (err, body) {
+      getTraktRatings(id, function (err, body) {
         if (err) {
           console.log(err);
         } else {
-          processData(req.body.email, body);
+          processTraktData(req.body.email, body);
         }
       });
     }
@@ -121,7 +121,7 @@ exports.getTraktRatings = function (req, res) {
 
 exports.checkTraktUser = function (req, res) {
   var id = req.headers.username;
-  checkUsername(id, function (err, body) {
+  checkTraktUsername(id, function (err, body) {
     if (err) {
       console.log(err);
     } else {
@@ -139,8 +139,7 @@ function getTmdbToken(callback) {
   request({
     method: 'GET',
     url: url,
-    headers: {
-    }
+    headers: {}
   }, function (error, response, body) {
     if (response.statusCode === 404) {
       return callback(null, null);
@@ -154,12 +153,11 @@ function getTmdbToken(callback) {
 
 function checkTmdbUser(username, password, request_token, callback) {
   var url = 'https://api.themoviedb.org/3/authentication/token/validate_with_login' +
-    '?api_key=c3753c1a33a753893fefdd2e7f3b0dfa&username='+ username +'&password='+ password + '&request_token=' + request_token;
+    '?api_key=c3753c1a33a753893fefdd2e7f3b0dfa&username=' + username + '&password=' + password + '&request_token=' + request_token;
   request({
     method: 'GET',
     url: url,
-    headers: {
-    }
+    headers: {}
   }, function (error, response, body) {
     if (response.statusCode === 404) {
       return callback(null, null);
@@ -176,8 +174,7 @@ function getTmdbSessionId(request_token, callback) {
   request({
     method: 'GET',
     url: url,
-    headers: {
-    }
+    headers: {}
   }, function (error, response, body) {
     if (response.statusCode === 404) {
       return callback(null, null);
@@ -189,14 +186,13 @@ function getTmdbSessionId(request_token, callback) {
   });
 }
 
-function  getTmdbRatings(sessionId, callback) {
+function getTmdbRatings(sessionId, callback) {
   var url = 'https://api.themoviedb.org/3/account/{account_id}/rated/movies' +
-    '?api_key=c3753c1a33a753893fefdd2e7f3b0dfa&language=en-US&session_id='+ sessionId +'&sort_by=created_at.asc';
+    '?api_key=c3753c1a33a753893fefdd2e7f3b0dfa&language=en-US&session_id=' + sessionId + '&sort_by=created_at.asc';
   request({
     method: 'GET',
     url: url,
-    headers: {
-    }
+    headers: {}
   }, function (error, response, body) {
     if (response.statusCode === 404) {
       return callback(null, null);
@@ -205,6 +201,23 @@ function  getTmdbRatings(sessionId, callback) {
       return callback(error || {statusCode: response.statusCode});
     }
     callback(null, JSON.parse(body));
+  });
+}
+
+function getImdbIdFromTmdb(tmdbId, tmdbRating, callback) {
+  var url = 'https://api.themoviedb.org/3/movie/' + tmdbId + '?api_key=c3753c1a33a753893fefdd2e7f3b0dfa';
+  request({
+    method: 'GET',
+    url: url,
+    headers: {}
+  }, function (error, response, body) {
+    if (response.statusCode === 404) {
+      return callback(null, null);
+    }
+    if (error || response.statusCode !== 200) {
+      return callback(error || {statusCode: response.statusCode});
+    }
+    callback(null, tmdbRating, JSON.parse(body));
   });
 }
 
@@ -212,7 +225,6 @@ exports.checkTmdbUser = function (req, res) {
   var username = req.headers.username;
   var password = req.headers.password;
   getTmdbToken(function (err, body) {
-    console.log(body);
     if (err) {
       res.json({status: 'fail', message: 'TMDb server unavailable'});
     } else {
@@ -230,34 +242,82 @@ exports.checkTmdbUser = function (req, res) {
 };
 
 exports.getTmdbRatings = function (req, res) {
-  var username = req.headers.username;
-  var password = req.headers.password;
-  getTmdbToken(function (err, body) {
-    console.log(body);
-    if (err) {
-      res.json({status: 'fail', message: 'TMDb server unavailable'});
-    } else {
-      checkTmdbUser(username, password, body.request_token, function (err, result) {
+  var tmdbUsername = req.body.tmdbUsername;
+  var tmdbPassword = req.body.tmdbPassword;
+  var email = req.body.email;
+  var username = req.body.username;
+  var password = req.body.password;
+
+  var result = false;
+
+  User.getUserByEmail(email)
+    .then(function (users) {
+      if (users) {
+        res.json({
+          status: 'fail',
+          message: 'User Existed'
+        });
+      } else {
+        User.saveUser(email, username, password)
+          .then(function () {
+            result = true;
+            res.json({
+              status: 'success',
+              message: 'User Created'
+            });
+
+          })
+          .catch(function (err) {
+            res.send(err);
+          });
+      }
+    });
+
+  setTimeout(function () {
+    if (result === true) {
+      getTmdbToken(function (err, body) {
         if (err) {
-          res.status(401).json(false);
+          res.json({status: 'fail', message: 'TMDb server unavailable'});
         } else {
-          if (result.success === true) {
-            getTmdbSessionId(result.request_token, function (err, content) {
-              if (err) {
-                console.log(err);
-              } else {
-                getTmdbRatings(content.session_id, function (err, ratings) {
+          checkTmdbUser(tmdbUsername, tmdbPassword, body.request_token, function (err, result) {
+            if (err) {
+              res.status(401).json(false);
+            } else {
+              if (result.success === true) {
+                getTmdbSessionId(result.request_token, function (err, content) {
                   if (err) {
                     console.log(err);
                   } else {
-                    console.log(ratings);
+                    getTmdbRatings(content.session_id, function (err, ratings) {
+                      if (err) {
+                        console.log(err);
+                      } else {
+                        var data = ratings.results;
+                        User.getUserByEmail(email)
+                          .then(function (users) {
+                            if (users) {
+                              for (var i in data) {
+                                getImdbIdFromTmdb(data[i].id, data[i].rating, function (err, tmdbRating, movieDetails) {
+                                  if (err) {
+                                    console.log(err);
+                                  } else {
+                                    rate.postRates(tmdbRating, movieDetails.imdb_id, users.id);
+                                  }
+                                })
+                              }
+                            }
+                          });
+                      }
+                    });
                   }
-                });
+                })
               }
-            })
-          }
+            }
+          });
         }
       });
     }
-  });
+  }, 500);
+
+
 };
