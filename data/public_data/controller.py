@@ -60,6 +60,15 @@ class ETLController:
                 logging.error("Reestablishing database connection")
                 self.loader = Loader()
                 continue
+            except ConnectionResetError:
+                logging.error("Connection reset by remote host, reconnecting in 5s ...")
+                time.sleep(5)
+
+                # try again
+                try:
+                    self._update_single_movie_data(current_imdb_id)
+                except:  # skip any error
+                    continue
             # except Exception as e:  # unknown error
             #     logging.error("Unknown error occurs. Please examine.")
             #     logging.error(e)
@@ -79,16 +88,18 @@ class ETLController:
 
         logging.warning("Movie rating update process complete.")
 
-
-
     def update_cinema_list(self):
         """
         Update cinema list from various theatres websites
         :return: None
         """
+        logging.warning("Initialise cinema list update process ...")
+
         cinema_list_object = CinemaList()
         cinema_list = cinema_list_object.get_latest_cinema_list()
         self.loader.load_cinema_list(cinema_list)
+
+        logging.warning("Cinema list update process complete.")
 
     def update_cinema_schedule(self):
         """
@@ -116,6 +127,8 @@ class ETLController:
             }
         }
         """
+        logging.warning("Initialise cinema schedule update process ...")
+
         cinema_schedule_data = {}
 
         # retrieve schedule
@@ -132,6 +145,8 @@ class ETLController:
 
         # load data
         self.loader.load_cinema_schedule(cinema_schedule_data)
+
+        logging.warning("Cinema schedule update process complete.")
 
     def _update_single_movie_data(self, imdb_id):
         """
@@ -185,9 +200,5 @@ class ETLController:
         current_imdb_number = "{0:0=7d}".format(i)
         imdb_id = "tt" + current_imdb_number
         return imdb_id
-
-if __name__ == '__main__':
-    controller = ETLController()
-
 
 
