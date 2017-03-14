@@ -7,12 +7,6 @@ var sequelize = require('../models/db');
 var Showing = require('../models/showing');
 var Cinema = require('../models/cinema');
 
-function processSearchString(searchString) {
-  searchString = searchString.trim().replace(' ', '%');
-  searchString = '%' + searchString + '%';
-  return searchString;
-}
-
 function getSearchString(searchString, priority) {
   searchString = searchString.trim();
   switch (priority) {
