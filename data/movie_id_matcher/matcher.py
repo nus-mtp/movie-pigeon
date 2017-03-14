@@ -5,6 +5,7 @@ match certain id (e.g. imdb id)
 from urllib import request
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from datetime import datetime
 
 
 class MovieIDMatcher:
@@ -22,9 +23,15 @@ class MovieIDMatcher:
         for movie in possible_imdb_list:
             movie_id, movie_title = movie
             titles, infos = self._parse_imdb_search_text(movie_title)
+
             # check year
-            if "2016" in infos or "2017" in infos:
+            current_year = datetime.now().strftime("%Y")
+            last_year = str(int(current_year) - 1)
+            next_year = str(int(current_year) + 1)
+
+            if current_year in infos or next_year in infos or last_year in infos:
                 possible_result.append(movie_id)
+
             # check type is not tv
             if "Short" is not infos and "TV" is not infos:
                 possible_result.append(movie_id)
