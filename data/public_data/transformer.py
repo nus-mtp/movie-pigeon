@@ -6,9 +6,6 @@ import time
 
 class Transformer:
 
-    def __init__(self, logger):
-        self.logger = logger
-
     @staticmethod
     def split_release_and_country_imdb(release_country):
         """

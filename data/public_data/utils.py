@@ -7,6 +7,10 @@ class UrlFormatter(Enum):
     IMDB_URL_FORMAT = "http://www.imdb.com/title/{}/"
 
 
+class InvalidMovieTypeException(Exception):
+    pass
+
+
 def split_release_and_country_imdb(release_country):
     """
     given a string containing released date and country of a movie, return both fields
@@ -52,48 +56,25 @@ def transform_date_imdb(input_text):
     return input_text
 
 
-
-# legacy to be cleaned
-
-"""
-    This file contains miscellaneous functions used by all classes
-"""
-
-
-
-# ==============
-#   Logger
-# ==============
-def initialise_logger():
+def get_movie_data_dict(actors, country, director, genre, imdb_id, language, plot, poster_url, production_year, rated,
+                        released, runtime, title, type):
     """
-        initialise general logger, create general.log file in current directory
-    """
-    logger = logging.getLogger("general_logger")
-    logger.setLevel(logging.INFO)
-    file_handler = logging.FileHandler('general.log', mode='w')
-    file_handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    return logger
-
-
-def initialise_test_logger():
-    """
-        initialise a console logger for testing classes
-    """
-    logger = logging.getLogger("test_logger")
-    logger.setLevel(logging.DEBUG)
-    return logger
-
-
-# ==============
-#   Movie Data
-# ==============
-def get_movie_data_dict(actors, country, director, genre, imdb_id, language, plot, poster_url,
-                        production_year, rated, released, runtime, title, type):
-    """
-        this is the data model of movie data.
+    this is the data model of movie data.
+    :param actors: string
+    :param country: string
+    :param director: string
+    :param genre: string
+    :param imdb_id: string
+    :param language: string
+    :param plot: string
+    :param poster_url: string
+    :param production_year: integer
+    :param rated: string
+    :param released: datetime
+    :param runtime: string
+    :param title: string
+    :param type: string
+    :return: dictionary
     """
     movie_data = {
         "movie_id": imdb_id,
@@ -133,17 +114,6 @@ def get_movie_rating_dict(score, votes, imdb_id, rating_source):
     return movie_rating
 
 
-class InvalidMovieTypeException(Exception):
-    pass
 
 
-
-
-
-def is_numeric(number):
-    try:
-        float(number)
-    except ValueError:
-        return False
-    return True
 
