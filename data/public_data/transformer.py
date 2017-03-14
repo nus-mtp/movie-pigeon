@@ -9,9 +9,6 @@ class Transformer:
     def __init__(self, logger):
         self.logger = logger
 
-    # ==============
-    #   Movie Data
-    # ==============
     @staticmethod
     def split_release_and_country_imdb(release_country):
         """
@@ -47,39 +44,20 @@ class Transformer:
         """
         length_of_date = len(input_text.split(" "))
         if length_of_date == 3:
-            input_text = datetime.datetime.strptime(input_text, '%d %B %Y').strftime('%Y-%m-%d')
+            input_text = datetime.strptime(input_text, '%d %B %Y').strftime('%Y-%m-%d')
         elif length_of_date == 2:
-            input_text = datetime.datetime.strptime(input_text, '%B %Y').strftime('%Y-%m-%d')
+            input_text = datetime.strptime(input_text, '%B %Y').strftime('%Y-%m-%d')
         elif length_of_date == 1:
             if input_text == "":
                 return None
             else:
-                input_text = datetime.datetime.strptime(input_text, '%Y').strftime('%Y-%m-%d')
+                input_text = datetime.strptime(input_text, '%Y').strftime('%Y-%m-%d')
         return input_text
-    # ================
-    #   Movie Rating
-    # ================
 
     @staticmethod
     def movie_rating_votes(votes):
         votes = votes.replace(",", "")
         return votes
-
-    @staticmethod
-    def is_hour(input_text):
-        if 'h' in input_text:
-            try:
-                time = int(input_text.strip().replace("h", ""))
-            except ValueError:
-                return False
-            return True
-        return False
-
-    # ================
-    #   Now Showing
-    # ================
-
-    # showing
 
 
 class GeneralTransformer:
@@ -99,6 +77,17 @@ class GeneralTransformer:
         :return: string
         """
         return datetime.strptime(time_string, "%I:%M%p").strftime("%H:%M:%S")
+
+    @staticmethod
+    def build_imdb_id(i):
+        """
+        this function takes in an integer and converts it to an imdb id
+        :param i: integer
+        :return: string
+        """
+        current_imdb_number = "{0:0=7d}".format(i)
+        imdb_id = "tt" + current_imdb_number
+        return imdb_id
 
 
 class CinemaScheduleTransformer:

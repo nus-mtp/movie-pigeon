@@ -15,6 +15,8 @@ from movie import MovieData, MovieRating
 from loader import Loader
 from movie_id_matcher.matcher import MovieIDMatcher
 from urllib import error
+from transformer import GeneralTransformer
+from http import client
 
 import utils
 import time
@@ -42,7 +44,7 @@ class ETLController:
         existing_movies_id = self.loader.get_movie_id_list()
 
         for index in range(lower, upper):  # iterate all possible titles
-            current_imdb_id = self._build_imdb_id(index)
+            current_imdb_id = GeneralTransformer.build_imdb_id(index)
 
             if index % 1000 == 0:  # id monitor
                 logging.warning("Currently at: " + current_imdb_id)
@@ -60,7 +62,7 @@ class ETLController:
                 logging.error("Reestablishing database connection")
                 self.loader = Loader()
                 continue
-            except ConnectionResetError:
+            except ConnectionResetError or TimeoutError or client.IncompleteRead:
                 logging.error("Connection reset by remote host, reconnecting in 5s ...")
                 time.sleep(5)
 
@@ -69,10 +71,10 @@ class ETLController:
                     self._update_single_movie_data(current_imdb_id)
                 except:  # skip any error
                     continue
-            # except Exception as e:  # unknown error
-            #     logging.error("Unknown error occurs. Please examine.")
-            #     logging.error(e)
-            #     logging.error(current_imdb_id)
+            except Exception as e:  # unknown error
+                logging.error("Unknown error occurs. Please examine.")
+                logging.error(e)
+                logging.error(current_imdb_id)
 
         logging.warning("Movie data update process complete.")
 
@@ -190,15 +192,5 @@ class ETLController:
                 movie['cinema_id'] = cinema_id
                 current_title['content'].append(movie)
 
-    @staticmethod
-    def _build_imdb_id(i):
-        """
-        this function takes in an integer and converts it to an imdb id
-        :param i: integer
-        :return: string
-        """
-        current_imdb_number = "{0:0=7d}".format(i)
-        imdb_id = "tt" + current_imdb_number
-        return imdb_id
 
 
