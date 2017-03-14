@@ -40,7 +40,6 @@ function getSearchString(searchString, priority) {
 
 exports.getMovieByTitleCount = function (searchString) {
   var rawString = searchString;
-  searchString = processSearchString(searchString);
   return Movie.count({
     where: sequelize.literal('"movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' OR ' +
       '"movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' OR ' +
@@ -53,7 +52,6 @@ exports.getMovieByTitleCount = function (searchString) {
 exports.getMovieByTitle = function (userId, searchString, offset, limit) {
 
   var rawString = searchString;
-  searchString = processSearchString(searchString);
   return Movie.findAll({
     where: sequelize.literal('"movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' OR ' +
       '"movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' OR ' +
@@ -82,13 +80,6 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
           user_id: userId
         },
         required: false
-      },
-      {
-        model: Showing,
-        include: [
-          Cinema
-        ],
-        required: false
       }
     ],
     order: [
@@ -105,7 +96,6 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
 exports.getShowingMovieByTitle = function (userId, searchString) {
 
   var rawString = searchString;
-  searchString = processSearchString(searchString);
   return Movie.findAll({
     where: sequelize.literal('"movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' OR ' +
       '"movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' OR ' +
@@ -138,6 +128,7 @@ exports.getShowingMovieByTitle = function (userId, searchString) {
         include: [
           Cinema
         ],
+        attributes:[],
         required: true
       }
     ],
