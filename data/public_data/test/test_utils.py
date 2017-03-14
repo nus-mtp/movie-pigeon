@@ -1,5 +1,6 @@
 import unittest
-from data.etl.transformer import Transformer
+
+from transformer import Transformer
 
 
 class TestTransformer(unittest.TestCase):
@@ -34,6 +35,3 @@ class TestTransformer(unittest.TestCase):
         self.assertEqual(self.transformer.transform_time_imdb("2h40min"), "160")
         self.assertEqual(self.transformer.transform_time_imdb("1h   40min   "), "100")
         self.assertEqual(self.transformer.transform_time_imdb("1h   40min"), "100")
-
-if __name__ == '__main__':
-    unittest.main()
