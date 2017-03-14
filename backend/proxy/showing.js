@@ -64,6 +64,7 @@ module.exports.getAllShowingMovie = function (userId) {
       },
       {
         model: Showing,
+        attributes: [],
         required: true
       }
     ]
