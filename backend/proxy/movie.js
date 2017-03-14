@@ -75,7 +75,7 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
         },
         required: false
       }
-    ]
+    ],
     order: [
       [sequelize.literal('CASE WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' THEN 0 ' +
         'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' THEN 1 ' +
