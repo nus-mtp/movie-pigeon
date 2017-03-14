@@ -52,6 +52,8 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
       '"movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' OR ' +
       '"movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' OR ' +
       '"movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\''),
+    limit: limit,
+    offset: offset,
     include: [
       {
         model: PublicRate,
@@ -72,24 +74,16 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
           user_id: userId
         },
         required: false
-      },
-      {
-        model: Showing,
-        include: [
-          Cinema
-        ],
-        attributes:[],
-        required: false
       }
-    ],
-    order: [
-      [sequelize.literal('CASE WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' THEN 0 ' +
-        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' THEN 1 ' +
-        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' THEN 2 ' +
-        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' THEN 3 ' +
-        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\' THEN 4 ' +
-        'ELSE 5  END, "movies"."production_year" DESC')]
     ]
+    // order: [
+    //   [sequelize.literal('CASE WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' THEN 0 ' +
+    //     'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' THEN 1 ' +
+    //     'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' THEN 2 ' +
+    //     'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' THEN 3 ' +
+    //     'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\' THEN 4 ' +
+    //     'ELSE 5  END, "movies"."production_year" DESC')]
+    // ]
   });
 };
 
