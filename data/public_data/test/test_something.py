@@ -3,7 +3,7 @@ from data.etl.extractor import Extractor
 import unittest
 
 
-class TestExtractor(unittest.TestCase):
+class TestMovieRating(unittest.TestCase):
 
     test_id_list = ['tt0000001', 'tt1234567', 'tt0460648', 'tt2345678', 'tt4346792', 'tt3107288', 'tt0395865',
                     'tt3783958', 'tt0000004', 'tt0000007', 'tt0000502', 'tt0001304', 'tt0000869', 'tt0000019',
@@ -11,7 +11,7 @@ class TestExtractor(unittest.TestCase):
                     'tt0039445']
 
     def __init__(self, *args, **kwargs):
-        super(TestExtractor, self).__init__(*args, **kwargs)
+        super(TestMovieRating, self).__init__(*args, **kwargs)
 
     def test_extract_movie_rating(self):
         data_model = Extractor(None).extract_movie_rating(self.test_id_list[0])
