@@ -144,3 +144,18 @@ module.exports.getMovieById = function (movieId) {
     }
   })
 };
+
+exports.getMovieScheduleById = function (movieId) {
+  return Movie.find({
+    where: {
+      movie_id: movieId
+    },
+    include: [{
+      model: Showing,
+      include: [
+        Cinema
+      ],
+      required: true
+    }]
+  })
+};

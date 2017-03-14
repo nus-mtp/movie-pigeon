@@ -56,6 +56,8 @@ router.route('/movies/year')
   .get(authController.isAuthenticated, movieController.getMoviesByProductionYear);
 router.route('/movies/showing')
   .get(authController.isAuthenticated, movieController.getShowingMovieByTitle);
+router.route('/movies/schedule')
+  .get(authController.isAuthenticated, movieController.getMovieScheduleById);
 
 router.route('/bookmarks')
   .post(authController.isAuthenticated, bookmarkController.postBookmarks)
