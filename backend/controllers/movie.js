@@ -1,49 +1,38 @@
 // Load required packages
-var Movie = require('../models/movie.js');
-var PublicRate = require('../models/PublicRate.js');
-var RatingSource = require('../models/ratingSource.js');
-var UserRating = require('../models/history.js');
-var Bookmark = require('../models/bookmarks.js');
+var Movie = require('../proxy/movie.js');
+
 // Create endpoint /api/movie for GET
 exports.getMoviesByTitle = function (req, res) {
   // Use the Client model to find all clients
-  var title = req.headers.title;
-  var searchString = title.trim().replace(' ', '%');
-  searchString = '%' + searchString + '%';
-  Movie.findAndCountAll({
-    where: {
-      title: {$ilike: searchString}
-    },
-    limit: req.headers.limit,
-    offset: req.headers.offset,
-    include: [
-      {
-        model: PublicRate,
-        include: [
-          RatingSource
-        ]
-      },
-      {
-        model: UserRating,
-        where: {
-          user_id: req.user.id
-        },
-        required: false
-      },
-      {
-        model: Bookmark,
-        where: {
-          user_id: req.user.id
-        },
-        required: false
-      }
-    ]
-  })
+  Movie.getMovieByTitleCount(req.headers.title)
+    .then(function (count) {
+      Movie.getMovieByTitle(req.user.id, req.headers.title, req.headers.offset, req.headers.limit)
+        .then(function (movies) {
+          res.json({count: count, raw: movies});
+        }).catch(function (err) {
+          console.log(err);
+        }
+      );
+    });
+};
+
+exports.getShowingMovieByTitle = function (req, res) {
+  Movie.getShowingMovieByTitle(req.user.id, req.headers.title)
     .then(function (movies) {
       res.json(movies);
     }).catch(function (err) {
+      console.log(err);
     }
   );
+};
+
+exports.getMovieScheduleById = function (req, res) {
+  Movie.getMovieScheduleById(req.headers.movie_id)
+    .then(function (schedules) {
+      res.json(schedules);
+    }).catch(function (err) {
+      console.log(err);
+  })
 };
 
 // Create endpoint /api/movie for GET

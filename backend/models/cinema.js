@@ -13,6 +13,9 @@ var Cinema = sequelize.define('cinemas', {
     allowNull: true,
     unique: true
   },
+  provider: {
+    type: DataTypes.STRING
+  },
   url: {
     type: DataTypes.TEXT
   }

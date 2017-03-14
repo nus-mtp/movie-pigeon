@@ -14,10 +14,12 @@ var Showing = sequelize.define('showings', {
     primaryKey: true
   },
   type: {
-    type: DataTypes.STRING
+    type: DataTypes.STRING,
+    primaryKey: true
   },
   schedule: {
-    type: DataTypes.DATE
+    type: DataTypes.DATE,
+    primaryKey: true
   }
 });
 
@@ -28,5 +30,5 @@ Movie.hasMany(Showing, {foreignKey: 'movie_id'});
 Showing.belongsTo(Movie, {foreignKey: 'movie_id', targetKey: 'movie_id'});
 
 sequelize.sync({});
-// Export the model
+
 module.exports = Showing;
