@@ -52,8 +52,6 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
       '"movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' OR ' +
       '"movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' OR ' +
       '"movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\''),
-    limit: limit,
-    offset: offset,
     include: [
       {
         model: PublicRate,
