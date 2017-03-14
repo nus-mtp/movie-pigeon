@@ -45,17 +45,13 @@ exports.getMovieByTitleCount = function (searchString) {
 
 exports.getMovieByTitle = function (userId, searchString, offset, limit) {
 
-  var rawString = searchString.trim();
-  searchString = '%' + searchString.replace(' ', '%') + '%';
+  var rawString = searchString;
   return Movie.findAll({
-    // where: sequelize.literal('"movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' OR ' +
-    //   '"movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' OR ' +
-    //   '"movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' OR ' +
-    //   '"movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' OR ' +
-    //   '"movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\''),
-    where: {
-      title: {$ilike: searchString}
-    },
+    where: sequelize.literal('"movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' OR ' +
+      '"movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' OR ' +
+      '"movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' OR ' +
+      '"movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' OR ' +
+      '"movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\''),
     limit: limit,
     offset: offset,
     include: [
@@ -79,15 +75,15 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
         },
         required: false
       }
+    ],
+    order: [
+      [sequelize.literal('CASE WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' THEN 0 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' THEN 1 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' THEN 2 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' THEN 3 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\' THEN 4 ' +
+        'END, "movies"."production_year" DESC')]
     ]
-    // order: [
-    //   [sequelize.literal('CASE WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' THEN 0 ' +
-    //     'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' THEN 1 ' +
-    //     'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' THEN 2 ' +
-    //     'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' THEN 3 ' +
-    //     'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\' THEN 4 ' +
-    //     'END, "movies"."production_year" DESC')]
-    // ]
   });
 };
 
