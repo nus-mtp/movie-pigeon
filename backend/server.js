@@ -9,12 +9,9 @@ var path = require('path');
 var fs = require('fs');
 var https = require('https');
 var helmet = require('helmet');
-var Ddos = require('ddos');
-var ddos = new Ddos;
 
 var app = express();
 app.use(helmet());
-app.use(ddos.express);
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('port', process.env.PORT || 8080);
 app.use(logger('dev'));
