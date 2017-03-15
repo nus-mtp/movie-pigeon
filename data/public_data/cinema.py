@@ -4,7 +4,6 @@
 """
 from datetime import datetime
 from bs4 import BeautifulSoup
-from urllib import request
 from selenium import webdriver
 from string import capwords
 from transformer import CinemaScheduleTransformer, GeneralTransformer, CinemaListTransformer
@@ -26,16 +25,7 @@ class CinemaList:
 
     def get_latest_cinema_list(self):
         """
-        return the latest cinema list to the processor in the format of
-        [{
-            "url": ...
-            "cinema_name: ...
-            "provider": ...
-        }, {
-            "url": ...
-            "cinema_name: ...
-            "provider": ...
-        }]
+        return the latest cinema list for all providers
         :return: list
         """
         cinema_list = []
