@@ -15,7 +15,7 @@ class TestCinemaSchedule(unittest.TestCase):
                                                                     '123 77 76 246 36 85 160 0&date=', "sb")
 
     def test_temp(self):
-        print(self.gv_schedule._extract_golden_village())
+        print(self.shaw_schedule.get_cinema_schedule())
         self.assertEqual(1, 1)
 
 

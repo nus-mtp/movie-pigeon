@@ -103,7 +103,7 @@ class CinemaScheduleTransformer:
         }
         return mapper[cinema_name]
 
-    def parse_cinema_object_to_data(self, cinema_object):
+    def parse_cinema_object_to_data(self, cinema_object, provider):
         """
         parse the cinema object in the format:
         (based on self.provider, parsing strategy may vary)
@@ -128,12 +128,13 @@ class CinemaScheduleTransformer:
         :return: dictionary
         """
         data_object = []
+        parser = self._get_movie_title_parser(provider)
 
         # parse title
         for key, value in cinema_object.items():
             if "Zen Zone" in key:  # strange thing in gv
                 continue
-            title, additional_info = self._parse_gv_movie_title(key)
+            title, additional_info = parser(key)
             data_object.append(
                 {
                     "title": title,
@@ -142,8 +143,20 @@ class CinemaScheduleTransformer:
                 })
         return data_object
 
-    @staticmethod
-    def _parse_gv_movie_title(title):
+    def _get_movie_title_parser(self, provider):
+        """
+        select the correct parser
+        :param provider: string
+        :return: function
+        """
+        if provider == "gv":
+            return self._parse_gv_movie_title
+        elif provider == "sb":
+            return self._parse_sb_movie_title
+        elif provider == "cathay":
+            return self._parse_cathay_movie_title
+
+    def _parse_gv_movie_title(self, title):
         """
         parse the raw title displayed on gv website into
         clean movie title plus a list of movie types
@@ -168,10 +181,10 @@ class CinemaScheduleTransformer:
         if "(D-Box)" in title:
             title = title.replace("(D-Box)", "")
             additional_info.append("(D-Box)")
-        return title, additional_info
 
-    @staticmethod
-    def _parse_sb_movie_title(title):
+        return self._parse_title_and_info(title, additional_info)
+
+    def _parse_sb_movie_title(self, title):
         """
         parse the raw title displayed on sb website into
         clean movie title plus a list of movie types
@@ -198,10 +211,10 @@ class CinemaScheduleTransformer:
             title = title.replace("[IMAX 3D]", "")
             additional_info.append("IMAX")
             additional_info.append("3D")
-        return title, additional_info
 
-    @staticmethod
-    def _parse_cathay_movie_title(title):
+        return self._parse_title_and_info(title, additional_info)
+
+    def _parse_cathay_movie_title(self, title):
         """
         parse the raw title displayed on cathay website into
         clean movie title plus a list of movie types
@@ -223,7 +236,8 @@ class CinemaScheduleTransformer:
             title = " ".join(tokens[:splitter - 1])
             additional_info.append("Dolby Atmos")
             title = title.replace("Atmos", "")
-        return title, additional_info
+
+        return self._parse_title_and_info(title, additional_info)
 
     @staticmethod
     def _parse_title_and_info(title, additional_info):

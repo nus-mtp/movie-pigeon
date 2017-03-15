@@ -133,7 +133,7 @@ class CinemaSchedule:
 
         self.transformer = CinemaScheduleTransformer()
 
-    def extract_cinema_schedule(self):
+    def get_cinema_schedule(self):
         """
         it will auto select the extract method based on the url
         or cinema name given, return the formatted data object
@@ -149,7 +149,7 @@ class CinemaSchedule:
         else:
             raise utils.InvalidCinemaTypeException("Invalid Cinema provider!")
 
-        return self.transformer.parse_cinema_object_to_data(cinema_object)
+        return self.transformer.parse_cinema_object_to_data(cinema_object, self.provider)
 
     def _extract_golden_village(self):
         """

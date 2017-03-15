@@ -177,7 +177,7 @@ class ETLController:
             cinema_id, cinema_name, provider, cinema_url = cinema
             logging.warning("Retrieving schedule from: " + cinema_name)
             cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
-            current_schedules = cinema_schedule.extract_cinema_schedule()
+            current_schedules = cinema_schedule.get_cinema_schedule()
 
             # parse schedules and update data
             for movie in current_schedules:
