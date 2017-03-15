@@ -2,34 +2,17 @@ var request = require('request');
 var rate = require('../proxy/rate.js');
 var User = require('../proxy/user.js');
 
-function getTraktRatings(id, callback) {
-  var url = 'https://api.trakt.tv/users/' + id + '/ratings/movies';
-  request({
-    method: 'GET',
-    url: url,
-    headers: {
-      'Content-Type': 'application/json',
-      'trakt-api-version': '2',
-      'trakt-api-key': '411a8f0219456de5e3e10596486c545359a919b6ebb10950fa86896c1a8ac99b'
-    }
-  }, function (error, response, body) {
-    if (error || response.statusCode !== 200) {
-      return callback(error || {statusCode: response.statusCode});
-    }
-    callback(null, JSON.parse(body));
-  });
-}
+var traktHeaders = {
+  'Content-Type': 'application/json',
+  'trakt-api-version': '2',
+  'trakt-api-key': '411a8f0219456de5e3e10596486c545359a919b6ebb10950fa86896c1a8ac99b'
+};
 
-function checkTraktUsername(id, callback) {
-  var url = 'https://api.trakt.tv/users/' + id;
+function getRequestResult(url, headers, callback) {
   request({
     method: 'GET',
     url: url,
-    headers: {
-      'Content-Type': 'application/json',
-      'trakt-api-version': '2',
-      'trakt-api-key': '411a8f0219456de5e3e10596486c545359a919b6ebb10950fa86896c1a8ac99b'
-    }
+    headers: headers
   }, function (error, response, body) {
     if (response.statusCode === 404) {
       return callback(null, null);
@@ -39,6 +22,16 @@ function checkTraktUsername(id, callback) {
     }
     callback(null, JSON.parse(body));
   });
+}
+
+function getTraktRatings(id, callback) {
+  var url = 'https://api.trakt.tv/users/' + id + '/ratings/movies';
+  getRequestResult(url, traktHeaders, callback);
+}
+
+function checkTraktUsername(id, callback) {
+  var url = 'https://api.trakt.tv/users/' + id;
+  getRequestResult(url, traktHeaders, callback);
 }
 
 function processTraktData(userEmail, body) {
@@ -136,72 +129,24 @@ exports.checkTraktUser = function (req, res) {
 
 function getTmdbToken(callback) {
   var url = 'https://api.themoviedb.org/3/authentication/token/new?api_key=c3753c1a33a753893fefdd2e7f3b0dfa';
-  request({
-    method: 'GET',
-    url: url,
-    headers: {}
-  }, function (error, response, body) {
-    if (response.statusCode === 404) {
-      return callback(null, null);
-    }
-    if (error || response.statusCode !== 200) {
-      return callback(error || {statusCode: response.statusCode});
-    }
-    callback(null, JSON.parse(body));
-  });
+  getRequestResult(url, {}, callback);
 }
 
 function checkTmdbUser(username, password, request_token, callback) {
   var url = 'https://api.themoviedb.org/3/authentication/token/validate_with_login' +
     '?api_key=c3753c1a33a753893fefdd2e7f3b0dfa&username=' + username + '&password=' + password + '&request_token=' + request_token;
-  request({
-    method: 'GET',
-    url: url,
-    headers: {}
-  }, function (error, response, body) {
-    if (response.statusCode === 404) {
-      return callback(null, null);
-    }
-    if (error || response.statusCode !== 200) {
-      return callback(error || {statusCode: response.statusCode});
-    }
-    callback(null, JSON.parse(body));
-  });
+  getRequestResult(url, {}, callback);
 }
 
 function getTmdbSessionId(request_token, callback) {
   var url = 'https://api.themoviedb.org/3/authentication/session/new?api_key=c3753c1a33a753893fefdd2e7f3b0dfa&request_token=' + request_token;
-  request({
-    method: 'GET',
-    url: url,
-    headers: {}
-  }, function (error, response, body) {
-    if (response.statusCode === 404) {
-      return callback(null, null);
-    }
-    if (error || response.statusCode !== 200) {
-      return callback(error || {statusCode: response.statusCode});
-    }
-    callback(null, JSON.parse(body));
-  });
+  getRequestResult(url, {}, callback);
 }
 
 function getTmdbRatings(sessionId, callback) {
   var url = 'https://api.themoviedb.org/3/account/{account_id}/rated/movies' +
     '?api_key=c3753c1a33a753893fefdd2e7f3b0dfa&language=en-US&session_id=' + sessionId + '&sort_by=created_at.asc';
-  request({
-    method: 'GET',
-    url: url,
-    headers: {}
-  }, function (error, response, body) {
-    if (response.statusCode === 404) {
-      return callback(null, null);
-    }
-    if (error || response.statusCode !== 200) {
-      return callback(error || {statusCode: response.statusCode});
-    }
-    callback(null, JSON.parse(body));
-  });
+  getRequestResult(url, {}, callback);
 }
 
 function getImdbIdFromTmdb(tmdbId, tmdbRating, callback) {
