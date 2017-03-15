@@ -130,6 +130,8 @@ class ETLController:
             }
         }
         """
+        # TODO: cleaning process
+
         logging.warning("Initialise cinema schedule update process ...")
 
         cinema_schedule_data = {}  # declare data object
@@ -168,20 +170,12 @@ class ETLController:
         :return: None
         """
         cinema_list = self.loader.get_cinema_list()
-        for cinema in cinema_list:
+        for cinema in cinema_list[7:]:
             cinema_id, cinema_name, provider, cinema_url = cinema
 
             logging.warning("retrieving schedule from: " + cinema_name)
 
-            try:
-                cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
-            except common.exceptions.NoSuchElementException:  # loading may not be complete
-                time.sleep(5)
-                try:
-                    cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
-                except:
-                    continue
-
+            cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
             current_schedules = cinema_schedule.get_cinema_schedule()
 
             # parse each cinema's schedule and update data object
@@ -220,6 +214,9 @@ class ETLController:
         data_model = MovieRating(current_id)
         movie_rating = data_model.get_movie_ratings()
         self.loader.load_movie_rating(movie_rating)
+
+    def _delete_outdated_schedules(self):
+        pass
 
 
 

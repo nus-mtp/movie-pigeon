@@ -209,6 +209,8 @@ class CinemaSchedule:
         :return: dictionary
         """
         self.driver.get(self.cinema_url)
+        self.driver.implicitly_wait(2)  # wait for page to load
+
         cathay_id = CinemaScheduleTransformer.get_cathay_id_from_cathay_cinema_name(self.cinema_name)
         outer_div = self.driver.find_element_by_id("ContentPlaceHolder1_wucST{}_tabs".format(cathay_id))
         tabbers = outer_div.find_elements_by_class_name("tabbers")
@@ -260,11 +262,15 @@ class CinemaSchedule:
 
         for show_date in show_dates:  # each day
             current_date = datetime.strptime(show_date, "%m/%d/%Y").strftime("%Y-%m-%d")
+
             self.driver.find_element_by_xpath(
                 "//select[@id='ctl00_Content_ddlShowDate']/option[@value='{}']".format(show_date)).click()
+            self.driver.implicitly_wait(2)  # wait for page to load
+
             rows = self.driver.find_elements_by_class_name("panelSchedule")
             for row in rows[2:]:  # remove table header
                 current_title, schedule = row.text.strip().split("\n", 1)
+
                 if "PM" in schedule or "AM" in schedule:
                     # title
                     current_title = current_title.split("   ")[1]
