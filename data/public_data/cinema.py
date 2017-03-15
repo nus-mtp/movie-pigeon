@@ -147,11 +147,17 @@ class CinemaSchedule:
         elif self.provider == "cathay":
             cinema_object = self._extract_cathay()
         else:
-            raise InvalidCinemaTypeException("Invalid Cinema provider!")
+            raise utils.InvalidCinemaTypeException("Invalid Cinema provider!")
 
         return self.transformer.parse_cinema_object_to_data(cinema_object)
 
     def _extract_golden_village(self):
+        """
+        extract current gv cinema schedule
+        return a dict contains only raw movie title and a
+        list of timing
+        :return: dictionary
+        """
         self.driver.get(self.cinema_url)
         # retrieve title, (type like 3D) and schedule time raw data
         tabs = self.driver.find_elements_by_class_name("ng-binding")
@@ -159,8 +165,9 @@ class CinemaSchedule:
         cinema_schedule = {}
         date_counter = 0
         for tab in tabs:
-            if tab.get_attribute("ng-bind-html") == "day.day":
+            if tab.get_attribute("ng-bind-html") == "day.day":  # iterate through date tabs
                 current_date = GeneralTransformer.get_singapore_date(date_counter)
+
                 if tab.text == "Advance Sales":  # reach the end of tabs
                     break
 
@@ -168,7 +175,6 @@ class CinemaSchedule:
                 rows = self.driver.find_elements_by_class_name("row")
 
                 for row in rows:
-                    # get movie title
                     current_title = None
                     current_time = []
 
@@ -192,10 +198,16 @@ class CinemaSchedule:
                         else:
                             cinema_schedule[current_title] = current_time
 
-            date_counter += 1
+                date_counter += 1
         return cinema_schedule
 
     def _extract_cathay(self):
+        """
+        extract current cathay cinema schedule
+        return a dict contains only raw movie title and a
+        list of timing
+        :return: dictionary
+        """
         self.driver.get(self.cinema_url)
         cathay_id = CinemaScheduleTransformer.get_cathay_id_from_cathay_cinema_name(self.cinema_name)
         outer_div = self.driver.find_element_by_id("ContentPlaceHolder1_wucST{}_tabs".format(cathay_id))
@@ -229,14 +241,23 @@ class CinemaSchedule:
         return cinema_schedule
 
     def _extract_shaw_brother(self):
+        """
+        extract current shaw cinema schedule
+        return a dict contains only raw movie title and a
+        list of timing
+        :return: dictionary
+        """
         self.driver.get(self.cinema_url)
+
         show_dates = []
         options = self.driver.find_element_by_id("ctl00_Content_ddlShowDate").find_elements_by_css_selector(
             "option")
+
         for show_date in options:
             show_dates.append(show_date.get_attribute("value"))
 
-        cinema_schedule = {}
+        cinema_schedule = {}  # data store
+
         for show_date in show_dates:  # each day
             current_date = datetime.strptime(show_date, "%m/%d/%Y").strftime("%Y-%m-%d")
             self.driver.find_element_by_xpath(
@@ -267,5 +288,6 @@ class CinemaSchedule:
                             cinema_schedule[current_title].extend(current_time)
                         else:
                             cinema_schedule[current_title] = current_time
+
         return cinema_schedule
 
