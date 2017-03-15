@@ -15,62 +15,66 @@ class TestMovieIDMatcher(unittest.TestCase):
             test_result = matcher._extract_imdb_possible(title)
             self.assertEqual(test_result, expect_result)
 
-        helper("Collide", [
-            ("tt2126235", "Collide (I) (2016)"),
-            ("tt2834052", "Collide"),
-            ("tt1230120", "Collide (II) (2010)")
-        ])
+        # helper("Collide", [
+        #     ("tt2126235", "Collide (I) (2016)"),
+        #     ("tt2834052", "Collide"),
+        #     ("tt1230120", "Collide (II) (2010)")
+        # ])
+        #
+        # helper("Cook up a storm", [
+        #     ("tt6315750", "Cook Up a Storm (2017)")
+        # ])
+        #
+        # helper("Kung Fu Yoga", [
+        #     ('tt4217392', 'Kung-Fu Yoga (2017)\naka "Kung Fu Yoga"')
+        # ])
+        #
+        # helper("The Lego Batman Movie", [
+        #     ('tt4116284', 'The LEGO Batman Movie (2017)')
+        # ])
+        #
+        # helper("Rings", [
+        #     ('tt0498381', 'Rings (2017)'),
+        #     ('tt0152191', 'Rings (1993)')
+        # ])
+        #
+        # helper("Hidden Figures", [
+        #     ('tt4846340', 'Hidden Figures (2016)')
+        # ])
+        #
+        # helper("Sleepless", [
+        #     ('tt2072233', 'Sleepless (III) (2017)'),
+        #     ('tt0220827', 'Sleepless (2001)'),
+        #     ('tt5039992', 'Sleepless (II) (2017)')
+        # ])
+        #
+        # helper("Fist Fight", [
+        #     ('tt3401882', 'Fist Fight (2017)')
+        # ])
+        #
+        # helper("Siew Lup", [
+        #     ('tt6550794', 'Siew Lup (2017)')
+        # ])
+        #
+        # helper("Jackie", [
+        #     ('tt1619029', 'Jackie (V) (2016)'),
+        #     ('tt2108546', 'Jackie (II) (2012)'),
+        #     ('tt5249954', 'Jackie')
+        # ])
+        #
+        # helper("John Wick: Chapter 2", [
+        #     ('tt4425200', 'John Wick: Chapter 2 (2017)')
+        # ])
+        #
+        # helper("John Wick : Chapter 2", [
+        #     ('tt4425200', 'John Wick: Chapter 2 (2017)')
+        # ])
+        #
+        # helper("Resident Evil: The Final Chapter", [
+        #     ('tt2592614', 'Resident Evil: The Final Chapter (2016)')
+        # ])
 
-        helper("Cook up a storm", [
-            ("tt6315750", "Cook Up a Storm (2017)")
-        ])
-
-        helper("Kung Fu Yoga", [
-            ('tt4217392', 'Kung-Fu Yoga (2017)\naka "Kung Fu Yoga"')
-        ])
-
-        helper("The Lego Batman Movie", [
-            ('tt4116284', 'The LEGO Batman Movie (2017)')
-        ])
-
-        helper("Rings", [
-            ('tt0498381', 'Rings (2017)'),
-            ('tt0152191', 'Rings (1993)')
-        ])
-
-        helper("Hidden Figures", [
-            ('tt4846340', 'Hidden Figures (2016)')
-        ])
-
-        helper("Sleepless", [
-            ('tt2072233', 'Sleepless (III) (2017)'),
-            ('tt0220827', 'Sleepless (2001)'),
-            ('tt5039992', 'Sleepless (II) (2017)')
-        ])
-
-        helper("Fist Fight", [
-            ('tt3401882', 'Fist Fight (2017)')
-        ])
-
-        helper("Siew Lup", [
-            ('tt6550794', 'Siew Lup (2017)')
-        ])
-
-        helper("Jackie", [
-            ('tt1619029', 'Jackie (V) (2016)'),
-            ('tt2108546', 'Jackie (II) (2012)'),
-            ('tt5249954', 'Jackie')
-        ])
-
-        helper("John Wick: Chapter 2", [
-            ('tt4425200', 'John Wick: Chapter 2 (2017)')
-        ])
-
-        helper("John Wick : Chapter 2", [
-            ('tt4425200', 'John Wick: Chapter 2 (2017)')
-        ])
-
-        helper("Resident Evil: The Final Chapter", [
+        helper("Let's Go Jets", [
             ('tt2592614', 'Resident Evil: The Final Chapter (2016)')
         ])
 

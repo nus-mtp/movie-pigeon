@@ -155,7 +155,8 @@ class ETLController:
 
             imdb_id = matcher.match_imdb_id_for_cinema_schedule(title)
             if imdb_id is None:
-                raise utils.InvalidMatchedIMDbIdException("IMDb ID matched is invalid!")
+                logging.error("IMDb ID matched is invalid!")
+                continue
 
             content['imdb_id'] = imdb_id  # add in matched imdb id
             self._update_single_movie_data(imdb_id)
@@ -170,7 +171,7 @@ class ETLController:
         :return: None
         """
         cinema_list = self.loader.get_cinema_list()
-        for cinema in cinema_list[7:]:
+        for cinema in cinema_list[:2]:
             cinema_id, cinema_name, provider, cinema_url = cinema
 
             logging.warning("retrieving schedule from: " + cinema_name)

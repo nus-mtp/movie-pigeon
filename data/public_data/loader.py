@@ -1,6 +1,6 @@
 """handles all interactions with database"""
 import logging
-
+import time
 import psycopg2
 
 import config
@@ -74,14 +74,16 @@ class Loader:
                 additional_info = cinema['type']
                 schedule_list = cinema['schedule']
                 for timing in schedule_list:
-                    try:
-                        self.cursor.execute("INSERT INTO showings (cinema_id, movie_id, type, schedule) "
-                                            "VALUES (%s, %s, %s, %s)", (cinema_id, movie_id, additional_info, timing))
-                    except psycopg2.IntegrityError:
-                        continue
-                    except psycopg2.InternalError:
-                        continue
-        self.conn.commit()
+                    self.cursor.execute("INSERT INTO showings (cinema_id, movie_id, type, schedule) "
+                                        "VALUES (%s, %s, %s, %s) "
+                                        "ON CONFLICT (cinema_id, movie_id, type, schedule) "
+                                        "DO UPDATE SET (cinema_id, movie_id, type, schedule) = (%s, %s, %s, %s) "
+                                        "WHERE showings.cinema_id=%s AND showings.movie_id=%s "
+                                        "AND showings.type=%s AND showings.schedule=%s",
+                                        (cinema_id, movie_id, additional_info, timing,
+                                         cinema_id, movie_id, additional_info, timing,
+                                         cinema_id, movie_id, additional_info, timing))
+                    self.conn.commit()
 
     # ========
     #   GET
