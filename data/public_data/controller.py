@@ -131,24 +131,50 @@ class ETLController:
         """
         logging.warning("Initialise cinema schedule update process ...")
 
-        cinema_schedule_data = {}
+        cinema_schedule_data = {}  # declare data object
+        self._get_all_cinema_schedules(cinema_schedule_data)  # rearrange
+        self._match_movie_titles(cinema_schedule_data)  # insert imdb id
+        self.loader.load_cinema_schedule(cinema_schedule_data)  # load data
 
-        # retrieve schedule
-        cinema_list = self.loader.get_cinema_list()
-        self._cinema_schedule_retrieve(cinema_list, cinema_schedule_data)
+        logging.warning("Cinema schedule update process complete.")
 
-        # match id and check existence
+    def _match_movie_titles(self, cinema_schedule_data):
         matcher = MovieIDMatcher()
         for title, content in cinema_schedule_data.items():
             imdb_id = matcher.match_imdb_id_for_cinema_schedule(title)
-            content['imdb_id'] = imdb_id
-            self.movie_list = self.loader.get_movie_id_list()
+            if imdb_id is None:
+                raise utils.InvalidMatchedIMDbIdException("IMDb ID matched is invalid!")
+
+            content['imdb_id'] = imdb_id  # add in matched imdb id
             self._update_single_movie_data(imdb_id)
 
-        # load data
-        # self.loader.load_cinema_schedule(cinema_schedule_data)
+    def _get_all_cinema_schedules(self, cinema_schedule_data):
+        """
+        rearrange all schedules such that the highest level of the
+        dictionary is movie title
+        :return: dictionary
+        """
+        cinema_list = self.loader.get_cinema_list()
+        for cinema in cinema_list:
+            cinema_id, cinema_name, provider, cinema_url = cinema
+            logging.warning("Retrieving schedule from: " + cinema_name)
+            cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
+            current_schedules = cinema_schedule.get_cinema_schedule()
 
-        logging.warning("Cinema schedule update process complete.")
+            # parse each cinema's schedule and update data object
+            for movie in current_schedules:
+                current_title = movie['title']
+                if movie['title'] not in cinema_schedule_data:
+                    cinema_schedule_data[current_title] = {}
+                    current_title = cinema_schedule_data[current_title]
+                    current_title['content'] = []
+                else:
+                    current_title = cinema_schedule_data[current_title]
+
+                del movie['title']
+                movie['cinema_id'] = cinema_id
+                current_title['content'].append(movie)
+            break
 
     def _update_single_movie_data(self, imdb_id):
         """
@@ -170,30 +196,6 @@ class ETLController:
         data_model = MovieRating(current_id)
         movie_rating = data_model.get_movie_ratings()
         self.loader.load_movie_rating(movie_rating)
-
-    @staticmethod
-    def _cinema_schedule_retrieve(cinema_list, cinema_schedule_data):
-        for cinema in cinema_list:
-            cinema_id, cinema_name, provider, cinema_url = cinema
-            logging.warning("Retrieving schedule from: " + cinema_name)
-            cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
-            current_schedules = cinema_schedule.get_cinema_schedule()
-
-            # parse schedules and update data
-            for movie in current_schedules:
-                current_title = movie['title']
-                if movie['title'] not in cinema_schedule_data:
-                    cinema_schedule_data[current_title] = {}
-                    current_title = cinema_schedule_data[current_title]
-                    current_title['content'] = []
-                else:
-                    current_title = cinema_schedule_data[current_title]
-
-                del movie['title']
-                movie['cinema_id'] = cinema_id
-                current_title['content'].append(movie)
-            break
-
 
 
 

@@ -17,6 +17,10 @@ class InvalidCinemaTypeException(Exception):
     pass
 
 
+class InvalidMatchedIMDbIdException(Exception):
+    pass
+
+
 def split_release_and_country_imdb(release_country):
     """
     given a string containing released date and country of a movie, return both fields

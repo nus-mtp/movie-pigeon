@@ -1,7 +1,11 @@
-from cinema import CinemaSchedule, CinemaList
+"""
+    Testing of movie schedule is not the priority since the schedule is changing everyday.
+    And it takes a lot of time to parse it
+"""
+
+from cinema import CinemaSchedule
 
 import unittest
-import utils
 
 
 class TestCinemaSchedule(unittest.TestCase):
@@ -13,9 +17,5 @@ class TestCinemaSchedule(unittest.TestCase):
         self.shaw_schedule = CinemaSchedule('Shaw Theatres Lido', 'http://www.shaw.sg/sw_buytickets.aspx?'
                                                                   'filmCode=&cplexCode=30 210 236 39 155 56 75 124 '
                                                                     '123 77 76 246 36 85 160 0&date=', "sb")
-
-    def test_temp(self):
-        print(self.shaw_schedule.get_cinema_schedule())
-        self.assertEqual(1, 1)
 
 
