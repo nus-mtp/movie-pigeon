@@ -139,8 +139,17 @@ class ETLController:
         logging.warning("Cinema schedule update process complete.")
 
     def _match_movie_titles(self, cinema_schedule_data):
+        """
+        this process matched all movies title in the data object
+        with its most probable imdb id
+        :param cinema_schedule_data: dictionary
+        :return: None
+        """
         matcher = MovieIDMatcher()
         for title, content in cinema_schedule_data.items():
+
+            logging.warning("Matching movie: " + title)
+
             imdb_id = matcher.match_imdb_id_for_cinema_schedule(title)
             if imdb_id is None:
                 raise utils.InvalidMatchedIMDbIdException("IMDb ID matched is invalid!")
@@ -148,16 +157,21 @@ class ETLController:
             content['imdb_id'] = imdb_id  # add in matched imdb id
             self._update_single_movie_data(imdb_id)
 
+            logging.warning("matching successful!")
+
     def _get_all_cinema_schedules(self, cinema_schedule_data):
         """
         rearrange all schedules such that the highest level of the
         dictionary is movie title
-        :return: dictionary
+        :param cinema_schedule_data: dictionary
+        :return: None
         """
         cinema_list = self.loader.get_cinema_list()
         for cinema in cinema_list:
             cinema_id, cinema_name, provider, cinema_url = cinema
-            logging.warning("Retrieving schedule from: " + cinema_name)
+
+            logging.warning("retrieving schedule from: " + cinema_name)
+
             cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
             current_schedules = cinema_schedule.get_cinema_schedule()
 
@@ -174,7 +188,8 @@ class ETLController:
                 del movie['title']
                 movie['cinema_id'] = cinema_id
                 current_title['content'].append(movie)
-            break
+
+            logging.warning("retrieval successful!")
 
     def _update_single_movie_data(self, imdb_id):
         """
