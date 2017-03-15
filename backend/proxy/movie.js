@@ -33,25 +33,25 @@ function getSearchString(searchString, priority) {
 }
 
 exports.getMovieByTitleCount = function (searchString) {
-  var rawString = searchString;
+  var rawString = searchString.trim();
   return Movie.count({
-    where: sequelize.literal('"movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\'')
+    where: {
+      title: {
+        $ilike: '%' + rawString + '%'
+      }
+    }
   })
 };
 
 exports.getMovieByTitle = function (userId, searchString, offset, limit) {
 
-  var rawString = searchString;
+  var rawString = searchString.trim();
   return Movie.findAll({
-    where: sequelize.literal('"movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\''),
+    where: {
+      title: {
+        $ilike: '%' + rawString + '%'
+      }
+    },
     limit: limit,
     offset: offset,
     include: [
@@ -75,7 +75,7 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
         },
         required: false
       }
-    ]
+    ],
     order: [
       [sequelize.literal('CASE WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' THEN 0 ' +
         'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' THEN 1 ' +
@@ -89,13 +89,13 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
 
 exports.getShowingMovieByTitle = function (userId, searchString) {
 
-  var rawString = searchString;
+  var rawString = searchString.trim();
   return Movie.findAll({
-    where: sequelize.literal('"movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\''),
+    where: {
+      title: {
+        $ilike: '%' + rawString + '%'
+      }
+    },
     include: [
       {
         model: PublicRate,
