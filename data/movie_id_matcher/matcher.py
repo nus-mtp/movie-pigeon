@@ -10,7 +10,9 @@ from datetime import datetime
 
 class MovieIDMatcher:
 
-    _IMDB_SEARCH_URL_FORMAT = "http://www.imdb.com/find?&q={}&s=tt&ttype=ft&exact=true"
+    _IMDB_SEARCH_URL_FORMAT_EXACT = "http://www.imdb.com/find?&q={}&s=tt&ttype=ft&exact=true"
+
+    _IMDB_SEARCH_URL_FORMAT_FUZZY = "http://www.imdb.com/find?q={}&s=tt&ref_=fn_tt"
 
     def __init__(self):
         self.driver = webdriver.PhantomJS()
@@ -47,9 +49,10 @@ class MovieIDMatcher:
         """return a list of possible imdb id in string format"""
         if " :" in title:
             title = title.replace(" :", ":")
+
         possible_list = []
         search_query = self._imdb_search_query_builder(title)
-        url = self._IMDB_SEARCH_URL_FORMAT.format(search_query)
+        url = self._IMDB_SEARCH_URL_FORMAT_EXACT.format(search_query)
         self.driver.get(url)
         elements = self.driver.find_elements_by_class_name("findResult")
         for element in elements:
@@ -57,6 +60,16 @@ class MovieIDMatcher:
             current_imdb = td.find_element_by_css_selector("a").get_attribute("href").split("/")[4]
             current_text = td.text.strip()
             possible_list.append((current_imdb, current_text))
+
+        if len(possible_list) == 0:
+            url = self._IMDB_SEARCH_URL_FORMAT_FUZZY.format(search_query)
+            self.driver.get(url)
+            elements = self.driver.find_elements_by_class_name("findResult")
+            for element in elements:
+                td = element.find_element_by_class_name("result_text")
+                current_imdb = td.find_element_by_css_selector("a").get_attribute("href").split("/")[4]
+                current_text = td.text.strip()
+                possible_list.append((current_imdb, current_text))
 
         return possible_list[:3]
 

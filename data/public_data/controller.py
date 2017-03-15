@@ -171,7 +171,7 @@ class ETLController:
         :return: None
         """
         cinema_list = self.loader.get_cinema_list()
-        for cinema in cinema_list[:2]:
+        for cinema in cinema_list[:7]:
             cinema_id, cinema_name, provider, cinema_url = cinema
 
             logging.warning("retrieving schedule from: " + cinema_name)
