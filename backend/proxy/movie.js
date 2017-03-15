@@ -7,12 +7,6 @@ var sequelize = require('../models/db');
 var Showing = require('../models/showing');
 var Cinema = require('../models/cinema');
 
-function processSearchString(searchString) {
-  searchString = searchString.trim().replace(' ', '%');
-  searchString = '%' + searchString + '%';
-  return searchString;
-}
-
 function getSearchString(searchString, priority) {
   searchString = searchString.trim();
   switch (priority) {
@@ -39,27 +33,25 @@ function getSearchString(searchString, priority) {
 }
 
 exports.getMovieByTitleCount = function (searchString) {
-  var rawString = searchString;
-  searchString = processSearchString(searchString);
+  var rawString = searchString.trim();
   return Movie.count({
-    where: sequelize.literal('"movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\'')
+    where: {
+      title: {
+        $ilike: '%' + rawString + '%'
+      }
+    }
   })
 };
 
 exports.getMovieByTitle = function (userId, searchString, offset, limit) {
 
-  var rawString = searchString;
-  searchString = processSearchString(searchString);
+  var rawString = searchString.trim();
   return Movie.findAll({
-    where: sequelize.literal('"movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\''),
+    where: {
+      title: {
+        $ilike: '%' + rawString + '%'
+      }
+    },
     limit: limit,
     offset: offset,
     include: [
@@ -82,13 +74,6 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
           user_id: userId
         },
         required: false
-      },
-      {
-        model: Showing,
-        include: [
-          Cinema
-        ],
-        required: false
       }
     ],
     order: [
@@ -97,21 +82,20 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
         'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' THEN 2 ' +
         'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' THEN 3 ' +
         'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\' THEN 4 ' +
-        'END, "movies"."production_year" DESC')]
+        'ELSE 5  END, "movies"."production_year" DESC')]
     ]
   });
 };
 
 exports.getShowingMovieByTitle = function (userId, searchString) {
 
-  var rawString = searchString;
-  searchString = processSearchString(searchString);
+  var rawString = searchString.trim();
   return Movie.findAll({
-    where: sequelize.literal('"movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' OR ' +
-      '"movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\''),
+    where: {
+      title: {
+        $ilike: '%' + rawString + '%'
+      }
+    },
     include: [
       {
         model: PublicRate,
@@ -138,6 +122,7 @@ exports.getShowingMovieByTitle = function (userId, searchString) {
         include: [
           Cinema
         ],
+        attributes:[],
         required: true
       }
     ],
@@ -157,5 +142,20 @@ module.exports.getMovieById = function (movieId) {
     where: {
       movie_id: movieId
     }
+  })
+};
+
+exports.getMovieScheduleById = function (movieId) {
+  return Movie.find({
+    where: {
+      movie_id: movieId
+    },
+    include: [{
+      model: Showing,
+      include: [
+        Cinema
+      ],
+      required: true
+    }]
   })
 };

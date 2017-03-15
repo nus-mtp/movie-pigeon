@@ -95,6 +95,22 @@ describe('Movie controller test', function () {
       });
   });
 
+  it('should get a movie from the db by its title', function (done) {
+    request(server)
+      .get('/api/movies/title')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .auth('testemailmovietest', 'pass')
+      .set('Title', 'lk')
+      .expect(200)
+      .end(function (err, res) {
+        res.status.should.equal(200);
+        res.body.count.should.equal(1);
+        var data = res.body.raw;
+        getObjects(data, 'movie_id', 'test000002').should.not.equal([]);
+        done();
+      });
+  });
+
   it('should get multiple movie from the db by its title', function (done) {
     request(server)
       .get('/api/movies/title')
@@ -139,7 +155,7 @@ describe('Movie controller test', function () {
         .expect(200)
         .end(function (err, res) {
           res.status.should.equal(200);
-          res.body.count.should.equal(0);
+          res.body.count.should.equal(1);
           done();
         });
     });
@@ -199,21 +215,35 @@ describe('Movie controller test', function () {
         });
     });
 
-  it('should not get movie from the db by its title substring',
+  it('should not get movie when title matches but not in schedule',
     function (done) {
       request(server)
-        .get('/api/movies/title')
+        .get('/api/movies/showing')
         .set('Content-Type', 'application/x-www-form-urlencoded')
         .auth('testemailmovietest', 'pass')
-        .set('Title', 'pid')
+        .set('Title', 'dummy')
         .expect(200)
         .end(function (err, res) {
-          console.log(res.body);
           res.status.should.equal(200);
-          res.body.raw.length.should.equal(1);
-          var data = res.body.raw;
-          getObjects(data, 'movie_id', 'test000005').should.not.equal([]);
+          res.body.length.should.equal(0);
           done();
         });
     });
+
+  // it('should not get movie from the db by its title substring',
+  //   function (done) {
+  //     request(server)
+  //       .get('/api/movies/title')
+  //       .set('Content-Type', 'application/x-www-form-urlencoded')
+  //       .auth('testemailmovietest', 'pass')
+  //       .set('Title', 'pid')
+  //       .expect(200)
+  //       .end(function (err, res) {
+  //         res.status.should.equal(200);
+  //         res.body.raw.length.should.equal(1);
+  //         var data = res.body.raw;
+  //         getObjects(data, 'movie_id', 'test000005').should.not.equal([]);
+  //         done();
+  //       });
+  //   });
 });

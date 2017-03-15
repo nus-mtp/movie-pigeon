@@ -26,6 +26,15 @@ exports.getShowingMovieByTitle = function (req, res) {
   );
 };
 
+exports.getMovieScheduleById = function (req, res) {
+  Movie.getMovieScheduleById(req.headers.movie_id)
+    .then(function (schedules) {
+      res.json(schedules);
+    }).catch(function (err) {
+      console.log(err);
+  })
+};
+
 // Create endpoint /api/movie for GET
 exports.getMoviesById = function (req, res) {
   // Use the Client model to find all clients
