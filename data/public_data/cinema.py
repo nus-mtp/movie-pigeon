@@ -86,16 +86,18 @@ class CinemaList:
         return cinema_list
 
     def _extract_sb_cinema_list(self):
-        """Get a list of dictionaries contain all SB cinema names,
-        and their corresponding urls
         """
-        name_list = []
-        url_list = []
+        get a list of dictionaries contain all SB cinema names,
+        and their corresponding urls
+        :return: list
+        """
         cinema_list = []
 
+        name_list = []
+        url_list = []
+
         # get names
-        url = self.SHAW_BROTHER_LIST_HOME
-        web_content = request.urlopen(url).read().decode("utf-8")
+        web_content = request.urlopen(self.SHAW_BROTHER_LIST_HOME).read().decode("utf-8")
         soup = BeautifulSoup(web_content, "lxml")
         divs = soup.find_all("a", {"class": "txtHeaderBold"})
         for div in divs:
@@ -110,8 +112,10 @@ class CinemaList:
 
         assert len(name_list) == len(url_list)  # check whether there is mistake in matching cinema name and url
 
+        # merge list
         for i in range(len(name_list)):
             self.insert_cinema_data(cinema_list, name_list[i], url_list[i], "sb")
+
         return cinema_list
 
     @staticmethod

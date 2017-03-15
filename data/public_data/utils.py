@@ -1,5 +1,7 @@
 from enum import Enum
 from datetime import datetime
+from urllib import request
+from bs4 import BeautifulSoup
 
 
 class UrlFormatter(Enum):
@@ -118,6 +120,15 @@ def get_movie_rating_dict(score, votes, imdb_id, rating_source):
     return movie_rating
 
 
+def build_soup_from_url(url):
+    web_content = request.urlopen(url).read().decode("utf-8")
+    soup = BeautifulSoup(web_content, "lxml")
+    return soup
 
+
+def build_soup_from_file(directory):
+    io_wrapper = open(directory, encoding="utf8")
+    soup = BeautifulSoup(io_wrapper, "lxml")
+    return soup
 
 
