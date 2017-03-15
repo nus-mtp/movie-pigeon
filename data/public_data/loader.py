@@ -64,7 +64,7 @@ class Loader:
                                 (cinema['cinema_name'], cinema['url'], cinema['provider'], cinema['cinema_name'],
                                  cinema['url'], cinema['provider'], cinema['cinema_name']))
 
-        self.conn.commit()
+            self.conn.commit()
 
     def load_cinema_schedule(self, cinema_schedule):
         for title, cinema_content in cinema_schedule.items():

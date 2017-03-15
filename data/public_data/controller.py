@@ -146,7 +146,7 @@ class ETLController:
             self._update_single_movie_data(imdb_id)
 
         # load data
-        self.loader.load_cinema_schedule(cinema_schedule_data)
+        # self.loader.load_cinema_schedule(cinema_schedule_data)
 
         logging.warning("Cinema schedule update process complete.")
 
@@ -175,6 +175,7 @@ class ETLController:
     def _cinema_schedule_retrieve(cinema_list, cinema_schedule_data):
         for cinema in cinema_list:
             cinema_id, cinema_name, provider, cinema_url = cinema
+            logging.warning("Retrieving schedule from: " + cinema_name)
             cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
             current_schedules = cinema_schedule.extract_cinema_schedule()
 
@@ -191,6 +192,9 @@ class ETLController:
                 del movie['title']
                 movie['cinema_id'] = cinema_id
                 current_title['content'].append(movie)
+            break
+
+
 
 
 

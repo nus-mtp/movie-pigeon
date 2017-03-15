@@ -90,7 +90,7 @@ class GeneralTransformer:
 class CinemaScheduleTransformer:
 
     @staticmethod
-    def get_id_from_cathay_cinema_name(cinema_name):
+    def get_cathay_id_from_cathay_cinema_name(cinema_name):
         """get cathay internal id from their cinema name for web elements"""
         mapper = {
             "Cathay Cineplex Amk Hub": "",
@@ -133,7 +133,7 @@ class CinemaScheduleTransformer:
         for key, value in cinema_object.items():
             if "Zen Zone" in key:  # strange thing in gv
                 continue
-            title, additional_info = self._movie_title_parser(key)
+            title, additional_info = self._parse_gv_movie_title(key)
             data_object.append(
                 {
                     "title": title,
@@ -142,68 +142,104 @@ class CinemaScheduleTransformer:
                 })
         return data_object
 
-    def _movie_title_parser(self, title):
+    @staticmethod
+    def _parse_gv_movie_title(title):
+        """
+        parse the raw title displayed on gv website into
+        clean movie title plus a list of movie types
+        :param title: string
+        :return: string, list
+        """
         additional_info = []
-        if self.provider == "gv":
-            if "`" in title:
-                title = title.replace("`", "\'")
-            if "*" in title:
-                title = title.replace("*", "")
-                additional_info.append("No free pass")
-            if "(Eng Sub)" in title:
-                title = title.replace("(Eng Sub)", "")
-                additional_info.append("English sub only")
-            if "(Atmos)" in title:
-                title = title.replace("(Atmos)", "")
-                additional_info.append("Atmos")
-            if "Dessert Set" in title:
-                title = title.replace("Dessert Set", "")
-                additional_info.append("Dessert Set")
-            if "(D-Box)" in title:
-                title = title.replace("(D-Box)", "")
-                additional_info.append("(D-Box)")
-        elif self.provider == "cathay":
-            if "*" in title:
-                title = title.replace("*", "")
-                # have not figure out the meaning of *
-            if "(Dolby Digital)" in title:
-                tokens = title.split(" ")
-                splitter = tokens.index("(Dolby")
-                title = " ".join(tokens[:splitter - 1])
-                additional_info.append("Dolby Digital")
-            if "(Dolby Atmos)" in title:
-                tokens = title.split(" ")
-                splitter = tokens.index("(Dolby")
-                title = " ".join(tokens[:splitter - 1])
-                additional_info.append("Dolby Atmos")
-                title = title.replace("Atmos", "")
-        elif self.provider == "sb":
-            # special rules
-            if "Kungfu" in title:
-                title = title.replace("Kungfu", "Kung-fu")
-
-            # general rules
-            if "`" in title:
-                title = title.replace("`", "\'")
-            if "[D]" in title:
-                title = title.replace("[D]", "")
-                additional_info.append("Digital")
-            if "[IMAX]" in title:
-                title = title.replace("[IMAX]", "")
-                additional_info.append("IMAX")
-            if "[M]" in title:
-                title = title.replace("[M]", "")
-            if "[IMAX 3D]" in title:
-                title = title.replace("[IMAX 3D]", "")
-                additional_info.append("IMAX")
-                additional_info.append("3D")
-
-        else:
-            raise Exception("Invalid cinema provider")
-
-        title = title.strip()
-        additional_info = ",".join(additional_info)
+        if "`" in title:
+            title = title.replace("`", "\'")
+        if "*" in title:
+            title = title.replace("*", "")
+            additional_info.append("No free pass")
+        if "(Eng Sub)" in title:
+            title = title.replace("(Eng Sub)", "")
+            additional_info.append("English sub only")
+        if "(Atmos)" in title:
+            title = title.replace("(Atmos)", "")
+            additional_info.append("Atmos")
+        if "Dessert Set" in title:
+            title = title.replace("Dessert Set", "")
+            additional_info.append("Dessert Set")
+        if "(D-Box)" in title:
+            title = title.replace("(D-Box)", "")
+            additional_info.append("(D-Box)")
         return title, additional_info
+
+    @staticmethod
+    def _parse_sb_movie_title(title):
+        """
+        parse the raw title displayed on sb website into
+        clean movie title plus a list of movie types
+        :param title: string
+        :return: string, list
+        """
+        additional_info = []
+        # special rules
+        if "Kungfu" in title:
+            title = title.replace("Kungfu", "Kung-fu")
+
+        # general rules
+        if "`" in title:
+            title = title.replace("`", "\'")
+        if "[D]" in title:
+            title = title.replace("[D]", "")
+            additional_info.append("Digital")
+        if "[IMAX]" in title:
+            title = title.replace("[IMAX]", "")
+            additional_info.append("IMAX")
+        if "[M]" in title:
+            title = title.replace("[M]", "")
+        if "[IMAX 3D]" in title:
+            title = title.replace("[IMAX 3D]", "")
+            additional_info.append("IMAX")
+            additional_info.append("3D")
+        return title, additional_info
+
+    @staticmethod
+    def _parse_cathay_movie_title(title):
+        """
+        parse the raw title displayed on cathay website into
+        clean movie title plus a list of movie types
+        :param title: string
+        :return: string, list
+        """
+        additional_info = []
+        if "*" in title:
+            title = title.replace("*", "")
+            # have not figure out the meaning of *
+        if "(Dolby Digital)" in title:
+            tokens = title.split(" ")
+            splitter = tokens.index("(Dolby")
+            title = " ".join(tokens[:splitter - 1])
+            additional_info.append("Dolby Digital")
+        if "(Dolby Atmos)" in title:
+            tokens = title.split(" ")
+            splitter = tokens.index("(Dolby")
+            title = " ".join(tokens[:splitter - 1])
+            additional_info.append("Dolby Atmos")
+            title = title.replace("Atmos", "")
+        return title, additional_info
+
+    @staticmethod
+    def _parse_title_and_info(title, additional_info):
+        """
+        further clean the title and the additional information,
+        ready to be stored in database
+        :param title: string
+        :param info: list
+        :return: string, string
+        """
+        title = title.strip()
+        info = ",".join(additional_info)
+        return title, info
+
+
+
 
 
 

@@ -8,6 +8,7 @@ from urllib import request
 from selenium import webdriver
 from string import capwords
 from transformer import CinemaScheduleTransformer, GeneralTransformer
+from utils import InvalidCinemaTypeException
 
 
 class CinemaList:
@@ -136,12 +137,14 @@ class CinemaSchedule:
         self.cinema_url = cinema_url
         self.provider = cinema_provider
 
+        self.transformer = CinemaScheduleTransformer()
+
     def extract_cinema_schedule(self):
         """
         it will auto select the extract method based on the url
         or cinema name given, return the formatted data object
         that can be used by Loader
-        :return: a list of dictionary
+        :return: list
         """
         if self.provider == "gv":
             cinema_object = self._extract_golden_village()
@@ -150,9 +153,9 @@ class CinemaSchedule:
         elif self.provider == "cathay":
             cinema_object = self._extract_cathay()
         else:
-            raise Exception("Invalid Cinema provider")
+            raise InvalidCinemaTypeException("Invalid Cinema provider!")
 
-        return CinemaScheduleTransformer.parse_cinema_object_to_data(cinema_object)
+        return self.transformer.parse_cinema_object_to_data(cinema_object)
 
     def _extract_golden_village(self):
         self.driver.get(self.cinema_url)
@@ -200,7 +203,7 @@ class CinemaSchedule:
 
     def _extract_cathay(self):
         self.driver.get(self.cinema_url)
-        cathay_id = CinemaScheduleTransformer.get_id_from_cathay_cinema_name(self.cinema_name)
+        cathay_id = CinemaScheduleTransformer.get_cathay_id_from_cathay_cinema_name(self.cinema_name)
         outer_div = self.driver.find_element_by_id("ContentPlaceHolder1_wucST{}_tabs".format(cathay_id))
         tabbers = outer_div.find_elements_by_class_name("tabbers")
 
@@ -271,3 +274,4 @@ class CinemaSchedule:
                         else:
                             cinema_schedule[current_title] = current_time
         return cinema_schedule
+
