@@ -7,8 +7,9 @@ from bs4 import BeautifulSoup
 from urllib import request
 from selenium import webdriver
 from string import capwords
-from transformer import CinemaScheduleTransformer, GeneralTransformer
-from utils import InvalidCinemaTypeException
+from transformer import CinemaScheduleTransformer, GeneralTransformer, CinemaListTransformer
+
+import utils
 
 
 class CinemaList:
@@ -20,7 +21,8 @@ class CinemaList:
     SHAW_BROTHER_LIST_HOME = "http://www.shaw.sg/sw_cinema.aspx"
 
     def __init__(self):
-        self.driver = webdriver.PhantomJS()
+        self.cathay_soup = utils.build_soup_from_url(self.CATHAY_LIST_HOME)
+        self.sb_soup = utils.build_soup_from_url(self.SHAW_BROTHER_LIST_HOME)
 
     def get_latest_cinema_list(self):
         """
@@ -37,58 +39,63 @@ class CinemaList:
         :return: list
         """
         cinema_list = []
-        cinema_list.extend(self._extract_cathay_cinema_list())
-        cinema_list.extend(self._extract_sb_cinema_list())
+        cinema_list.extend(self._extract_cathay_cinema_list(self.cathay_soup))
+        cinema_list.extend(self._extract_sb_cinema_list(self.sb_soup))
         cinema_list.extend(self._extract_gv_cinema_list())
         return cinema_list
 
     def _extract_gv_cinema_list(self):
         """
         return a list of dictionaries contain all Golden Village
-        cinema names, and their corresponding url.
+        cinema names, and their corresponding url
+        :return: list
         """
-        url = self.GOLDEN_VILLAGE_LIST_HOME
-
         cinema_list = []
+        driver = webdriver.PhantomJS()
+        driver.get(self.GOLDEN_VILLAGE_LIST_HOME)
 
         # get raw cinema list
         raw_cinema_url = []
-        self.driver.get(url)
-        anchors = self.driver.find_element_by_class_name("cinemas-list").find_elements_by_class_name("ng-binding")
+        anchors = driver.find_element_by_class_name("cinemas-list").find_elements_by_class_name("ng-binding")
         for anchor in anchors:
             raw_cinema_url.append(anchor.get_attribute("href"))
 
         # get actual list, in each url it may contain more than one cinema
         for cinema_url in raw_cinema_url:
-            self.driver = webdriver.PhantomJS()  # reinstantiate to avoid detach from DOM
-            self.driver.get(cinema_url)
-            div = self.driver.find_elements_by_class_name("ng-binding")
+            driver = webdriver.PhantomJS()  # reinstantiate to avoid detach from DOM
+            driver.get(cinema_url)
+            div = driver.find_elements_by_class_name("ng-binding")
             for item in div:
                 if item.get_attribute("ng-bind-html") == "cinema.name":
                     cinema_name = item.text
-                    self.insert_cinema_data(cinema_list, cinema_name, cinema_url, "gv")
+                    inserted_tuple = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_url, "gv")
+                    cinema_list.append(inserted_tuple)
+
         return cinema_list
 
-    def _extract_cathay_cinema_list(self):
-        """Get a list of dictionaries contain all cathay cinema names.
-        It's corresponding url is None because cathay does not show movies
-        schedule based on individual cinemas in their web page layouts.
+    @staticmethod
+    def _extract_cathay_cinema_list(soup):
+        """
+        get a list of dictionaries contain all cathay cinema names.
+        :param soup: BeautifulSoup()
+        :return: list
         """
         cinema_list = []
 
-        url = self.CATHAY_LIST_HOME
-        web_content = request.urlopen(url).read().decode("utf-8")
-        soup = BeautifulSoup(web_content, "lxml")
         divs = soup.find_all("div", {"class": "description"})
         for div in divs:
             cinema_name = capwords(div.find("h1").text)
-            self.insert_cinema_data(cinema_list, cinema_name, "http://www.cathaycineplexes.com.sg/showtimes/", "cathay")
+            inserted_tuple = CinemaListTransformer.insert_cinema_data(
+                cinema_name, "http://www.cathaycineplexes.com.sg/showtimes/", "cathay")
+            cinema_list.append(inserted_tuple)
         return cinema_list
 
-    def _extract_sb_cinema_list(self):
+    @staticmethod
+    def _extract_sb_cinema_list(soup):
         """
         get a list of dictionaries contain all SB cinema names,
         and their corresponding urls
+        :param soup: BeautifulSoup()
         :return: list
         """
         cinema_list = []
@@ -96,36 +103,29 @@ class CinemaList:
         name_list = []
         url_list = []
 
-        # get names
-        web_content = request.urlopen(self.SHAW_BROTHER_LIST_HOME).read().decode("utf-8")
-        soup = BeautifulSoup(web_content, "lxml")
+        # get names list
         divs = soup.find_all("a", {"class": "txtHeaderBold"})
         for div in divs:
             name_list.append(div.text)
 
-        # get url
+        # get url list
         buy_tickets = soup.find_all("a", {"class": "txtNormalDim"})
         for item in buy_tickets:
             current_link = item["href"]
             if "buytickets" in current_link:
                 url_list.append("http://" + "www.shaw.sg/" + item["href"])
 
-        assert len(name_list) == len(url_list)  # check whether there is mistake in matching cinema name and url
+        # check list length
+        name_list_length = len(name_list)
+        url_list_length = len(url_list)
+        assert name_list_length == url_list_length  # check whether there is mistake in matching cinema name and url
 
-        # merge list
-        for i in range(len(name_list)):
-            self.insert_cinema_data(cinema_list, name_list[i], url_list[i], "sb")
+        # merge lists
+        for i in range(name_list_length):
+            inserted_tuple = CinemaListTransformer.insert_cinema_data(name_list[i], url_list[i], "sb")
+            cinema_list.append(inserted_tuple)
 
         return cinema_list
-
-    @staticmethod
-    def insert_cinema_data(cinema_list, cinema_name, cinema_url, provider):
-        inserted_tuple = {
-            "url": cinema_url,
-            "cinema_name": cinema_name,
-            "provider": provider
-        }
-        cinema_list.append(inserted_tuple)
 
 
 class CinemaSchedule:
