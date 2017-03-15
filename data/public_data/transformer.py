@@ -180,7 +180,10 @@ class CinemaScheduleTransformer:
             additional_info.append("Dessert Set")
         if "(D-Box)" in title:
             title = title.replace("(D-Box)", "")
-            additional_info.append("(D-Box)")
+            additional_info.append("D-Box")
+        if "(3d) in title":
+            title = title.replace("(3d)", "")
+            additional_info.append("3D")
 
         return self._parse_title_and_info(title, additional_info)
 
@@ -249,7 +252,7 @@ class CinemaScheduleTransformer:
         :return: string, string
         """
         title = title.strip()
-        info = ",".join(additional_info)
+        info = ", ".join(additional_info)
         return title, info
 
 

@@ -17,7 +17,6 @@ from movie_id_matcher.matcher import MovieIDMatcher
 from urllib import error
 from transformer import GeneralTransformer
 from http import client
-from selenium import common
 
 import utils
 import time
@@ -149,6 +148,7 @@ class ETLController:
         :return: None
         """
         matcher = MovieIDMatcher()
+        invalid_titles = []
         for title, content in cinema_schedule_data.items():
 
             logging.warning("Matching movie: " + title)
@@ -156,12 +156,15 @@ class ETLController:
             imdb_id = matcher.match_imdb_id_for_cinema_schedule(title)
             if imdb_id is None:
                 logging.error("IMDb ID matched is invalid!")
+                invalid_titles.append(title)
                 continue
 
             content['imdb_id'] = imdb_id  # add in matched imdb id
             self._update_single_movie_data(imdb_id)
-
             logging.warning("matching successful!")
+
+        for invalid_title in invalid_titles:
+            cinema_schedule_data.pop(invalid_title)
 
     def _get_all_cinema_schedules(self, cinema_schedule_data):
         """
@@ -171,7 +174,7 @@ class ETLController:
         :return: None
         """
         cinema_list = self.loader.get_cinema_list()
-        for cinema in cinema_list[:7]:
+        for cinema in cinema_list:
             cinema_id, cinema_name, provider, cinema_url = cinema
 
             logging.warning("retrieving schedule from: " + cinema_name)
