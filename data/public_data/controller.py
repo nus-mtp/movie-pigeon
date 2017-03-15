@@ -17,6 +17,7 @@ from movie_id_matcher.matcher import MovieIDMatcher
 from urllib import error
 from transformer import GeneralTransformer
 from http import client
+from selenium import common
 
 import utils
 import time
@@ -172,7 +173,15 @@ class ETLController:
 
             logging.warning("retrieving schedule from: " + cinema_name)
 
-            cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
+            try:
+                cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
+            except common.exceptions.NoSuchElementException:  # loading may not be complete
+                time.sleep(5)
+                try:
+                    cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
+                except:
+                    continue
+
             current_schedules = cinema_schedule.get_cinema_schedule()
 
             # parse each cinema's schedule and update data object
