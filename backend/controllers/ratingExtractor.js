@@ -186,6 +186,40 @@ exports.checkTmdbUser = function (req, res) {
   });
 };
 
+function getTmdbData (email, result) {
+  getTmdbSessionId(result.request_token, function (err, content) {
+    if (err) {
+      console.log(err);
+    } else {
+      getTmdbRatings(content.session_id, function (err, ratings) {
+        if (err) {
+          console.log(err);
+        } else {
+          processTmdbData(email, ratings);
+        }
+      });
+    }
+  })
+}
+
+function processTmdbData (email, ratings) {
+  var data = ratings.results;
+  User.getUserByEmail(email)
+    .then(function (users) {
+      if (users) {
+        for (var i in data) {
+          getImdbIdFromTmdb(data[i].id, data[i].rating, function (err, tmdbRating, movieDetails) {
+            if (err) {
+              console.log(err);
+            } else {
+              rate.postRates(tmdbRating, movieDetails.imdb_id, users.id);
+            }
+          })
+        }
+      }
+    });
+}
+
 exports.getTmdbRatings = function (req, res) {
   var tmdbUsername = req.body.tmdbUsername;
   var tmdbPassword = req.body.tmdbPassword;
@@ -229,33 +263,7 @@ exports.getTmdbRatings = function (req, res) {
               res.status(401).json(false);
             } else {
               if (result.success === true) {
-                getTmdbSessionId(result.request_token, function (err, content) {
-                  if (err) {
-                    console.log(err);
-                  } else {
-                    getTmdbRatings(content.session_id, function (err, ratings) {
-                      if (err) {
-                        console.log(err);
-                      } else {
-                        var data = ratings.results;
-                        User.getUserByEmail(email)
-                          .then(function (users) {
-                            if (users) {
-                              for (var i in data) {
-                                getImdbIdFromTmdb(data[i].id, data[i].rating, function (err, tmdbRating, movieDetails) {
-                                  if (err) {
-                                    console.log(err);
-                                  } else {
-                                    rate.postRates(tmdbRating, movieDetails.imdb_id, users.id);
-                                  }
-                                })
-                              }
-                            }
-                          });
-                      }
-                    });
-                  }
-                })
+                getTmdbData(email, result);
               }
             }
           });
@@ -263,6 +271,5 @@ exports.getTmdbRatings = function (req, res) {
       });
     }
   }, 500);
-
 
 };
