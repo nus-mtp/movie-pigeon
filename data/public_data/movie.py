@@ -95,13 +95,19 @@ class MovieData:
         return title and production year of a movie
         :return: string or None, int or None
         """
-        title_wrapper = self.soup.find("h1").text.split("\xa0")
-        self.title = title_wrapper[0]
-        self.production_year = title_wrapper[1].replace("(", "").replace(")", "").replace(" ", "")
-        if self.production_year == "":
-            self.production_year = None
-            return self.title, self.production_year
-        return self.title, int(self.production_year)
+        headers = self.soup.find_all("h1")
+        for header in headers:
+            try:
+                if header['itemprop'] == 'name':
+                    title_wrapper = header.text.split("\xa0")
+                    self.title = title_wrapper[0]
+                    self.production_year = title_wrapper[1].replace("(", "").replace(")", "").replace(" ", "")
+                    if self.production_year == "":
+                        self.production_year = None
+                        return self.title, self.production_year
+                    return self.title, int(self.production_year)
+            except KeyError:
+                continue
 
     def _extract_poster(self):
         """
