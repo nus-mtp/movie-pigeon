@@ -72,6 +72,10 @@ router.route('/traktTV')
   .get(thirdPartyController.checkTraktUser)
   .post(thirdPartyController.getTraktRatings);
 
+router.route('/tmdb')
+  .get(thirdPartyController.checkTmdbUser)
+  .post(thirdPartyController.getTmdbRatings);
+
 router.route('/cinemas')
   .get(authController.isAuthenticated, cinemaController.getCinemas);
 
