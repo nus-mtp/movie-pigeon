@@ -32,23 +32,21 @@ class ETLController:
         self.loader = Loader()
 
     def run(self):
-        if __name__ == '__main__':
-            logging.basicConfig(level=logging.WARNING)
-            scheduler = BlockingScheduler()
+        scheduler = BlockingScheduler()
 
-            # cron for movie data
-            scheduler.add_job(self.update_movie_data, args=[336913, 1000000, 0])
-            scheduler.add_job(self.update_movie_data, args=[1172158, 2000000, 5])
-            scheduler.add_job(self.update_movie_data, args=[2033967, 3000000, 10])
-            scheduler.add_job(self.update_movie_data, args=[3052760, 4000000, 15])
+        # cron for movie data
+        scheduler.add_job(self.update_movie_data, args=[336913, 1000000, 0])
+        scheduler.add_job(self.update_movie_data, args=[1172158, 2000000, 5])
+        scheduler.add_job(self.update_movie_data, args=[2033967, 3000000, 10])
+        scheduler.add_job(self.update_movie_data, args=[3052760, 4000000, 15])
 
-            # cron for movie rating
-            self.update_movie_rating()
+        # cron for movie rating
+        self.update_movie_rating()
 
-            # cron for cinema rating
-            self.update_cinema_schedule()
+        # cron for cinema rating
+        self.update_cinema_schedule()
 
-            scheduler.start()
+        scheduler.start()
 
     def update_movie_data(self, lower, upper, delay):
         """
@@ -241,6 +239,8 @@ class ETLController:
         movie_rating = data_model.get_movie_ratings()
         self.loader.load_movie_rating(movie_rating)
 
-
-
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.WARNING)
+    controller = ETLController()
+    controller.run()
 
