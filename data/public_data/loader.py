@@ -2,7 +2,7 @@
 import logging
 import time
 import psycopg2
-
+import utils
 import config
 
 
@@ -106,3 +106,11 @@ class Loader:
         data_object = self.cursor.fetchall()
         return data_object
 
+    # delete
+    def delete_outdated_schedules(self):
+        """
+        delete all outdated movies
+        :return: None
+        """
+        today = utils.get_singapore_date(0)  # get today
+        self.cursor.execute("DELETE FROM showings WHERE schedule <= %s", (today, ))

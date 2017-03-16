@@ -129,9 +129,10 @@ class ETLController:
             }
         }
         """
-        # TODO: cleaning process
-
         logging.warning("Initialise cinema schedule update process ...")
+
+        logging.warning("Deleting outdated schedules ...")
+        self.loader.delete_outdated_schedules()
 
         cinema_schedule_data = {}  # declare data object
         self._get_all_cinema_schedules(cinema_schedule_data)  # rearrange
@@ -218,9 +219,6 @@ class ETLController:
         data_model = MovieRating(current_id)
         movie_rating = data_model.get_movie_ratings()
         self.loader.load_movie_rating(movie_rating)
-
-    def _delete_outdated_schedules(self):
-        pass
 
 
 
