@@ -117,8 +117,7 @@ describe('Movie proxy test', function () {
   it('should get movie from getMovieScheduleById', function (done) {
     movieProxy.getMovieScheduleById('test000001')
       .then(function (result) {
-        result.length.should.equal(1);
-        result[0].dataValues.movie_id.should.equal('test000001');
+        result.dataValues.movie_id.should.equal('test000001');
         done();
       })
   });
