@@ -145,8 +145,8 @@ def get_singapore_date(n):
     :param n: integer
     :return: string
     """
-    some_day = (datetime.fromtimestamp(time.time(), timezone("Singapore")) + timedelta(days=n)).strftime(
-        "%Y-%m-%d")
+    some_day = (datetime.fromtimestamp(time.time(), timezone("Singapore"))
+                + timedelta(days=n)).strftime("%Y-%m-%d")
     return some_day
 
 

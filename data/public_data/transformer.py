@@ -180,7 +180,7 @@ class CinemaScheduleTransformer:
         if "(D-Box)" in title:
             title = title.replace("(D-Box)", "")
             additional_info.append("D-Box")
-        if "(3d) in title":
+        if "(3d)" in title:
             title = title.replace("(3d)", "")
             additional_info.append("3D")
 
