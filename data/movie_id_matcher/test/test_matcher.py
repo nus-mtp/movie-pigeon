@@ -26,7 +26,7 @@ class TestMovieIDMatcher(unittest.TestCase):
         ])
 
         helper("Kung Fu Yoga", [
-            ('tt4217392', 'Kung-Fu Yoga (2017)\naka "Kung Fu Yoga"')
+            ('tt4217392', 'Gong fu yu jia (2017)\naka "Kung Fu Yoga"')
         ])
 
         helper("The Lego Batman Movie", [
@@ -72,6 +72,14 @@ class TestMovieIDMatcher(unittest.TestCase):
 
         helper("Resident Evil: The Final Chapter", [
             ('tt2592614', 'Resident Evil: The Final Chapter (2016)')
+        ])
+
+        helper("Let's Go Jets", [
+            ('tt5693562', 'Chiadan: Joshi kousei ga chiadansu de zenbei seihashichatta honto no hanashi (2017)')
+        ])
+
+        helper("Motta Siva Ketta Siva", [
+            ('tt6495714', 'Motta Shiva Ketta Shiva (2017)')
         ])
 
     def test_parse_imdb_search_text(self):

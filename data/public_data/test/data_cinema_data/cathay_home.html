@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta id="viewport" name="viewport" content="width=device-width,  initial-scale=1, maximum-scale=1, minimum-scale=1" /><meta name="google-site-verification" content="SfAlccnUSmJVD09OmAVXm7MtPMwcfU_ysxuUA4JvKq4" /><meta charset="utf-8" /><link href="/js/libs/jquery-ui.css" rel="stylesheet nofollow" type="text/css" /><link href="../style.css" rel="stylesheet nofollow" type="text/css" /><link href="../style-extend.css" rel="stylesheet nofollow" type="text/css" /><link href="/css/css-fix.css" rel="stylesheet nofollow" type="text/css" /><link href="http://fonts.googleapis.com/css?family=Lato:400,700" rel="stylesheet nofollow" type="text/css" /><link href="http://fonts.googleapis.com/css?family=Lato:300,300italic" rel="stylesheet nofollow" type="text/css" /><link href="/css-fix.css" rel="stylesheet nofollow" type="text/css" />
+
+    <script src="/js/libs/jquery-1.9.1.js"></script>
+    <script src="/js/libs/jquery-ui-1.10.3.js"></script>
+    <script src="/js/libs/jquery.validate.min.js"></script>
+
+    <script src="/js/libs/jquery.easing.1.3.min.js"></script>
+    <script src="/js/book-now.js"></script>
+    <script src="/js/utils.js"></script>
+    <script type="text/javascript" src="http://booking.cathay.com.sg/checkbooking/scripts/CheckBookingApp.min.js"></script>
+    
+    
+<!--Magnific Popup!-->
+<link rel="stylesheet nofollow" href="/js/magnific-popup/magnific-popup.css"> 
+<script src="/js/magnific-popup/jquery.magnific-popup.js"></script>
+<script>
+    $(document).ready(function () {
+        /*$('.popup-youtube, .popup-vimeo, .popup-gmaps').magnificPopup({
+            disableOn: 700,
+            type: 'iframe',
+            mainClass: 'mfp-fade',
+            removalDelay: 300,
+            preloader: false,
+            fixedContentPos: false,
+            fixedBgPos: true,
+            overflowY: 'auto',
+            closeBtnInside: true,
+            preloader: false,
+            midClick: true,
+            mainClass: 'my-mfp-slide-bottom'
+        });*/
+    });
+</script>
+<!--/Magnific Popup!-->
+
+    <script src="/js/tamesoft_jpanel/ts_jpanel-t.js" type="text/javascript"></script>
+	<link id="jpanel" rel="stylesheet" type="text/css" href="/js/tamesoft_jpanel/ts_jpanel_style-t.css" />
+	<script type="text/javascript" src="/js/stage2.js"></script>
+    <link id="css_mobile" rel="stylesheet" type="text/css" href="/css-mobile.css" />
+
+    <script>
+    $(window).load(function () {
+        $(".btnCheckBooking").CheckBooking();
+    });
+    </script>
+    
+    
+
+    <script type="text/javascript">
+        setTimeout(function () {
+            var a = document.createElement("script");
+            var b = document.getElementsByTagName("script")[0];
+            a.src = document.location.protocol + "//script.crazyegg.com/pages/scripts/0044/3484.js?" + Math.floor(new Date().getTime() / 3600000);
+            a.async = true; a.type = "text/javascript"; b.parentNode.insertBefore(a, b)
+        }, 1);
+    </script>
+<meta name="description" content="Welcome to Cathay Cineplexes cinemas page. Cathay is a Singaporean organization dedicated to entertainment, movies, cinema and leisure!" /><title>
+	Cinemas | Cathay Cineplexes
+</title></head>
+<body>
+<!-- Google Tag Manager -->
+<script>(function (w, d, s, l, i) { w[l] = w[l] || []; w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' }); var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src = '//www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f); })(window, document, 'script', 'dataLayer', 'GTM-WWQBQ5');</script>
+<!-- End Google Tag Manager -->
+<script>
+    window.fbAsyncInit = function () {
+        FB.init({
+            appId: '1568946656656585',
+            xfbml: true,
+            version: 'v2.2'
+        });
+    };
+
+    /*  (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));*/
+
+    $(window).load(function () {
+        //shortenText("#cinema option", /^(.{30}[^\s]*).*/, 30);
+        $("#cinema option").each(function () {
+            var textTemp = $(this).text().replace(/^(.{35}[^\s]*).*/, "$1");
+
+            var textFinal;
+            if ($(this).text().length > 35) {
+                textFinal = textTemp + "...";
+            }
+            $(this).text(textFinal);
+        });
+    });
+</script>
+<form id="form1">
+<div class="containerMenu">
+    <div id="header"  class="header header-wrapper">
+    <div class="logo"><a href="/"><img src="/images/logo-2.png" /></a></div>
+    
+    <div class="social" id="social">
+        <ul>
+        <li><a href="https://www.facebook.com/cathaycineplexes" target="_blank" rel="nofollow"></a></li>
+        <li><a href="http://instagram.com/cathaycineplexes" target="_blank" rel="nofollow"></a></li>
+        <!--<li><a href="/rss.aspx" target="_blank" title="RSS feed"></a></li>-->
+        <!--<li><a href="https://twitter.com/cathaycineplex" target="_blank" title="Follow us on twitter"></a></li>-->
+        </ul>
+	</div>
+    
+    <div class="nav">
+        <ul id="navbar">
+        <li><a href="/" id="nav_home">HOME</a></li>
+        <li><a href="/showtimes/" id="nav_showtimes">SHOW TIMES</a></li>
+        <li><a href="/movies/" id="nav_movie">MOVIES</a></li>
+        <!--<li><a href="../showcase.aspx" id="nav_showcase">SHOWCASE</a></li>-->
+        <li><a href="/promotions/" id="nav_promotion">PROMOTIONS</a></li>
+        <li><a href="/new-experiences/" id="nav_new_experinces">EXPERIENCES</a></li>
+        <li><a href="/cinemas/" id="nav_cinemas" class="active">CINEMAS</a></li>
+        <li><a href="/events/" id="nav_events">EVENTS / GIFTS</a></li>
+        <li><a href="#" class="btnCheckBooking">CHECK BOOKING</a></li>
+        <!--<li><a href="../loyalty.aspx" id="nav_loyalty">LOYALTY</a></li>
+        <li><a href="../giftideas.aspx" id="nav_giftideas">GIFT IDEAS</a></li>-->
+        </ul>
+    </div>
+    
+    <div class="naviboxpushbtn" id="trigger-on"><img src="/images/menu.jpg"/></div>
+	<div id="mBook" class="mobile">Book Now</div>    
+    
+    <div id="SmenuHolder">
+        <div class="navibox">
+            <div class="menu"></div>
+            <div class="icons"></div>
+            <div id="footerHolder"></div>
+        </div><!--navibox-->
+	</div>
+
+	<div id="clear"></div>
+    
+    <div class="filters">
+    	<div class="select-style">
+		<select id="movie">
+            <option value="">Select Movie</option>
+        </select>
+    	</div>
+   	  	<div class="select-style">
+		<select id="cinema">
+            <option value="">Select Cinema</option>
+        </select>
+    	</div>
+   	  	<div class="select-style">
+		<select id="day">
+            <option value="">Select Day</option>
+        </select>
+    	</div>
+   	  	<div class="select-style">
+		<select id="time">
+            <option value="">Select Time</option>
+        </select>
+   		</div>
+        
+      	<div class="booknow">
+            <a href="javascript:;" class="stdbtn" rel="nofollow"><span class="desktop">BOOK NOW</span><span class="mobile">GO</span></a>
+    	</div>
+	
+    	<div id="clear"></div>
+    
+  </div>    
+
+</div>
+</div>
+</form>
+<div id="container">
+
+<!--header!-->
+
+<!--/header!-->
+
+        
+<!--cinemas!-->
+<div class="cinemas">
+	<!--item!-->
+    <div class="item">
+    	<div class="thumb"><a class="popup-gmaps" target="_blank" rel="nofollow" href="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.7922265038915!2d103.84771400000002!3d1.2994630000000096!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da19bd213d070b%3A0x471373c2c51aa918!2sThe+Cathay+Cineplex!5e0!3m2!1sen!2ssg!4v1412066545271"><img src="/images/cinemas/grand-cathay.jpg"/></a></div>
+      	<div class="description">
+        <h1>THE CATHAY CINEPLEX</h1>
+        Levels 5 & 6, The Cathay<br />
+        2 Handy Road<br />
+        Singapore 229233
+        <br /><br />
+        <strong>Nearest MRT Station</strong><br />
+        NE6 / NS24 Dhoby Ghaut
+        </div>
+    </div>
+    <!--/item!-->
+    
+    <!--item!-->
+    <div class="item">
+    	<div class="thumb"><a class="popup-gmaps" target="_blank" rel="nofollow" href="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.788912269726!2d103.83643499999998!3d1.3015600000000063!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da19910f0c797b%3A0x36e8dc19aa156614!2sCineleisure+Orchard!5e0!3m2!1sen!2ssg!4v1412066745901"><img src="/images/cinemas/cineleisure.jpg"/></a></div>
+        <div class="description">
+        <h1>CATHAY CINEPLEX CINELEISURE ORCHARD</h1>
+        Levels 4, 5 & 6 Cathay Cineleisure Orchard<br />
+        8 Grange Road<br />
+        Singapore 239695
+        <br /><br />
+        <strong>Nearest MRT Station</strong><br />
+        NS23 Somerset
+      </div>
+    </div>
+    <!--/item!-->
+    
+    <!--item!-->
+    <div class="item"><div class="thumb"><a class="popup-gmaps" target="_blank" rel="nofollow" href="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3988.5651137446152!2d103.78609800000001!3d1.436097!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da13a8981ed687%3A0x1ae38e3e18d847c1!2sCauseway+Point!5e0!3m2!1sen!2ssg!4v1412066806217"><img src="/images/cinemas/causeway.jpg"/></a></div>
+        <div class="description">
+        <h1>CATHAY CINEPLEX CAUSEWAY POINT</h1>
+        1 Woodlands Square<br />
+        Level 7<br />
+        Singapore 738099 
+        <br /><br />
+        <strong>Nearest MRT Station</strong><br />
+        NS9 Woodlands
+      </div>
+    </div>
+    <!--/item!-->
+    
+    <!--item!-->
+    <div class="item">
+    	<div class="thumb"><a class="popup-gmaps" target="_blank" rel="nofollow" href="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3988.6785947988747!2d103.84847300000001!3d1.36953!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da16e6c224cd4f%3A0x6e7cb495e1278886!2sAMK+Hub!5e0!3m2!1sen!2ssg!4v1412067045711"><img src="/images/cinemas/amk.jpg"/></a></div>
+        <div class="description">
+        <h1>CATHAY CINEPLEX AMK HUB</h1>
+        53 Ang Mo Kio Ave 3<br />
+        AMK Hub Level 4<br />
+        Singapore 569933 
+        <br /><br />
+        <strong>Nearest MRT Station</strong><br />
+        NS16 Ang Mo Kio
+      </div>
+    </div>
+    <!--/item!-->
+    
+    <!--item!-->
+    <div class="item">
+    	<div class="thumb"><a class="popup-gmaps" target="_blank" rel="nofollow" href="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3988.6671472698404!2d103.95566199999999!3d1.376391!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da3db5d8aee71d%3A0xfd292dee55c302ed!2sDowntown+East!5e0!3m2!1sen!2ssg!4v1412067178681"><img src="/images/cinemas/downtown-east.jpg"/></a></div>
+        <div class="description">
+        <h1>CATHAY CINEPLEX DOWNTOWN EAST</h1>
+        Market Square @ Downtown East<br />
+        1 Pasir Ris Close<br />
+        Level 4, E!hub<br />
+        Singapore 519599
+        <br /><br />
+        <strong>Nearest MRT Station</strong><br />
+        EW1 Pasir Ris
+      </div>
+    </div>
+    <!--/item!-->
+    
+    <!--item!-->
+    <div class="item">
+    	<div class="thumb"><a class="popup-gmaps" target="_blank" rel="nofollow" href="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3988.711182313639!2d103.74918000000001!3d1.349808!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da103ed7d836c7%3A0xe26cd7f4ffc7daed!2sWest+Mall!5e0!3m2!1sen!2ssg!4v1412067258383"><img src="/images/cinemas/westmall.jpg"/></a></div>
+        <div class="description">
+        <h1>CATHAY CINEPLEX WEST MALL</h1>
+        1 Bukit Batok Central Link<br />
+        West Mall<br />
+        Level 5, Singapore 658713 
+        <br /><br />
+        <strong>Nearest MRT Station</strong><br />
+        NS2 Bukit Batok
+      </div>
+    </div>
+    <!--/item!-->
+    
+    <!--item!-->
+    <div class="item">
+    	<div class="thumb"><a class="popup-gmaps" target="_blank" rel="nofollow" href="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3988.73790140614!2d103.74339400000001!3d1.3334200000000003!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31da100f1e276d6f%3A0xebabee6918ce19b8!2sJem!5e0!3m2!1sen!2ssg!4v1412067314370"><img src="/images/cinemas/jem.jpg"/></a></div>
+        <div class="description">
+        <h1>CATHAY CINEPLEX JEM</h1>
+        50 Jurong Gateway Road<br />
+        Jem<br />
+        Level 5, Singapore 608549 
+        <br /><br />
+        <strong>Nearest MRT Station</strong><br />
+        NS1 & EW24 Jurong East
+      </div>
+    </div>
+    <!--/item!-->
+    
+    <div id="clear"></div>
+
+</div>
+<!--/cinemas!-->
+
+
+</div>
+<!--/container!-->
+
+<!--footer!-->
+<div id="footer">
+    
+        <div class="button_wrappers">
+            <p>Get the latest news & deals</p>
+            <div id="clear"></div>
+            <div class="button-wrap">
+            
+                <a class="stdbtn submit_button" href="http://www.cathay.com.sg/cathayforms/generic_mailinglist.aspx" target="_blank">Join our Mailing List </a>
+            </div>
+            <!--buttons!-->
+        </div>
+    
+
+    <div id="clear"></div>
+
+	<div class="links">
+    	<ul>
+            <li><a href="http://www.cathay.com.sg/corporate.html" target="_blank" rel="nofollow">About Cathay</a></li>
+            <li><a href="http://thecathay.com.sg/" target="_blank" rel="nofollow">The Cathay</a></li>
+            <li><a href="http://cineleisure.com.sg/" target="_blank" rel="nofollow">Cathay Cineleisure Orchard</a></li>
+            <!--<li><a href="http://www.thecathayrestaurant.com.sg/" target="_blank">The Cathay Restaurant</a></li>
+            <li><a href="http://www.e2max.com.sg/" target="_blank">E2Max</a></li>-->
+            <li><a href="http://hangouthotels.com" target="_blank" rel="nofollow">Hangout Hotels</a></li>
+            <li><a href="http://inspiramedia.com/pavilion/wpcms/" target="_blank" rel="nofollow">The Pavillion Foundation</a></li>
+            <li><a href="http://www.cathay.com.sg/careers/index.html" target="_blank" rel="nofollow">Careers</a></li>
+            <li><a href="/faqs/">FAQs</a></li>
+            <li><a href="/contact-us/">Contact Us</a></li>
+        </ul>
+    </div>
+    <div id="clear"></div>
+
+    <div class="copysocial">
+    <div class="copyright">Copyright to this website belongs to Cathay Cineplexes Pte Ltd. The contents of this website shall not be reproduced in any form in whole or in part. We reserve all rights.</div>
+    <!--<div class="social">
+    <ul>
+        <li><a href="https://twitter.com/cathaycineplex" target="_blank" title="Follow us on twitter"><img src="/images/twitter_m2.png" class="mobile"/></a></li>
+        <li><a href="https://www.facebook.com/cathaycineplexes" target="_blank"><img src="/images/fb_m2.png" class="mobile"/></a></li>
+        <li><a href="http://instagram.com/cathaycineplexes" target="_blank"><img src="/images/insta_m2.png" class="mobile"/></a></li>
+        <li><a href="/rss.aspx" target="_blank" title="RSS feed"><img src="/images/rss_m2.png" class="mobile"/></a></li>
+    </ul>
+    </div>-->
+    <div id="clear"></div>
+    </div>
+
+</div>
+<!--/footer!-->
+</body>
+</html>

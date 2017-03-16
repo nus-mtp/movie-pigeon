@@ -90,7 +90,7 @@ class GeneralTransformer:
 class CinemaScheduleTransformer:
 
     @staticmethod
-    def get_id_from_cathay_cinema_name(cinema_name):
+    def get_cathay_id_from_cathay_cinema_name(cinema_name):
         """get cathay internal id from their cinema name for web elements"""
         mapper = {
             "Cathay Cineplex Amk Hub": "",
@@ -103,7 +103,7 @@ class CinemaScheduleTransformer:
         }
         return mapper[cinema_name]
 
-    def parse_cinema_object_to_data(self, cinema_object):
+    def parse_cinema_object_to_data(self, cinema_object, provider):
         """
         parse the cinema object in the format:
         (based on self.provider, parsing strategy may vary)
@@ -128,12 +128,13 @@ class CinemaScheduleTransformer:
         :return: dictionary
         """
         data_object = []
+        parser = self._get_movie_title_parser(provider)
 
         # parse title
         for key, value in cinema_object.items():
             if "Zen Zone" in key:  # strange thing in gv
                 continue
-            title, additional_info = self._movie_title_parser(key)
+            title, additional_info = parser(key)
             data_object.append(
                 {
                     "title": title,
@@ -142,68 +143,129 @@ class CinemaScheduleTransformer:
                 })
         return data_object
 
-    def _movie_title_parser(self, title):
+    def _get_movie_title_parser(self, provider):
+        """
+        select the correct parser
+        :param provider: string
+        :return: function
+        """
+        if provider == "gv":
+            return self._parse_gv_movie_title
+        elif provider == "sb":
+            return self._parse_sb_movie_title
+        elif provider == "cathay":
+            return self._parse_cathay_movie_title
+
+    def _parse_gv_movie_title(self, title):
+        """
+        parse the raw title displayed on gv website into
+        clean movie title plus a list of movie types
+        :param title: string
+        :return: string, list
+        """
         additional_info = []
-        if self.provider == "gv":
-            if "`" in title:
-                title = title.replace("`", "\'")
-            if "*" in title:
-                title = title.replace("*", "")
-                additional_info.append("No free pass")
-            if "(Eng Sub)" in title:
-                title = title.replace("(Eng Sub)", "")
-                additional_info.append("English sub only")
-            if "(Atmos)" in title:
-                title = title.replace("(Atmos)", "")
-                additional_info.append("Atmos")
-            if "Dessert Set" in title:
-                title = title.replace("Dessert Set", "")
-                additional_info.append("Dessert Set")
-            if "(D-Box)" in title:
-                title = title.replace("(D-Box)", "")
-                additional_info.append("(D-Box)")
-        elif self.provider == "cathay":
-            if "*" in title:
-                title = title.replace("*", "")
-                # have not figure out the meaning of *
-            if "(Dolby Digital)" in title:
-                tokens = title.split(" ")
-                splitter = tokens.index("(Dolby")
-                title = " ".join(tokens[:splitter - 1])
-                additional_info.append("Dolby Digital")
-            if "(Dolby Atmos)" in title:
-                tokens = title.split(" ")
-                splitter = tokens.index("(Dolby")
-                title = " ".join(tokens[:splitter - 1])
-                additional_info.append("Dolby Atmos")
-                title = title.replace("Atmos", "")
-        elif self.provider == "sb":
-            # special rules
-            if "Kungfu" in title:
-                title = title.replace("Kungfu", "Kung-fu")
+        if "`" in title:
+            title = title.replace("`", "\'")
+        if "*" in title:
+            title = title.replace("*", "")
+        if "(Eng Sub)" in title:
+            title = title.replace("(Eng Sub)", "")
+            additional_info.append("English sub only")
+        if "(Atmos)" in title:
+            title = title.replace("(Atmos)", "")
+            additional_info.append("Atmos")
+        if "Dessert Set" in title:
+            title = title.replace("Dessert Set", "")
+            additional_info.append("Dessert Set")
+        if "(D-Box)" in title:
+            title = title.replace("(D-Box)", "")
+            additional_info.append("D-Box")
+        if "(3d)" in title:
+            title = title.replace("(3d)", "")
+            additional_info.append("3D")
 
-            # general rules
-            if "`" in title:
-                title = title.replace("`", "\'")
-            if "[D]" in title:
-                title = title.replace("[D]", "")
-                additional_info.append("Digital")
-            if "[IMAX]" in title:
-                title = title.replace("[IMAX]", "")
-                additional_info.append("IMAX")
-            if "[M]" in title:
-                title = title.replace("[M]", "")
-            if "[IMAX 3D]" in title:
-                title = title.replace("[IMAX 3D]", "")
-                additional_info.append("IMAX")
-                additional_info.append("3D")
+        return self._parse_title_and_info(title, additional_info)
 
-        else:
-            raise Exception("Invalid cinema provider")
+    def _parse_sb_movie_title(self, title):
+        """
+        parse the raw title displayed on sb website into
+        clean movie title plus a list of movie types
+        :param title: string
+        :return: string, list
+        """
+        additional_info = []
+        # special rules
+        if "Kungfu" in title:
+            title = title.replace("Kungfu", "Kung-fu")
 
+        # general rules
+        if "`" in title:
+            title = title.replace("`", "\'")
+        if "[D]" in title:
+            title = title.replace("[D]", "")
+            additional_info.append("Digital")
+        if "[IMAX]" in title:
+            title = title.replace("[IMAX]", "")
+            additional_info.append("IMAX")
+        if "[M]" in title:
+            title = title.replace("[M]", "")
+        if "[IMAX 3D]" in title:
+            title = title.replace("[IMAX 3D]", "")
+            additional_info.append("IMAX")
+            additional_info.append("3D")
+
+        return self._parse_title_and_info(title, additional_info)
+
+    def _parse_cathay_movie_title(self, title):
+        """
+        parse the raw title displayed on cathay website into
+        clean movie title plus a list of movie types
+        :param title: string
+        :return: string, list
+        """
+        additional_info = []
+        if "*" in title:
+            title = title.replace("*", "")
+            # have not figure out the meaning of *
+        if "(Dolby Digital)" in title:
+            tokens = title.split(" ")
+            splitter = tokens.index("(Dolby")
+            title = " ".join(tokens[:splitter - 1])
+            additional_info.append("Dolby Digital")
+        if "(Dolby Atmos)" in title:
+            tokens = title.split(" ")
+            splitter = tokens.index("(Dolby")
+            title = " ".join(tokens[:splitter - 1])
+            additional_info.append("Dolby Atmos")
+            title = title.replace("Atmos", "")
+
+        return self._parse_title_and_info(title, additional_info)
+
+    @staticmethod
+    def _parse_title_and_info(title, additional_info):
+        """
+        further clean the title and the additional information,
+        ready to be stored in database
+        :param title: string
+        :param info: list
+        :return: string, string
+        """
         title = title.strip()
-        additional_info = ",".join(additional_info)
-        return title, additional_info
+        info = ", ".join(additional_info)
+        return title, info
+
+
+class CinemaListTransformer:
+
+    @staticmethod
+    def insert_cinema_data(cinema_name, cinema_url, provider):
+        inserted_tuple = {
+            "url": cinema_url,
+            "cinema_name": cinema_name,
+            "provider": provider
+        }
+        return inserted_tuple
+
 
 
 

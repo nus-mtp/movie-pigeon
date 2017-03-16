@@ -1,5 +1,10 @@
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, timedelta
+from pytz import timezone
+from urllib import request
+from bs4 import BeautifulSoup
+
+import time
 
 
 class UrlFormatter(Enum):
@@ -8,6 +13,14 @@ class UrlFormatter(Enum):
 
 
 class InvalidMovieTypeException(Exception):
+    pass
+
+
+class InvalidCinemaTypeException(Exception):
+    pass
+
+
+class InvalidMatchedIMDbIdException(Exception):
     pass
 
 
@@ -114,6 +127,26 @@ def get_movie_rating_dict(score, votes, imdb_id, rating_source):
     return movie_rating
 
 
+def build_soup_from_url(url):
+    web_content = request.urlopen(url).read().decode("utf-8")
+    soup = BeautifulSoup(web_content, "lxml")
+    return soup
 
+
+def build_soup_from_file(directory):
+    io_wrapper = open(directory, encoding="utf8")
+    soup = BeautifulSoup(io_wrapper, "lxml")
+    return soup
+
+
+def get_singapore_date(n):
+    """
+    get the date of n days from now in SGT
+    :param n: integer
+    :return: string
+    """
+    some_day = (datetime.fromtimestamp(time.time(), timezone("Singapore"))
+                + timedelta(days=n)).strftime("%Y-%m-%d")
+    return some_day
 
 
