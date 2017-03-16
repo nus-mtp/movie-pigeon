@@ -168,7 +168,6 @@ class CinemaScheduleTransformer:
             title = title.replace("`", "\'")
         if "*" in title:
             title = title.replace("*", "")
-            additional_info.append("No free pass")
         if "(Eng Sub)" in title:
             title = title.replace("(Eng Sub)", "")
             additional_info.append("English sub only")
