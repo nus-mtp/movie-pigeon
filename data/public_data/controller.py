@@ -17,6 +17,8 @@ from movie_id_matcher.matcher import MovieIDMatcher
 from urllib import error
 from transformer import GeneralTransformer
 from http import client
+from apscheduler.schedulers.blocking import BlockingScheduler
+
 
 import utils
 import time
@@ -28,6 +30,25 @@ class ETLController:
 
     def __init__(self):
         self.loader = Loader()
+
+    def run(self):
+        if __name__ == '__main__':
+            logging.basicConfig(level=logging.WARNING)
+            scheduler = BlockingScheduler()
+
+            # cron for movie data
+            scheduler.add_job(self.update_movie_data, args=[336913, 1000000, 0])
+            scheduler.add_job(self.update_movie_data, args=[1172158, 2000000, 5])
+            scheduler.add_job(self.update_movie_data, args=[2033967, 3000000, 10])
+            scheduler.add_job(self.update_movie_data, args=[3052760, 4000000, 15])
+
+            # cron for movie rating
+            self.update_movie_rating()
+
+            # cron for cinema rating
+            self.update_cinema_schedule()
+
+            scheduler.start()
 
     def update_movie_data(self, lower, upper, delay):
         """
