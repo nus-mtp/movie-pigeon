@@ -26,16 +26,10 @@ schedule.scheduleJob(rule, function () {
       text: new Date().toLocaleString(), // html body
       attachments: [
         {
-          path: '/home/perhaps/.pm2/logs/server-out-0.log'
+          path: '/home/deploy/.pm2/logs/server-out-0.log'
         },
         {
-          path: '/home/perhaps/.pm2/logs/server-error-0.log'
-        },
-        {
-          path: '/home/perhaps/.pm2/logs/cron-out-1.log'
-        },
-        {
-          path: '/home/perhaps/.pm2/logs/cron-error-1.log'
+          path: '/home/deploy/.pm2/logs/server-error-0.log'
         }
       ]
     };
@@ -91,10 +85,7 @@ schedule.scheduleJob(rule2, function () {
           text: text, // html body
           attachments: [
             {
-              path: '/home/perhaps/.pm2/logs/server-error-0.log'
-            },
-            {
-              path: '/home/perhaps/.pm2/logs/cron-error-1.log'
+              path: '/home/deploy/.pm2/logs/server-error-0.log'
             }
           ]
         };
