@@ -171,7 +171,10 @@ exports.checkTmdbUser = function (req, res) {
   var password = req.headers.password;
   getTmdbToken(function (err, body) {
     if (err) {
-      res.json({status: 'fail', message: 'TMDb server unavailable'});
+      res.status(403).json({
+        status: 'fail',
+        message: 'TMDb server unavailable'
+      });
     } else {
       checkTmdbUser(username, password, body.request_token, function (err, result) {
         if (err) {
@@ -256,7 +259,10 @@ exports.getTmdbRatings = function (req, res) {
     if (result === true) {
       getTmdbToken(function (err, body) {
         if (err) {
-          res.json({status: 'fail', message: 'TMDb server unavailable'});
+          res.status(403).json({
+            status: 'fail',
+            message: 'TMDb server unavailable'
+          });
         } else {
           checkTmdbUser(tmdbUsername, tmdbPassword, body.request_token, function (err, result) {
             if (err) {
