@@ -26,7 +26,7 @@ var getObjects = function (obj, key, val) {
   return objects;
 };
 
-describe('Movie controller test', function () {
+describe('Showing controller test', function () {
   before(function (done) {
     movie.bulkCreate([
       {movie_id: 'test000001', title: 'test1: here StUpId ABcdE'},
@@ -46,8 +46,8 @@ describe('Movie controller test', function () {
         password: password
       }).then(function () {
         cinema.bulkCreate([
-          {cinema_name: 'testcinema1', provider: 'pigeon', url: 'pigeon.com'},
-          {cinema_name: 'testcinema2', provider: 'pigeon1', url: 'pigeo1n.com'}
+          {cinema_id: 1, cinema_name: 'testcinema1', provider: 'pigeon', url: 'pigeon.com'},
+          {cinema_id: 2, cinema_name: 'testcinema2', provider: 'pigeon1', url: 'pigeo1n.com'}
         ]).then(function () {
           showing.bulkCreate([
             {cinema_id: 1, movie_id: 'test000001', type: 'type1', schedule: '2017-03-03 12:51:11+08'},
