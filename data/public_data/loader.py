@@ -121,6 +121,14 @@ class Loader:
         data_object = self.cursor.fetchall()
         return data_object
 
+    def get_movie_id_list_without_rating(self):
+        self.cursor.execute("SELECT movie_id FROM movies WHERE movie_id NOT IN (SELECT movie_id FROM public_ratings)")
+        data_object = self.cursor.fetchall()
+        id_list = []
+        for item in data_object:
+            id_list.append(item[0])
+        return id_list
+
     # delete
     def delete_outdated_schedules(self):
         """

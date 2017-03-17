@@ -37,28 +37,24 @@ class ETLController:
 
     def run(self):
         scheduler = BlockingScheduler()
-        existing_movies_id = self.loader.get_movie_id_list()
+        movie_ids = self.loader.get_movie_id_list()
 
         # cron for movie data
-        logging.warning("Initialise movie data retrieval process ...")
-        scheduler.add_job(self._update_movie_data, trigger='interval', days=180,
-                          args=[1, 2000000, existing_movies_id])
-        scheduler.add_job(self._update_movie_data, trigger='interval', days=180,
-                          args=[2000000, 4000000, existing_movies_id])
-        scheduler.add_job(self._update_movie_data, trigger='interval', days=180,
-                          args=[4000000, 6000000, existing_movies_id])
-        scheduler.add_job(self._update_movie_data, trigger='interval', days=180,
-                          args=[6000000, 8000000, existing_movies_id])
+        # scheduler.add_job(self._update_movie_data, args=[1, 2000000, existing_movies_id])
+        # scheduler.add_job(self._update_movie_data, args=[2000000, 4000000, existing_movies_id])
+        # scheduler.add_job(self._update_movie_data, args=[4000000, 6000000, existing_movies_id])
+        # scheduler.add_job(self._update_movie_data, args=[6000000, 8000000, existing_movies_id])
 
         # cron for movie rating
-        logging.warning("Initialise movie rating update process ...")
-        scheduler.add_job(self._update_movie_rating, trigger='interval', days=30, args=[1, 2000000])
-        scheduler.add_job(self._update_movie_rating, trigger='interval', days=30, args=[2000000, 4000000])
-        scheduler.add_job(self._update_movie_rating, trigger='interval', days=30, args=[4000000, 6000000])
-        scheduler.add_job(self._update_movie_rating, trigger='interval', days=30, args=[6000000, 8000000])
+        movie_ids_without_rating = self.loader.get_movie_id_list_without_rating()
+        total_length = len(movie_ids_without_rating)
+        split = int(total_length / 4)
+        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[:split]])
+        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[split:split * 2]])
+        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[split * 2:split * 3]])
+        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[split * 3:]])
 
         # cron for cinema rating, run at 0:00 everyday
-        logging.warning("Initialise cinema schedule update process ...")
         scheduler.add_job(self._update_cinema_schedule, trigger='cron', hour='0')
         scheduler.start()
 
@@ -70,7 +66,7 @@ class ETLController:
         :param existing_movies_id: list
         :return: None
         """
-        logging.warning("Range: " + str(lower) + " to " + str(upper))
+        logging.warning("Initialise movie data retrieval process ..." + " Range: " + str(lower) + " to " + str(upper))
 
         for index in range(lower, upper):  # iterate all possible titles
             current_imdb_id = GeneralTransformer.build_imdb_id(index)
@@ -105,17 +101,32 @@ class ETLController:
                 logging.error(e)
                 logging.error(current_imdb_id)
 
-    def _update_movie_rating(self, lower, upper):
+    def _update_movie_rating(self, movie_ids):
         """
         updates movie rating for a list of movie ids
         from various websites
-        :param lower: int
-        :param upper: int
-        :return: None
+        :param movie_ids: list
+        :return:
         """
-        for index in range(lower, upper):
-            current_imdb_id = GeneralTransformer.build_imdb_id(index)
-            self._update_single_movie_rating(current_imdb_id)
+        logging.warning("Initialise movie rating retrieval process ...")
+        for current_imdb_id in movie_ids:
+            try:
+                self._update_single_movie_rating(current_imdb_id)
+            except error.HTTPError:  # invalid id will cause an 404 error
+                continue
+            except ConnectionResetError or TimeoutError or client.IncompleteRead:
+                logging.error("Connection reset by remote host, reconnecting in 5s ...")
+                time.sleep(5)
+
+                # try again
+                try:
+                    self._update_single_movie_data(current_imdb_id)
+                except:  # skip any error
+                    continue
+            except Exception as e:  # unknown error
+                logging.error("Unknown error occurs. Please examine.")
+                logging.error(e)
+                logging.error(current_imdb_id)
 
     def _update_cinema_list(self):
         """
@@ -156,6 +167,8 @@ class ETLController:
             }
         }
         """
+        logging.warning("Initialise cinema schedule update process ...")
+
         logging.warning("Deleting outdated schedules ...")
         self.loader.delete_outdated_schedules()
         logging.warning("Deleting outdated schedules complete!")
