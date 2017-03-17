@@ -40,10 +40,10 @@ class ETLController:
         movie_ids = self.loader.get_movie_id_list()
 
         # cron for movie data
-        # scheduler.add_job(self._update_movie_data, args=[1, 2000000, existing_movies_id])
-        # scheduler.add_job(self._update_movie_data, args=[2000000, 4000000, existing_movies_id])
-        # scheduler.add_job(self._update_movie_data, args=[4000000, 6000000, existing_movies_id])
-        # scheduler.add_job(self._update_movie_data, args=[6000000, 8000000, existing_movies_id])
+        scheduler.add_job(self._update_movie_data, args=[1, 2000000, movie_ids])
+        scheduler.add_job(self._update_movie_data, args=[2000000, 4000000, movie_ids])
+        scheduler.add_job(self._update_movie_data, args=[4000000, 6000000, movie_ids])
+        scheduler.add_job(self._update_movie_data, args=[6000000, 8000000, movie_ids])
 
         # cron for movie rating
         movie_ids_without_rating = self.loader.get_movie_id_list_without_rating()
