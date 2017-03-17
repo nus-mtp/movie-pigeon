@@ -9,6 +9,11 @@
         2. update movie public rating
         3. update the list of cinemas in Singapore
         4. update cinema schedule for each cinema available
+
+    AND a run() function, the only public function,
+    to be called from command line.
+
+    It includes all the scheduled time for the above four tasks
 """
 from cinema import CinemaList, CinemaSchedule
 from movie import MovieData, MovieRating
@@ -17,6 +22,7 @@ from movie_id_matcher.matcher import MovieIDMatcher
 from urllib import error
 from transformer import GeneralTransformer
 from http import client
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 import utils
 import time
@@ -29,19 +35,38 @@ class ETLController:
     def __init__(self):
         self.loader = Loader()
 
-    def update_movie_data(self, lower, upper, delay):
+    def run(self):
+        scheduler = BlockingScheduler()
+        movie_ids = self.loader.get_movie_id_list()
+
+        # cron for movie data
+        # scheduler.add_job(self._update_movie_data, args=[1, 2000000, movie_ids])
+        # scheduler.add_job(self._update_movie_data, args=[2000000, 4000000, movie_ids])
+        # scheduler.add_job(self._update_movie_data, args=[4000000, 6000000, movie_ids])
+        # scheduler.add_job(self._update_movie_data, args=[6000000, 8000000, movie_ids])
+
+        # cron for movie rating
+        movie_ids_without_rating = self.loader.get_movie_id_list_without_rating()
+        total_length = len(movie_ids_without_rating)
+        split = int(total_length / 4)
+        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[:split]])
+        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[split:split * 2]])
+        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[split * 2:split * 3]])
+        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[split * 3:]])
+
+        # cron for cinema rating, run at 0:00 everyday
+        scheduler.add_job(self._update_cinema_schedule, trigger='cron', hour='0')
+        scheduler.start()
+
+    def _update_movie_data(self, lower, upper, existing_movies_id):
         """
         updates movie data from IMDb
         :param lower: integer
         :param upper: integer
-        :param delay: integer
+        :param existing_movies_id: list
         :return: None
         """
-        logging.warning("Initialise movie data retrieval process ...")
-        logging.warning("Range: " + str(lower) + " to " + str(upper) + ", starting in " + str(delay) + "s ...")
-
-        time.sleep(delay)  # delay to avoid database transaction lock during multi-thread process
-        existing_movies_id = self.loader.get_movie_id_list()
+        logging.warning("Initialise movie data retrieval process ..." + " Range: " + str(lower) + " to " + str(upper))
 
         for index in range(lower, upper):  # iterate all possible titles
             current_imdb_id = GeneralTransformer.build_imdb_id(index)
@@ -76,21 +101,34 @@ class ETLController:
                 logging.error(e)
                 logging.error(current_imdb_id)
 
-        logging.warning("Movie data update process complete.")
-
-    def update_movie_rating(self):
+    def _update_movie_rating(self, movie_ids):
         """
-        updates movie rating from various websites
+        updates movie rating for a list of movie ids
+        from various websites
+        :param movie_ids: list
+        :return:
         """
-        logging.warning("Initialise movie rating update process ...")
+        logging.warning("Initialise movie rating retrieval process ...")
+        for current_imdb_id in movie_ids:
+            try:
+                self._update_single_movie_rating(current_imdb_id)
+            except error.HTTPError:  # invalid id will cause an 404 error
+                continue
+            except ConnectionResetError or TimeoutError or client.IncompleteRead or error.URLError:
+                logging.error("Connection reset by remote host, reconnecting in 5s ...")
+                time.sleep(5)
 
-        existing_movies_id = self.loader.get_movie_id_list()
-        for current_id in existing_movies_id:
-            self._update_single_movie_rating(current_id)
+                # try again
+                try:
+                    self._update_single_movie_data(current_imdb_id)
+                except:  # skip any error
+                    continue
+            except Exception as e:  # unknown error
+                logging.error("Unknown error occurs. Please examine.")
+                logging.error(e)
+                logging.error(current_imdb_id)
 
-        logging.warning("Movie rating update process complete.")
-
-    def update_cinema_list(self):
+    def _update_cinema_list(self):
         """
         Update cinema list from various theatres websites
         :return: None
@@ -103,7 +141,7 @@ class ETLController:
 
         logging.warning("Cinema list update process complete.")
 
-    def update_cinema_schedule(self):
+    def _update_cinema_schedule(self):
         """
         Update latest cinema schedule from cinema list.
 
@@ -133,6 +171,7 @@ class ETLController:
 
         logging.warning("Deleting outdated schedules ...")
         self.loader.delete_outdated_schedules()
+        logging.warning("Deleting outdated schedules complete!")
 
         cinema_schedule_data = {}  # declare data object
         self._get_all_cinema_schedules(cinema_schedule_data)  # rearrange
@@ -220,6 +259,8 @@ class ETLController:
         movie_rating = data_model.get_movie_ratings()
         self.loader.load_movie_rating(movie_rating)
 
-
-
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.WARNING)
+    controller = ETLController()
+    controller.run()
 

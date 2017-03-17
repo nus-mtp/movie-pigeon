@@ -91,11 +91,11 @@ class Loader:
                         "ON CONFLICT (cinema_id, movie_id, type, schedule) "
                         "DO UPDATE SET (cinema_id, movie_id, type, schedule) = (%s, %s, %s, %s) "
                         "WHERE showings.cinema_id=%s AND showings.movie_id=%s "
-                        "AND showings.type=%s AND showings.schedule=%s",
+                        "AND showings.type=%s",
                         (
                             cinema_id, movie_id, additional_info, timing,
                             cinema_id, movie_id, additional_info, timing,
-                            cinema_id, movie_id, additional_info, timing
+                            cinema_id, movie_id, additional_info
                         )
                     )
                     self.conn.commit()
@@ -121,11 +121,18 @@ class Loader:
         data_object = self.cursor.fetchall()
         return data_object
 
+    def get_movie_id_list_without_rating(self):
+        self.cursor.execute("SELECT movie_id FROM movies WHERE movie_id NOT IN (SELECT movie_id FROM public_ratings)")
+        data_object = self.cursor.fetchall()
+        id_list = []
+        for item in data_object:
+            id_list.append(item[0])
+        return id_list
+
     # delete
     def delete_outdated_schedules(self):
         """
         delete all outdated movies
         :return: None
         """
-        today = utils.get_singapore_date(0)  # get today
-        self.cursor.execute("DELETE FROM showings WHERE schedule <= %s", (today, ))
+        self.cursor.execute("DELETE FROM showings WHERE schedule <= now()")
