@@ -27,12 +27,17 @@ exports.getShowingMovieByTitle = function (req, res) {
   );
 };
 
-function parseDateTime(schedules) {
+function parseSchedule(schedules) {
   for (var i in schedules) {
     schedules[i].dataValues.date = dateFormat(schedules[i].schedule, 'isoDate');
     schedules[i].dataValues.time = dateFormat(schedules[i].schedule, 'isoTime');
+    schedules[i].dataValues.cinema_name = schedules[i].cinema.cinema_name;
     schedules[i].date = schedules[i].dataValues.date;
     schedules[i].time = schedules[i].dataValues.time;
+    schedules[i].cinema_name = schedules[i].cinema.cinema_name;
+    delete schedules[i].dataValues.cinema;
+    delete schedules[i].dataValues.movie_id;
+    delete schedules[i].dataValues.schedule;
   }
   return schedules;
 }
@@ -41,13 +46,16 @@ function sortSchedule(schedules) {
   schedules = _.sortBy(schedules, 'type');
   schedules = _.sortBy(schedules, 'cinema_id');
   schedules = _.sortBy(schedules, 'date');
+  for (var i in schedules) {
+    delete schedules[i]['cinema']
+  }
   return schedules;
 }
 
 exports.getMovieScheduleById = function (req, res) {
   Movie.getMovieScheduleById(req.headers.movie_id)
     .then(function (schedules) {
-      schedules = parseDateTime(schedules);
+      schedules = parseSchedule(schedules);
       schedules = sortSchedule(schedules);
       res.json(schedules);
     }).catch(function (err) {
