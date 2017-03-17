@@ -53,8 +53,11 @@ router.route('/movies/id')
 router.route('/movies/title')
   .get(authController.isAuthenticated, movieController.getMoviesByTitle);
 router.route('/movies/year')
-  .get(authController.isAuthenticated,
-    movieController.getMoviesByProductionYear);
+  .get(authController.isAuthenticated, movieController.getMoviesByProductionYear);
+router.route('/movies/showing')
+  .get(authController.isAuthenticated, movieController.getShowingMovieByTitle);
+router.route('/movies/schedule')
+  .get(authController.isAuthenticated, movieController.getMovieScheduleById);
 
 router.route('/bookmarks')
   .post(authController.isAuthenticated, bookmarkController.postBookmarks)
@@ -69,10 +72,16 @@ router.route('/traktTV')
   .get(thirdPartyController.checkTraktUser)
   .post(thirdPartyController.getTraktRatings);
 
+router.route('/tmdb')
+  .get(thirdPartyController.checkTmdbUser)
+  .post(thirdPartyController.getTmdbRatings);
+
 router.route('/cinemas')
   .get(authController.isAuthenticated, cinemaController.getCinemas);
 
 router.route('/showing')
   .get(authController.isAuthenticated, showingController.getShowingByCinema);
+router.route('/showing/all')
+  .get(authController.isAuthenticated, showingController.getAllShowingMovie);
 
 module.exports = router;

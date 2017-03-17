@@ -4,13 +4,8 @@ var RatingSource = require('../models/ratingSource.js');
 var UserRating = require('../models/history.js');
 var Bookmark = require('../models/bookmarks.js');
 var sequelize = require('../models/db');
-
-
-function processSearchString(searchString) {
-  searchString = searchString.trim().replace(' ', '%');
-  searchString = '%' + searchString + '%';
-  return searchString;
-}
+var Showing = require('../models/showing');
+var Cinema = require('../models/cinema');
 
 function getSearchString(searchString, priority) {
   searchString = searchString.trim();
@@ -27,32 +22,35 @@ function getSearchString(searchString, priority) {
       return searchString;
       break;
     case 4:
-      searchString = '% '+ searchString + ' %';
+      searchString = '% ' + searchString + ' %';
       return searchString;
       break;
     case 5:
-      searchString = searchString + ' %';
+      searchString = '% ' + searchString;
       return searchString;
       break;
   }
 }
 
 exports.getMovieByTitleCount = function (searchString) {
-  searchString = processSearchString(searchString);
+  var rawString = searchString.trim();
   return Movie.count({
     where: {
-      title: {$ilike: searchString}
+      title: {
+        $ilike: '%' + rawString + '%'
+      }
     }
   })
 };
 
 exports.getMovieByTitle = function (userId, searchString, offset, limit) {
 
-  var rawString = searchString;
-  searchString = processSearchString(searchString);
+  var rawString = searchString.trim();
   return Movie.findAll({
     where: {
-      title: {$ilike: searchString}
+      title: {
+        $ilike: '%' + rawString + '%'
+      }
     },
     limit: limit,
     offset: offset,
@@ -80,11 +78,61 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
     ],
     order: [
       [sequelize.literal('CASE WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' THEN 0 ' +
-                              'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' THEN 1 ' +
-                              'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' THEN 2 ' +
-                              'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' THEN 3 ' +
-                              'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\' THEN 4 ' +
-                              'END, "movies"."production_year" DESC')]
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' THEN 1 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' THEN 2 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' THEN 3 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\' THEN 4 ' +
+        'ELSE 5  END, "movies"."production_year" DESC')]
+    ]
+  });
+};
+
+exports.getShowingMovieByTitle = function (userId, searchString) {
+
+  var rawString = searchString.trim();
+  return Movie.findAll({
+    where: {
+      title: {
+        $ilike: '%' + rawString + '%'
+      }
+    },
+    include: [
+      {
+        model: PublicRate,
+        include: [
+          RatingSource
+        ]
+      },
+      {
+        model: UserRating,
+        where: {
+          user_id: userId
+        },
+        required: false
+      },
+      {
+        model: Bookmark,
+        where: {
+          user_id: userId
+        },
+        required: false
+      },
+      {
+        model: Showing,
+        include: [
+          Cinema
+        ],
+        attributes: [],
+        required: true
+      }
+    ],
+    order: [
+      [sequelize.literal('CASE WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 1) + '\' THEN 0 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 2) + '\' THEN 1 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 3) + '\' THEN 2 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 4) + '\' THEN 3 ' +
+        'WHEN "movies"."title" ILIKE \'' + getSearchString(rawString, 5) + '\' THEN 4 ' +
+        'ELSE 5  END, "movies"."production_year" DESC')]
     ]
   });
 };
@@ -95,4 +143,15 @@ module.exports.getMovieById = function (movieId) {
       movie_id: movieId
     }
   })
+};
+
+exports.getMovieScheduleById = function (movieId) {
+  return Showing.findAll({
+      where: {
+        movie_id: movieId
+      },
+      include: [
+        Cinema
+      ]
+    })
 };

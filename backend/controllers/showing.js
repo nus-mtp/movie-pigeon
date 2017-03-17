@@ -13,3 +13,14 @@ exports.getShowingByCinema = function (req, res) {
       }
     })
 };
+
+exports.getAllShowingMovie = function (req, res) {
+  showing.getAllShowingMovie(req.user.id)
+    .then(function (result) {
+      if (result) {
+        res.status(200).json(result);
+      } else {
+        res.status(404).json({status: 'fail', message: 'No Schedule For Cinema'});
+      }
+    })
+};
