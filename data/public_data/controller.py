@@ -40,10 +40,10 @@ class ETLController:
         movie_ids = self.loader.get_movie_id_list()
 
         # cron for movie data
-        scheduler.add_job(self._update_movie_data, args=[1, 2000000, movie_ids])
-        scheduler.add_job(self._update_movie_data, args=[2000000, 4000000, movie_ids])
-        scheduler.add_job(self._update_movie_data, args=[4000000, 6000000, movie_ids])
-        scheduler.add_job(self._update_movie_data, args=[6000000, 8000000, movie_ids])
+        # scheduler.add_job(self._update_movie_data, args=[1, 2000000, movie_ids])
+        # scheduler.add_job(self._update_movie_data, args=[2000000, 4000000, movie_ids])
+        # scheduler.add_job(self._update_movie_data, args=[4000000, 6000000, movie_ids])
+        # scheduler.add_job(self._update_movie_data, args=[6000000, 8000000, movie_ids])
 
         # cron for movie rating
         movie_ids_without_rating = self.loader.get_movie_id_list_without_rating()
@@ -114,7 +114,7 @@ class ETLController:
                 self._update_single_movie_rating(current_imdb_id)
             except error.HTTPError:  # invalid id will cause an 404 error
                 continue
-            except ConnectionResetError or TimeoutError or client.IncompleteRead:
+            except ConnectionResetError or TimeoutError or client.IncompleteRead or error.URLError:
                 logging.error("Connection reset by remote host, reconnecting in 5s ...")
                 time.sleep(5)
 
