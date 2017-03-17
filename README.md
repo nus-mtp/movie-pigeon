@@ -23,7 +23,7 @@ CREATE DATABASE test
 USE test
 ````
 
-Generate tables using Sequelize
+Generate tables using Sequelize.
 You need to ensure environment variable `NODE_ENV=test`
 ````
 cd backend/models
