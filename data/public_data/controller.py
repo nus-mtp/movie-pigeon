@@ -36,23 +36,22 @@ class ETLController:
 
         # cron for movie data
         logging.warning("Initialise movie data retrieval process ...")
-
         # scheduler.add_job(self.update_movie_data, args=[336913, 1000000, 0])
         # scheduler.add_job(self.update_movie_data, args=[1172158, 2000000, 5])
         # scheduler.add_job(self.update_movie_data, args=[2033967, 3000000, 10])
         # scheduler.add_job(self.update_movie_data, args=[3052760, 4000000, 15])
 
         # cron for movie rating
-        logging.warning("Initialise movie rating update process ...")
-        total_length = len(existing_movies_id)
-        split = int(total_length / 4)
-        scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[:split]])
-        scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[split:split * 2]])
-        scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[split * 2:split * 3]])
-        scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[split * 3:]])
+        # logging.warning("Initialise movie rating update process ...")
+        # total_length = len(existing_movies_id)
+        # split = int(total_length / 4)
+        # scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[:split]])
+        # scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[split:split * 2]])
+        # scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[split * 2:split * 3]])
+        # scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[split * 3:]])
 
         # # cron for cinema rating
-        # self.update_cinema_schedule()
+        scheduler.add_job(self.update_cinema_schedule, trigger='cron', minute='12', hour='16')
 
         scheduler.start()
 
@@ -157,6 +156,7 @@ class ETLController:
 
         logging.warning("Deleting outdated schedules ...")
         self.loader.delete_outdated_schedules()
+        logging.warning("Deleting outdated schedules complete!")
 
         cinema_schedule_data = {}  # declare data object
         self._get_all_cinema_schedules(cinema_schedule_data)  # rearrange
@@ -245,7 +245,7 @@ class ETLController:
         self.loader.load_movie_rating(movie_rating)
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.WARNING)
+    logging.basicConfig(level=logging.INFO)
     controller = ETLController()
     controller.run()
 
