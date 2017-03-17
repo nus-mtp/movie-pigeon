@@ -36,37 +36,35 @@ class ETLController:
 
         # cron for movie data
         logging.warning("Initialise movie data retrieval process ...")
-        # scheduler.add_job(self.update_movie_data, args=[336913, 1000000, 0])
-        # scheduler.add_job(self.update_movie_data, args=[1172158, 2000000, 5])
-        # scheduler.add_job(self.update_movie_data, args=[2033967, 3000000, 10])
-        # scheduler.add_job(self.update_movie_data, args=[3052760, 4000000, 15])
+        scheduler.add_job(self.update_movie_data, trigger='interval', days=180,
+                          args=[1, 2000000, existing_movies_id])
+        scheduler.add_job(self.update_movie_data, trigger='interval', days=180,
+                          args=[2000000, 4000000, existing_movies_id])
+        scheduler.add_job(self.update_movie_data, trigger='interval', days=180,
+                          args=[4000000, 6000000, existing_movies_id])
+        scheduler.add_job(self.update_movie_data, trigger='interval', days=180,
+                          args=[6000000, 8000000, existing_movies_id])
 
         # cron for movie rating
         # logging.warning("Initialise movie rating update process ...")
-        # total_length = len(existing_movies_id)
-        # split = int(total_length / 4)
-        # scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[:split]])
-        # scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[split:split * 2]])
-        # scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[split * 2:split * 3]])
-        # scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[split * 3:]])
+        scheduler.add_job(self.update_movie_rating, trigger='interval', days=30, args=[1, 2000000])
+        scheduler.add_job(self.update_movie_rating, trigger='interval', days=30, args=[2000000, 4000000])
+        scheduler.add_job(self.update_movie_rating, trigger='interval', days=30, args=[4000000, 6000000])
+        scheduler.add_job(self.update_movie_rating, trigger='interval', days=30, args=[6000000, 8000000])
 
         # # cron for cinema rating
-        scheduler.add_job(self.update_cinema_schedule, trigger='cron', minute='12', hour='16')
-
+        scheduler.add_job(self.update_cinema_schedule, trigger='cron', hour='0')
         scheduler.start()
 
-    def update_movie_data(self, lower, upper, delay):
+    def update_movie_data(self, lower, upper, existing_movies_id):
         """
         updates movie data from IMDb
         :param lower: integer
         :param upper: integer
-        :param delay: integer
+        :param existing_movies_id: list
         :return: None
         """
         logging.warning("Range: " + str(lower) + " to " + str(upper) + ", starting in " + str(delay) + "s ...")
-
-        time.sleep(delay)  # delay to avoid database transaction lock during multi-thread process
-        existing_movies_id = self.loader.get_movie_id_list()
 
         for index in range(lower, upper):  # iterate all possible titles
             current_imdb_id = GeneralTransformer.build_imdb_id(index)
@@ -101,17 +99,17 @@ class ETLController:
                 logging.error(e)
                 logging.error(current_imdb_id)
 
-    def update_movie_rating(self, movie_ids):
+    def update_movie_rating(self, lower, upper):
         """
         updates movie rating for a list of movie ids
         from various websites
-        :param movie_ids: list
+        :param lower: int
+        :param upper: int
         :return: None
         """
-        logging.warning("Starting from id: " + movie_ids[0])
-
-        for current_id in movie_ids:
-            self._update_single_movie_rating(current_id)
+        for index in range(lower, upper):
+            current_imdb_id = GeneralTransformer.build_imdb_id(index)
+            self._update_single_movie_rating(current_imdb_id)
 
     def update_cinema_list(self):
         """
