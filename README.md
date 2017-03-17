@@ -41,3 +41,8 @@ Run Tests
 ````
 cd backend & npm test
 ````
+
+
+# Copyright & License
+
+Copyright (c) 2017 MoviePigeon - Released under the [MIT license](LICENSE).
