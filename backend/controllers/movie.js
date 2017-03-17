@@ -38,18 +38,9 @@ function parseDateTime(schedules) {
 }
 
 function sortSchedule(schedules) {
-  schedules = _.groupBy(schedules, 'date');
-  for (var i in schedules) {
-    if (schedules.hasOwnProperty(i)) {
-      schedules[i] = _.groupBy(schedules[i], 'cinema_id');
-    }
-
-    for (var j in schedules[i]) {
-      if (schedules[i].hasOwnProperty(j)) {
-        schedules[i][j] = _.groupBy(schedules[i][j], 'type');
-      }
-    }
-  }
+  schedules = _.sortBy(schedules, 'type');
+  schedules = _.sortBy(schedules, 'cinema_id');
+  schedules = _.sortBy(schedules, 'date');
   return schedules;
 }
 
