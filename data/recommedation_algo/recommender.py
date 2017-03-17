@@ -1,6 +1,7 @@
 """
     Main class for recommendation operations
 """
+import logging
 
 
 class Recommender:
@@ -16,15 +17,21 @@ class Recommender:
         update the general recommendation list in the database
         :return:
         """
-        # get relevant
         # calculate raw score
+            # get all user_rating
+            # get all public rating
+            # multi linear regression
+            # store weight
+
+        # get relevant movies pool (crude criteria) (waiting to be classified)
+
+        # for every movie in pool
+            # calculate multiplier : classification (logistic regression)
+            # obtain final score (expected output)
+            # sort and rank
+            # store in database
         pass
 
-    def get_score(self, movie_id):
-        """
-        get the expected score of a movie
-        :param movie_id:
-        :return:
-        """
-        pass
+if __name__ == '__main__':
+    recommender = Recommender('')
 
