@@ -70,7 +70,7 @@ class ETLController:
         :param existing_movies_id: list
         :return: None
         """
-        logging.warning("Range: " + str(lower) + " to " + str(upper) + ", starting in " + str(delay) + "s ...")
+        logging.warning("Range: " + str(lower) + " to " + str(upper))
 
         for index in range(lower, upper):  # iterate all possible titles
             current_imdb_id = GeneralTransformer.build_imdb_id(index)
