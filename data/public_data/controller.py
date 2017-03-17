@@ -9,6 +9,11 @@
         2. update movie public rating
         3. update the list of cinemas in Singapore
         4. update cinema schedule for each cinema available
+
+    AND a run() function, the only public function,
+    to be called from command line.
+
+    It includes all the scheduled time for the above four tasks
 """
 from cinema import CinemaList, CinemaSchedule
 from movie import MovieData, MovieRating
@@ -36,27 +41,28 @@ class ETLController:
 
         # cron for movie data
         logging.warning("Initialise movie data retrieval process ...")
-        scheduler.add_job(self.update_movie_data, trigger='interval', days=180,
+        scheduler.add_job(self._update_movie_data, trigger='interval', days=180,
                           args=[1, 2000000, existing_movies_id])
-        scheduler.add_job(self.update_movie_data, trigger='interval', days=180,
+        scheduler.add_job(self._update_movie_data, trigger='interval', days=180,
                           args=[2000000, 4000000, existing_movies_id])
-        scheduler.add_job(self.update_movie_data, trigger='interval', days=180,
+        scheduler.add_job(self._update_movie_data, trigger='interval', days=180,
                           args=[4000000, 6000000, existing_movies_id])
-        scheduler.add_job(self.update_movie_data, trigger='interval', days=180,
+        scheduler.add_job(self._update_movie_data, trigger='interval', days=180,
                           args=[6000000, 8000000, existing_movies_id])
 
         # cron for movie rating
-        # logging.warning("Initialise movie rating update process ...")
-        scheduler.add_job(self.update_movie_rating, trigger='interval', days=30, args=[1, 2000000])
-        scheduler.add_job(self.update_movie_rating, trigger='interval', days=30, args=[2000000, 4000000])
-        scheduler.add_job(self.update_movie_rating, trigger='interval', days=30, args=[4000000, 6000000])
-        scheduler.add_job(self.update_movie_rating, trigger='interval', days=30, args=[6000000, 8000000])
+        logging.warning("Initialise movie rating update process ...")
+        scheduler.add_job(self._update_movie_rating, trigger='interval', days=30, args=[1, 2000000])
+        scheduler.add_job(self._update_movie_rating, trigger='interval', days=30, args=[2000000, 4000000])
+        scheduler.add_job(self._update_movie_rating, trigger='interval', days=30, args=[4000000, 6000000])
+        scheduler.add_job(self._update_movie_rating, trigger='interval', days=30, args=[6000000, 8000000])
 
-        # # cron for cinema rating
-        scheduler.add_job(self.update_cinema_schedule, trigger='cron', hour='0')
+        # cron for cinema rating, run at 0:00 everyday
+        logging.warning("Initialise cinema schedule update process ...")
+        scheduler.add_job(self._update_cinema_schedule, trigger='cron', hour='0')
         scheduler.start()
 
-    def update_movie_data(self, lower, upper, existing_movies_id):
+    def _update_movie_data(self, lower, upper, existing_movies_id):
         """
         updates movie data from IMDb
         :param lower: integer
@@ -99,7 +105,7 @@ class ETLController:
                 logging.error(e)
                 logging.error(current_imdb_id)
 
-    def update_movie_rating(self, lower, upper):
+    def _update_movie_rating(self, lower, upper):
         """
         updates movie rating for a list of movie ids
         from various websites
@@ -111,7 +117,7 @@ class ETLController:
             current_imdb_id = GeneralTransformer.build_imdb_id(index)
             self._update_single_movie_rating(current_imdb_id)
 
-    def update_cinema_list(self):
+    def _update_cinema_list(self):
         """
         Update cinema list from various theatres websites
         :return: None
@@ -124,7 +130,7 @@ class ETLController:
 
         logging.warning("Cinema list update process complete.")
 
-    def update_cinema_schedule(self):
+    def _update_cinema_schedule(self):
         """
         Update latest cinema schedule from cinema list.
 
@@ -150,8 +156,6 @@ class ETLController:
             }
         }
         """
-        logging.warning("Initialise cinema schedule update process ...")
-
         logging.warning("Deleting outdated schedules ...")
         self.loader.delete_outdated_schedules()
         logging.warning("Deleting outdated schedules complete!")
@@ -243,7 +247,7 @@ class ETLController:
         self.loader.load_movie_rating(movie_rating)
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.WARNING)
     controller = ETLController()
     controller.run()
 
