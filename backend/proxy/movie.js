@@ -122,7 +122,7 @@ exports.getShowingMovieByTitle = function (userId, searchString) {
         include: [
           Cinema
         ],
-        attributes:[],
+        attributes: [],
         required: true
       }
     ],
@@ -146,16 +146,12 @@ module.exports.getMovieById = function (movieId) {
 };
 
 exports.getMovieScheduleById = function (movieId) {
-  return Movie.find({
-    where: {
-      movie_id: movieId
-    },
-    include: [{
-      model: Showing,
+  return Showing.findAll({
+      where: {
+        movie_id: movieId
+      },
       include: [
         Cinema
-      ],
-      required: true
-    }]
-  })
+      ]
+    })
 };
