@@ -42,11 +42,11 @@ describe('Movie proxy test', function () {
         password: password
       }).then(function () {
         cinema.bulkCreate([
-          {cinema_id: 1, cinema_name: 'testcinema1', provider: 'pigeon', url: 'pigeon.com'}
+          {cinema_id: 100, cinema_name: 'testcinema1', provider: 'pigeon', url: 'pigeon.com'}
         ]).then(function () {
           showing.bulkCreate([
-            {cinema_id: 1, movie_id: 'test000001', type: 'type1', schedule: '2017-03-03 12:51:11+08'},
-            {cinema_id: 1, movie_id: 'test000002', type: 'type2', schedule: '2017-03-03 13:13:11+08'}
+            {cinema_id: 100, movie_id: 'test000001', type: 'type1', schedule: '2017-03-03 12:51:11+08'},
+            {cinema_id: 100, movie_id: 'test000002', type: 'type2', schedule: '2017-03-03 13:13:11+08'}
           ]);
           done();
         });
@@ -96,7 +96,7 @@ describe('Movie proxy test', function () {
   });
 
   it('should get movie from getMovieByTitle', function (done) {
-    movieProxy.getMovieByTitle(1, 'dummy')
+    movieProxy.getMovieByTitle(100, 'dummy')
       .then(function (result) {
         result.length.should.equal(2);
         result[0].dataValues.movie_id.should.equal('test000004');
@@ -117,15 +117,7 @@ describe('Movie proxy test', function () {
   it('should get movie from getMovieScheduleById', function (done) {
     movieProxy.getMovieScheduleById('test000001')
       .then(function (result) {
-        result.dataValues.movie_id.should.equal('test000001');
-        done();
-      })
-  });
-
-  it('should get movie from getMovieScheduleById', function (done) {
-    movieProxy.getMovieScheduleById('test000004')
-      .then(function (result) {
-        (result === null).should.equal(true);
+        result[0].dataValues.movie_id.should.equal('test000001');
         done();
       })
   });
