@@ -19,7 +19,6 @@ from transformer import GeneralTransformer
 from http import client
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-
 import utils
 import time
 import logging
@@ -33,18 +32,27 @@ class ETLController:
 
     def run(self):
         scheduler = BlockingScheduler()
+        existing_movies_id = self.loader.get_movie_id_list()
 
         # cron for movie data
-        scheduler.add_job(self.update_movie_data, args=[336913, 1000000, 0])
-        scheduler.add_job(self.update_movie_data, args=[1172158, 2000000, 5])
-        scheduler.add_job(self.update_movie_data, args=[2033967, 3000000, 10])
-        scheduler.add_job(self.update_movie_data, args=[3052760, 4000000, 15])
+        logging.warning("Initialise movie data retrieval process ...")
+
+        # scheduler.add_job(self.update_movie_data, args=[336913, 1000000, 0])
+        # scheduler.add_job(self.update_movie_data, args=[1172158, 2000000, 5])
+        # scheduler.add_job(self.update_movie_data, args=[2033967, 3000000, 10])
+        # scheduler.add_job(self.update_movie_data, args=[3052760, 4000000, 15])
 
         # cron for movie rating
-        self.update_movie_rating()
+        logging.warning("Initialise movie rating update process ...")
+        total_length = len(existing_movies_id)
+        split = int(total_length / 4)
+        scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[:split]])
+        scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[split:split * 2]])
+        scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[split * 2:split * 3]])
+        scheduler.add_job(self.update_movie_rating, args=[existing_movies_id[split * 3:]])
 
-        # cron for cinema rating
-        self.update_cinema_schedule()
+        # # cron for cinema rating
+        # self.update_cinema_schedule()
 
         scheduler.start()
 
@@ -56,7 +64,6 @@ class ETLController:
         :param delay: integer
         :return: None
         """
-        logging.warning("Initialise movie data retrieval process ...")
         logging.warning("Range: " + str(lower) + " to " + str(upper) + ", starting in " + str(delay) + "s ...")
 
         time.sleep(delay)  # delay to avoid database transaction lock during multi-thread process
@@ -95,19 +102,17 @@ class ETLController:
                 logging.error(e)
                 logging.error(current_imdb_id)
 
-        logging.warning("Movie data update process complete.")
-
-    def update_movie_rating(self):
+    def update_movie_rating(self, movie_ids):
         """
-        updates movie rating from various websites
+        updates movie rating for a list of movie ids
+        from various websites
+        :param movie_ids: list
+        :return: None
         """
-        logging.warning("Initialise movie rating update process ...")
+        logging.warning("Starting from id: " + movie_ids[0])
 
-        existing_movies_id = self.loader.get_movie_id_list()
-        for current_id in existing_movies_id:
+        for current_id in movie_ids:
             self._update_single_movie_rating(current_id)
-
-        logging.warning("Movie rating update process complete.")
 
     def update_cinema_list(self):
         """
