@@ -19,6 +19,10 @@ class DatabaseHandler:
         self.cursor.execute("SELECT * FROM public_ratings WHERE movie_id=%s", (movie_id, ))
         return self.cursor.fetchall()
 
+    def get_movie_data_by_year(self, year):
+        self.cursor.execute("SELECT * FROM movies WHERE production_year=%s", (year, ))
+        return self.cursor.fetchall()
+
     def load_weights(self, weights, user_id):
         source_id = 1
         for weight in weights:

@@ -1,5 +1,16 @@
 """
     Main class for recommendation operations
+
+    # calculate raw score
+
+    # get relevant movies pool (crude criteria) (waiting to be classified)
+
+    # for every movie in pool
+        # calculate multiplier : classification (logistic regression)
+        # obtain final score (expected output)
+        # sort and rank
+        # store in database
+
 """
 import logging
 from db_handler import DatabaseHandler
@@ -18,11 +29,13 @@ class Recommender:
         self.user_id = user_id
 
     def run(self):
+        # for every user update scale
+        # for every user generate recommendation if not enough
         pass
 
-    def update_recommendations(self):
+    def update_user_scale(self):
         """
-        update the general recommendation list in the database
+        update the user scale in the database
         :return:
         """
         regressors = []
@@ -55,15 +68,11 @@ class Recommender:
 
         self.db.load_weights(weights, self.user_id)
 
-        # get relevant movies pool (crude criteria) (waiting to be classified)
+    def update_user_recommendation(self):
+        pass
 
-        # for every movie in pool
-            # calculate multiplier : classification (logistic regression)
-            # obtain final score (expected output)
-            # sort and rank
-            # store in database
 
 if __name__ == '__main__':
-    warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")
+    warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")  # ignore lapack related warning
     recommender = Recommender('8')
-    recommender.update_recommendations()
+    recommender.update_user_scale()
