@@ -2,8 +2,8 @@ var recommendation = require('../models/recommendation');
 var movie = require('../models/movie');
 var bookmarks = require('../models/bookmarks.js');
 var publicRate = require('../models/PublicRate.js');
-var RatingSource = require('../models/ratingSource.js');
-var UserRating = require('../models/history.js');
+var ratingSource = require('../models/ratingSource.js');
+var userRating = require('../models/history.js');
 
 module.exports.getAllRecommendation = function (userId) {
   return movie.findAll({
@@ -11,7 +11,7 @@ module.exports.getAllRecommendation = function (userId) {
       {
         model: publicRate,
         include: [
-          RatingSource
+          ratingSource
         ]
       },
       {
@@ -22,7 +22,7 @@ module.exports.getAllRecommendation = function (userId) {
         required: false
       },
       {
-        model: UserRating,
+        model: userRating,
         where: {
           user_id: userId
         },
