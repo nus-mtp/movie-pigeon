@@ -6,6 +6,10 @@ from db_handler import DatabaseHandler
 from public_data.controller import ETLController
 from sklearn import linear_model
 
+
+import warnings
+
+
 class Recommender:
 
     def __init__(self, user_id):
@@ -25,15 +29,15 @@ class Recommender:
         responses = []
 
         # calculate raw score
-        user_rating_records = self.db.get_user_ratings(self.user_id)
+        user_rating_records = self.db.get_user_ratings(self.user_id)  # join public rating remove None
         for record in user_rating_records:
             current_id = record[0]
-            user_rating = record[1]  # response
-            responses.append(user_rating)
+
+            # regressors
             public_rating_records = self.db.get_public_rating(current_id)
             if not public_rating_records:
                 self.controller.update_single_movie_rating(current_id)  # update rating
-                public_rating_records = self.db.get_public_rating(current_id)  # regressors
+                public_rating_records = self.db.get_public_rating(current_id)
 
             public_rating_records = sorted(public_rating_records, key=lambda x: x[1])  # sort records -> replace by sql
             current_set = []
@@ -41,11 +45,15 @@ class Recommender:
                 current_set.append(regressor[3])
             regressors.append(current_set)
 
+            # response
+            user_rating = record[1]
+            responses.append(user_rating)
+
         regression = linear_model.LinearRegression()
         regression.fit(regressors, responses)
         weights = regression.coef_
 
-        # storing weight
+        self.db.load_weights(weights, self.user_id)
 
         # get relevant movies pool (crude criteria) (waiting to be classified)
 
@@ -54,8 +62,8 @@ class Recommender:
             # obtain final score (expected output)
             # sort and rank
             # store in database
-        pass
 
 if __name__ == '__main__':
+    warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")
     recommender = Recommender('8')
     recommender.update_recommendations()

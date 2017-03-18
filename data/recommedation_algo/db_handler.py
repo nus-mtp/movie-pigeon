@@ -18,3 +18,11 @@ class DatabaseHandler:
     def get_public_rating(self, movie_id):
         self.cursor.execute("SELECT * FROM public_ratings WHERE movie_id=%s", (movie_id, ))
         return self.cursor.fetchall()
+
+    def load_weights(self, weights, user_id):
+        source_id = 1
+        for weight in weights:
+            self.cursor.execute("INSERT INTO scales (user_id, source_id, weight) VALUES"
+                                "(%s, %s, %s)", (user_id, source_id, weight))
+            source_id += 1
+        self.conn.commit()
