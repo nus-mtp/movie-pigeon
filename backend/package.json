@@ -1,6 +1,8 @@
 {
-  "name": "node-api",
+  "name": "movie_pigeon_server",
+  "version": "1.0.0",
   "main": "server.js",
+  "description": "Backend Server for Movie recommendation and rating Android App",
   "dependencies": {
     "body-parser": "~1.0.1",
     "cookie-parser": "^1.4.3",
@@ -34,6 +36,12 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "mocha --recursive"
-  }
+    "test": "mocha --recursive",
+    "sync": "cd models & node sync.js"
+  },
+  "repostory": {
+    "type": "git",
+    "url": "https://github.com/nus-mtp/movie-pigeon-server.git"
+  },
+  "author": "Team Pigeon"
 }
