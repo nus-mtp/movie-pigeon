@@ -31,6 +31,7 @@ exports.getShowingMovieByTitle = function (req, res) {
 
 function parseSchedule(schedules) {
   for (var i in schedules) {
+    schedules[i].schedule = schedules[i].schedule.toLocaleString('en-US', { timeZone: 'Asia/Singapore'});
     schedules[i].dataValues.date = dateFormat(schedules[i].schedule, 'isoDate');
     schedules[i].dataValues.time = dateFormat(schedules[i].schedule, 'isoTime');
     schedules[i].dataValues.cinema_name = schedules[i].cinema.cinema_name;
