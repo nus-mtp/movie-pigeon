@@ -4,6 +4,7 @@
 import logging
 from db_handler import DatabaseHandler
 from public_data.controller import ETLController
+from sklearn import linear_model
 
 class Recommender:
 
@@ -20,24 +21,31 @@ class Recommender:
         update the general recommendation list in the database
         :return:
         """
+        regressors = []
+        responses = []
+
         # calculate raw score
         user_rating_records = self.db.get_user_ratings(self.user_id)
         for record in user_rating_records:
             current_id = record[0]
-            user_rating = record[1]
+            user_rating = record[1]  # response
+            responses.append(user_rating)
             public_rating_records = self.db.get_public_rating(current_id)
             if not public_rating_records:
                 self.controller.update_single_movie_rating(current_id)  # update rating
-                public_rating_records = self.db.get_public_rating(current_id)
+                public_rating_records = self.db.get_public_rating(current_id)  # regressors
 
-            # multi linear regression
+            public_rating_records = sorted(public_rating_records, key=lambda x: x[1])  # sort records -> replace by sql
+            current_set = []
+            for regressor in public_rating_records:
+                current_set.append(regressor[3])
+            regressors.append(current_set)
 
+        regression = linear_model.LinearRegression()
+        regression.fit(regressors, responses)
+        weights = regression.coef_
 
-            print(public_rating_records)
-            # store weight
-
-            break
-
+        # storing weight
 
         # get relevant movies pool (crude criteria) (waiting to be classified)
 
