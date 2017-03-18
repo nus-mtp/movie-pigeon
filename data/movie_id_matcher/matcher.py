@@ -23,61 +23,92 @@ class MovieIDMatcher:
         :return: string
         """
         possible_result = []
-        possible_imdb_list = self._extract_imdb_possible(title)
+        possible_imdb_list = self._get_search_results(title)
 
         for movie in possible_imdb_list:
             movie_id, movie_title = movie
-            titles, infos = self._parse_search_results(movie_title)
+            titles, additional_info = self._parse_search_results(movie_title)
 
-            # check year
-            current_year = datetime.now().strftime("%Y")
-            last_year = str(int(current_year) - 1)
-            next_year = str(int(current_year) + 1)
+            if not self._is_recent(additional_info):
+                continue
 
-            if current_year in infos or next_year in infos or last_year in infos:
-                possible_result.append(movie_id)
+            if not self._is_correct_type(additional_info):
+                continue
 
-            # check type is not tv
-            if "Short" is not infos and "TV" is not infos:
-                possible_result.append(movie_id)
+            possible_result.append(movie_id)
 
-        # use the first
+        # use the first based on imdb
         try:
             imdb_id = possible_result[0]
         except IndexError:
             return None
+
         return imdb_id
 
-    def _extract_imdb_possible(self, title):
+    @staticmethod
+    def _is_recent(additional_info):
+        """
+        check whether a search result is recent (in last, this or next year)
+        :param additional_info:
+        :return:
+        """
+        current_year = datetime.now().strftime("%Y")
+        last_year = str(int(current_year) - 1)
+        next_year = str(int(current_year) + 1)
+        return any(year in additional_info for year in [current_year, last_year, next_year])
+
+    @staticmethod
+    def _is_correct_type(additional_info):
+        """
+        check whether a search result is of correct type
+        :param additional_info:
+        :return:
+        """
+        for item in additional_info:
+            if "Short" in item or "TV" in item:
+                return False
+        return True
+
+    def _get_search_results(self, title):
         """
         return a list of possible imdb id in string format
         :param title: string
         :return: list
         """
-        possible_list = []
-
         search_text = self._parse_search_text(title)
 
-        self.driver.get(url)
-
+        # find exact results
+        exact_url = self._build_exact_search_url(search_text)
+        self.driver.get(exact_url)
         elements = self.driver.find_elements_by_class_name("findResult")
+        possible_list = self._get_possible_results(elements)
+
+        # if no exact result find
+        if len(possible_list) == 0:
+            fuzzy_url = self._build_fuzzy_search_url(search_text)
+            self.driver.get(fuzzy_url)
+            elements = self.driver.find_elements_by_class_name("findResult")
+            possible_list = self._get_possible_results(elements)
+
+        return possible_list[:3]  # return top 3
+
+    @staticmethod
+    def _get_possible_results(elements):
+        """
+        given html web elements of a imdb search query,
+        return all the results in list format
+        :param elements:
+        :return:
+        """
+        possible_list = []
+
         for element in elements:
             td = element.find_element_by_class_name("result_text")
             current_imdb = td.find_element_by_css_selector("a").get_attribute("href").split("/")[4]
             current_text = td.text.strip()
             possible_list.append((current_imdb, current_text))
 
-        if len(possible_list) == 0:
-            url = self.IMDB_SEARCH_URL_FORMAT_FUZZY.format(search_query)
-            self.driver.get(url)
-            elements = self.driver.find_elements_by_class_name("findResult")
-            for element in elements:
-                td = element.find_element_by_class_name("result_text")
-                current_imdb = td.find_element_by_css_selector("a").get_attribute("href").split("/")[4]
-                current_text = td.text.strip()
-                possible_list.append((current_imdb, current_text))
-
-        return possible_list[:3]
+        return possible_list
 
     @staticmethod
     def _parse_search_text(text):
@@ -89,7 +120,7 @@ class MovieIDMatcher:
         """
         text = text.lower()  # lower letter
         text = text.replace(" :", ":")  # standardized colon
-        return text
+        return text.strip()
 
     @staticmethod
     def _parse_search_results(text):
@@ -109,10 +140,10 @@ class MovieIDMatcher:
         title_list = []
         info_list = []
 
-        segments = text.split("aka")
+        segments = text.split("aka")  # in case of multiple names
         segments = [segment.strip() for segment in segments]  # remove extra white space
 
-        for segment in segments:
+        for segment in segments:  # for each name entity
             first_bracket_index = segment.find("(")
 
             # title list
@@ -120,9 +151,10 @@ class MovieIDMatcher:
             title_list.append(title_found)
 
             # info list
-            tags = segment[first_bracket_index:].split(")")[:-1]
-            tags = [info.replace("(", "").strip() for info in tags]
+            tags = segment[first_bracket_index:].split(")")[:-1]  # split by )
+            tags = [info.replace("(", "").strip() for info in tags]  # remove ( and trim
             info_list.extend(tags)
+
         return title_list, info_list
 
     def _build_exact_search_url(self, search_text):
