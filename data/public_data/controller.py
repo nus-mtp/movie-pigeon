@@ -193,7 +193,7 @@ class ETLController:
 
             logging.warning("Matching movie: " + title)
 
-            imdb_id = matcher.match_imdb_id_for_cinema_schedule(title)
+            imdb_id = matcher.match_imdb_id_from_title_recent(title)
             if imdb_id is None:
                 logging.error("IMDb ID matched is invalid!")
                 invalid_titles.append(title)
