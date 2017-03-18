@@ -174,5 +174,6 @@ class TestMovieIDMatcher(unittest.TestCase):
         self.assertEqual(self.matcher._is_correct_type(["2012", "Short"]), False)
         self.assertEqual(self.matcher._is_correct_type(["2015", "TV Episode"]), False)
 
-
+if __name__ == '__main__':
+    unittest.main()
 
