@@ -3,6 +3,7 @@ var Movie = require('../proxy/movie.js');
 var _ = require('underscore');
 var dateFormat = require('dateformat');
 var utils = require('./utils');
+var moment = require('moment');
 // Create endpoint /api/movie for GET
 exports.getMoviesByTitle = function (req, res) {
   // Use the Client model to find all clients
@@ -31,16 +32,17 @@ exports.getShowingMovieByTitle = function (req, res) {
 
 function parseSchedule(schedules) {
   for (var i in schedules) {
-    schedules[i].schedule = schedules[i].schedule.toLocaleString('en-US', { timeZone: 'Asia/Singapore'});
-    schedules[i].dataValues.date = dateFormat(schedules[i].schedule, 'isoDate');
-    schedules[i].dataValues.time = dateFormat(schedules[i].schedule, 'isoTime');
+    schedules[i].schedule.setHours(schedules[i].schedule.getHours() - 8);
+    schedules[i].dataValues.schedule = schedules[i].schedule;
+    schedules[i].dataValues.date = dateFormat(schedules[i].schedule, 'yyyy-mm-dd');
+    schedules[i].dataValues.time = dateFormat(schedules[i].schedule, 'HH:MM:ss');
     schedules[i].dataValues.cinema_name = schedules[i].cinema.cinema_name;
     schedules[i].date = schedules[i].dataValues.date;
     schedules[i].time = schedules[i].dataValues.time;
     schedules[i].cinema_name = schedules[i].cinema.cinema_name;
     delete schedules[i].dataValues.cinema;
     delete schedules[i].dataValues.movie_id;
-    // delete schedules[i].dataValues.schedule;
+    //delete schedules[i].dataValues.schedule;
   }
   return schedules;
 }
