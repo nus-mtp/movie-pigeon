@@ -11,7 +11,7 @@ var thirdPartyController = require('../controllers/ratingExtractor.js');
 var emailService = require('../email/email');
 var cinemaController = require('../controllers/cinema.js');
 var showingController = require('../controllers/showing.js');
-
+var recommendationController = require('../controllers/recommendation');
 // on routes that end in /users
 // ----------------------------------------------------
 router.route('/users')
@@ -67,6 +67,9 @@ router.route('/bookmarks')
 router.route('/ratings')
   .post(authController.isAuthenticated, ratingController.postRates)
   .get(authController.isAuthenticated, ratingController.getRates);
+
+router.route('/recommendations')
+  .get(authController.isAuthenticated, recommendationController.getRecommendation);
 
 router.route('/traktTV')
   .get(thirdPartyController.checkTraktUser)
