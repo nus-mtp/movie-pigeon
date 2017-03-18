@@ -25,7 +25,7 @@ function getObjects(obj, key, val) {
   return objects;
 }
 
-describe('Bookmark controller test', function () {
+describe('Recommendation controller test', function () {
   before(function (done) {
     movie.bulkCreate([
       {movie_id: 'test000001', title: 'test1: here StUpId ABcdE'},
