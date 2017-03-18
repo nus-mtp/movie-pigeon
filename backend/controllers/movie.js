@@ -39,7 +39,7 @@ function parseSchedule(schedules) {
     schedules[i].cinema_name = schedules[i].cinema.cinema_name;
     delete schedules[i].dataValues.cinema;
     delete schedules[i].dataValues.movie_id;
-    delete schedules[i].dataValues.schedule;
+    // delete schedules[i].dataValues.schedule;
   }
   return schedules;
 }
