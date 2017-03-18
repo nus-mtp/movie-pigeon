@@ -1,7 +1,7 @@
 // Load required packages
 var rate = require('../proxy/rate.js');
 var movie = require('../proxy/movie.js');
-
+var utils = require('./utils');
 // Create endpoint /api/ratings for POST
 exports.postRates = function (req, res) {
   var movieId = req.body.movieId;
@@ -50,6 +50,7 @@ exports.postRates = function (req, res) {
 exports.getRates = function (req, res) {
   rate.getAllRates(req.user.id)
     .then(function (movies) {
+      utils.hasSchedule(movies);
       res.json(movies);
     });
 };

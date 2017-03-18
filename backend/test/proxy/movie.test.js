@@ -99,8 +99,8 @@ describe('Movie proxy test', function () {
     movieProxy.getMovieByTitle(100, 'dummy')
       .then(function (result) {
         result.length.should.equal(2);
-        result[0].dataValues.movie_id.should.equal('test000004');
-        result[1].dataValues.movie_id.should.equal('test000005');
+        result[0].dataValues.movie_id.should.equal('test000005');
+        result[1].dataValues.movie_id.should.equal('test000004');
         done();
       })
   });

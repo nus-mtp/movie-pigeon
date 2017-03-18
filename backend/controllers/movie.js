@@ -2,6 +2,7 @@
 var Movie = require('../proxy/movie.js');
 var _ = require('underscore');
 var dateFormat = require('dateformat');
+var utils = require('./utils');
 // Create endpoint /api/movie for GET
 exports.getMoviesByTitle = function (req, res) {
   // Use the Client model to find all clients
@@ -9,6 +10,7 @@ exports.getMoviesByTitle = function (req, res) {
     .then(function (count) {
       Movie.getMovieByTitle(req.user.id, req.headers.title, req.headers.offset, req.headers.limit)
         .then(function (movies) {
+          utils.hasSchedule(movies);
           res.json({count: count, raw: movies});
         }).catch(function (err) {
           console.log(err);
@@ -37,7 +39,7 @@ function parseSchedule(schedules) {
     schedules[i].cinema_name = schedules[i].cinema.cinema_name;
     delete schedules[i].dataValues.cinema;
     delete schedules[i].dataValues.movie_id;
-    delete schedules[i].dataValues.schedule;
+    // delete schedules[i].dataValues.schedule;
   }
   return schedules;
 }

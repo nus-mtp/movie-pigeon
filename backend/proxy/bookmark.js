@@ -3,6 +3,7 @@ var bookmarks = require('../models/bookmarks.js');
 var publicRate = require('../models/PublicRate.js');
 var RatingSource = require('../models/ratingSource.js');
 var UserRating = require('../models/history.js');
+var showing = require('../models/showing');
 
 module.exports.getAllBookmarks = function (userId) {
   return movie.findAll({
@@ -25,6 +26,10 @@ module.exports.getAllBookmarks = function (userId) {
         where: {
           user_id: userId
         },
+        required: false
+      },
+      {
+        model: showing,
         required: false
       }
     ]

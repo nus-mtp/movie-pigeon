@@ -74,6 +74,10 @@ exports.getMovieByTitle = function (userId, searchString, offset, limit) {
           user_id: userId
         },
         required: false
+      },
+      {
+        model: Showing,
+        required: false
       }
     ],
     order: [
