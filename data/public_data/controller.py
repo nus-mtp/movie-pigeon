@@ -209,7 +209,7 @@ class ETLController:
         current_movie_data = data_model.get_movie_data()
         self.loader.load_movie_data(current_movie_data)
 
-    def _update_single_movie_rating(self, current_id):
+    def update_single_movie_rating(self, current_id):
         """
         given imdb id, extract movie ratings from various sources and
         store them in database

@@ -14,3 +14,7 @@ class DatabaseHandler:
     def get_user_ratings(self, user_id):
         self.cursor.execute("SELECT movie_id, score FROM user_ratings WHERE user_id=%s", (user_id, ))
         return self.cursor.fetchall()
+
+    def get_public_rating(self, movie_id):
+        self.cursor.execute("SELECT * FROM public_ratings WHERE movie_id=%s", (movie_id, ))
+        return self.cursor.fetchall()
