@@ -4,6 +4,7 @@ var bookmarks = require('../models/bookmarks.js');
 var publicRate = require('../models/PublicRate.js');
 var ratingSource = require('../models/ratingSource.js');
 var userRating = require('../models/history.js');
+var showing  = require('../models/showing');
 
 module.exports.getAllRecommendation = function (userId) {
   return movie.findAll({
@@ -34,6 +35,10 @@ module.exports.getAllRecommendation = function (userId) {
           user_id: userId
         },
         required: true
+      },
+      {
+        model: showing,
+        required: false
       }
     ]
   })

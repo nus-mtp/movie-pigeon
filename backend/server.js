@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var uuid = require('uuid');
 var passport = require('passport');
 var path = require('path');
+var router = require('./routes/index.js');
 
 var app = express();
 app.use(bodyParser.urlencoded({extended: true}));
@@ -25,10 +26,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
-
-// IMPORT ROUTES
-// =============================================================================
-var router = require('./routes/index.js');
 
 app.use('/api', router);
 

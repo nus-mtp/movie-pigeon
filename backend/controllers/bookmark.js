@@ -1,6 +1,6 @@
 // Load required packages
 var bookmarks = require('../proxy/bookmark.js');
-
+var utils = require('./utils');
 // Create endpoint /api/ratings for POST
 exports.postBookmarks = function (req, res) {
   var movieId = req.body.movieId;
@@ -60,6 +60,7 @@ exports.getBookmarks = function (req, res) {
 
   bookmarks.getAllBookmarks(req.user.id)
     .then(function (movies) {
+      utils.hasSchedule(movies);
       res.json(movies);
     });
 };
