@@ -38,4 +38,4 @@ script:
   - cd ..
   - cd data/movie_id_matcher
   - python3 -m unittest test/test_matcher.py
-  - cd .。
+  - cd ..
