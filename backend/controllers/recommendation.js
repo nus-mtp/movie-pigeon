@@ -8,7 +8,10 @@ module.exports.getRecommendation = function (req, res) {
       if (result) {
         res.json(result)
       } else {
-        res.json({status: 'fail', message: 'No Recommendations'});
+        res.json({
+          status: 'fail',
+          message: 'No Recommendations'
+        });
       }
     });
 };
