@@ -91,7 +91,11 @@ class CinemaScheduleTransformer:
 
     @staticmethod
     def get_cathay_id_from_cathay_cinema_name(cinema_name):
-        """get cathay internal id from their cinema name for web elements"""
+        """
+        get cathay internal web element id from their cinema name for web elements
+        :param cinema_name:
+        :return:
+        """
         mapper = {
             "Cathay Cineplex Amk Hub": "",
             "Cathay Cineplex Causeway Point": "1",
@@ -101,7 +105,7 @@ class CinemaScheduleTransformer:
             "The Cathay Cineplex": "5",
             "Cathay Cineplex West Mall": "6"
         }
-        return mapper[cinema_name]
+        return "ContentPlaceHolder1_wucST{}_tabs".format(mapper[cinema_name])
 
     def parse_cinema_object_to_data(self, cinema_object, provider):
         """
