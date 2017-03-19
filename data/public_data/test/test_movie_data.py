@@ -228,3 +228,6 @@ class TestMovieData(unittest.TestCase):
 
         helper_test(self.test_id_list[0], 1)
         helper_test(self.test_id_list[12], None)
+
+if __name__ == '__main__':
+    unittest.main()

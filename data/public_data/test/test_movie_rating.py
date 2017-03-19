@@ -1,9 +1,6 @@
 import unittest
-import random
-import data.utils as utils
-from bs4 import BeautifulSoup
-from urllib import request, error
-from data.etl.movierating import MovieRating
+import public_data.utils as utils
+from movie import MovieRating
 
 
 class TestMovieRating(unittest.TestCase):

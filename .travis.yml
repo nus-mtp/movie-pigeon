@@ -41,3 +41,4 @@ script:
   - cd ..
   - cd public_data
   - python3 -m unittest test/test_cinema_list.py
+  - python3 -m unittest test/test_movie_data.py
