@@ -180,17 +180,17 @@ class CinemaSchedule:
         """
         cinema_schedule = {}
 
-        tabs = self._get_gv_outer_web_element()
+        date_iterator = self._get_gv_date_iterator()
 
         date_counter = 0  # date counter into the future
-        for tab in tabs:
-            if tab.get_attribute("ng-bind-html") == "day.day":  # iterate through date tabs
+        for each_day in date_iterator:
+            if each_day.get_attribute("ng-bind-html") == "day.day":  # iterate through date tabs
                 current_date = GeneralTransformer.get_singapore_date(date_counter)
 
-                if tab.text == "Advance Sales":  # reach the end of tabs
+                if each_day.text == "Advance Sales":  # reach the end of tabs
                     break
 
-                tab.click()  # select tab
+                each_day.click()  # select tab
                 self.driver.implicitly_wait(2)  # wait for page to load
                 web_element_titles = self.driver.find_elements_by_class_name("row")
 
@@ -200,7 +200,7 @@ class CinemaSchedule:
 
         return cinema_schedule
 
-    def _get_gv_outer_web_element(self):
+    def _get_gv_date_iterator(self):
         """
         get the outmost layer of web element,
         which will be iterated for every movie
@@ -284,59 +284,72 @@ class CinemaSchedule:
         """
         cinema_schedule = {}
 
-        tabs = self._get_cathay_outer_web_element()
+        date_iterator = self._get_cathay_date_iterator()
 
         date_counter = 0
-        for tab in tabs:  # for each day
+        for each_day in date_iterator:  # for each day
             current_date = GeneralTransformer.get_singapore_date(date_counter)
 
-            rows = tab.find_elements_by_class_name("movie-container")
+            rows = each_day.find_elements_by_class_name("movie-container")
             self._update_cathay_single_movie_schedule(cinema_schedule, current_date, rows)
 
             date_counter += 1
 
         return cinema_schedule
 
-    def _update_cathay_single_movie_schedule(self, cinema_schedule, current_date, rows):
-        for row in rows:
-            try:
-                soup = self._parse_cathay_inner_html(row)
-            except AttributeError:  # break when there is no more content in tabs
-                break
-            current_title = self._get_cathay_single_movie_title(soup)
-            current_time = self._get_cathay_single_movie_time(current_date, soup)
-            self._merge_cathay_single_movie_schedule(cinema_schedule, current_time, current_title)
-
-    def _merge_cathay_single_movie_schedule(self, cinema_schedule, current_time, current_title):
-        if current_title is not None:
-            if current_title in cinema_schedule:
-                cinema_schedule[current_title].extend(current_time)
-            else:
-                cinema_schedule[current_title] = current_time
-
-    def _get_cathay_single_movie_time(self, current_date, soup):
-        current_time = []
-        times = soup.find_all("a", {"class": "cine_time"})
-        for show_time in times:
-            current_time.append(current_date + " " + show_time.text + ":00")
-        return current_time
-
-    def _get_cathay_single_movie_title(self, soup):
-        current_title = soup.find("strong").text
-        return current_title
-
-    def _parse_cathay_inner_html(self, row):
-        row_content = row.get_attribute("innerHTML")
-        soup = BeautifulSoup(row_content, "lxml")
-        return soup
-
-    def _get_cathay_outer_web_element(self):
+    def _get_cathay_date_iterator(self):
         self.driver.get(self.cinema_url)
         self.driver.implicitly_wait(2)  # wait for page to load
         cathay_id = CinemaScheduleTransformer.get_cathay_id_from_cathay_cinema_name(self.cinema_name)
         outer_div = self.driver.find_element_by_id(cathay_id)
         tabs = outer_div.find_elements_by_class_name("tabbers")
         return tabs
+
+    def _update_cathay_single_movie_schedule(self, cinema_schedule, current_date, rows):
+        """
+
+        :param cinema_schedule:
+        :param current_date:
+        :param rows:
+        :return:
+        """
+        for row in rows:
+            soup = self._parse_cathay_inner_html(row)
+
+            try:
+                current_title = self._get_cathay_single_movie_title(soup)
+            except AttributeError:  # break when there is no more content in tabs
+                break
+
+            current_time = self._get_cathay_single_movie_time(current_date, soup)
+            self._merge_cathay_single_movie_schedule(cinema_schedule, current_time, current_title)
+
+    @staticmethod
+    def _merge_cathay_single_movie_schedule(cinema_schedule, current_time, current_title):
+        if current_title is not None:
+            if current_title in cinema_schedule:
+                cinema_schedule[current_title].extend(current_time)
+            else:
+                cinema_schedule[current_title] = current_time
+
+    @staticmethod
+    def _get_cathay_single_movie_time(current_date, soup):
+        current_time = []
+        times = soup.find_all("a", {"class": "cine_time"})
+        for show_time in times:
+            current_time.append(current_date + " " + show_time.text + ":00")
+        return current_time
+
+    @staticmethod
+    def _get_cathay_single_movie_title(soup):
+        current_title = soup.find("strong").text
+        return current_title
+
+    @staticmethod
+    def _parse_cathay_inner_html(row):
+        row_content = row.get_attribute("innerHTML")
+        soup = BeautifulSoup(row_content, "lxml")
+        return soup
 
     # ================
     #   Shaw Brother
@@ -348,23 +361,15 @@ class CinemaSchedule:
         list of timing
         :return: dictionary
         """
-        self.driver.get(self.cinema_url)
+        cinema_schedule = {}
 
-        show_dates = []
-        options = self.driver.find_element_by_id("ctl00_Content_ddlShowDate").find_elements_by_css_selector(
-            "option")
+        date_iterator = self._get_sb_date_iterator()
 
-        for show_date in options:
-            show_dates.append(show_date.get_attribute("value"))
+        for each_day in date_iterator:  # each day
+            current_date = self.parse_sb_date(each_day)
 
-        cinema_schedule = {}  # data store
-
-        for show_date in show_dates:  # each day
-            current_date = datetime.strptime(show_date, "%m/%d/%Y").strftime("%Y-%m-%d")
-
-            self.driver.find_element_by_xpath(
-                "//select[@id='ctl00_Content_ddlShowDate']/option[@value='{}']".format(show_date)).click()
-            self.driver.implicitly_wait(2)  # wait for page to load
+            # click on the date to load page
+            self._load_page_by_date(each_day)
 
             rows = self.driver.find_elements_by_class_name("panelSchedule")
             for row in rows[2:]:  # remove table header
@@ -395,4 +400,22 @@ class CinemaSchedule:
                             cinema_schedule[current_title] = current_time
 
         return cinema_schedule
+
+    def _load_page_by_date(self, each_day):
+        self.driver.find_element_by_xpath(
+            "//select[@id='ctl00_Content_ddlShowDate']/option[@value='{}']".format(each_day)).click()
+        self.driver.implicitly_wait(2)
+
+    def parse_sb_date(self, each_day):
+        current_date = datetime.strptime(each_day, "%m/%d/%Y").strftime("%Y-%m-%d")
+        return current_date
+
+    def _get_sb_date_iterator(self):
+        self.driver.get(self.cinema_url)
+        show_dates = []
+        options = self.driver.find_element_by_id("ctl00_Content_ddlShowDate").find_elements_by_css_selector(
+            "option")
+        for show_date in options:
+            show_dates.append(show_date.get_attribute("value"))
+        return show_dates
 
