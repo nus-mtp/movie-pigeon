@@ -22,7 +22,6 @@ from movie_id_matcher.matcher import MovieIDMatcher
 from urllib import error
 from transformer import GeneralTransformer
 from http import client
-from apscheduler.schedulers.blocking import BlockingScheduler
 
 import utils
 import time
@@ -35,30 +34,7 @@ class ETLController:
     def __init__(self):
         self.loader = Loader()
 
-    def run(self):
-        scheduler = BlockingScheduler()
-        movie_ids = self.loader.get_movie_id_list()
-
-        # cron for movie data
-        # scheduler.add_job(self._update_movie_data, args=[1, 2000000, movie_ids])
-        # scheduler.add_job(self._update_movie_data, args=[2000000, 4000000, movie_ids])
-        # scheduler.add_job(self._update_movie_data, args=[4000000, 6000000, movie_ids])
-        # scheduler.add_job(self._update_movie_data, args=[6000000, 8000000, movie_ids])
-
-        # cron for movie rating
-        movie_ids_without_rating = self.loader.get_movie_id_list_without_rating()
-        total_length = len(movie_ids_without_rating)
-        split = int(total_length / 4)
-        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[:split]])
-        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[split:split * 2]])
-        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[split * 2:split * 3]])
-        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[split * 3:]])
-
-        # cron for cinema rating, run at 0:00 everyday
-        scheduler.add_job(self._update_cinema_schedule, trigger='cron', hour='0')
-        scheduler.start()
-
-    def _update_movie_data(self, lower, upper, existing_movies_id):
+    def update_movie_data(self, lower, upper, existing_movies_id):
         """
         updates movie data from IMDb
         :param lower: integer
@@ -101,7 +77,7 @@ class ETLController:
                 logging.error(e)
                 logging.error(current_imdb_id)
 
-    def _update_movie_rating(self, movie_ids):
+    def update_movie_rating(self, movie_ids):
         """
         updates movie rating for a list of movie ids
         from various websites
@@ -128,7 +104,7 @@ class ETLController:
                 logging.error(e)
                 logging.error(current_imdb_id)
 
-    def _update_cinema_list(self):
+    def update_cinema_list(self):
         """
         Update cinema list from various theatres websites
         :return: None
@@ -141,7 +117,7 @@ class ETLController:
 
         logging.warning("Cinema list update process complete.")
 
-    def _update_cinema_schedule(self):
+    def update_cinema_schedule(self):
         """
         Update latest cinema schedule from cinema list.
 
@@ -175,12 +151,12 @@ class ETLController:
 
         cinema_schedule_data = {}  # declare data object
         self._get_all_cinema_schedules(cinema_schedule_data)  # rearrange
-        self._match_movie_titles(cinema_schedule_data)  # insert imdb id
+        self.match_movie_titles(cinema_schedule_data)  # insert imdb id
         self.loader.load_cinema_schedule(cinema_schedule_data)  # load data
 
         logging.warning("Cinema schedule update process complete.")
 
-    def _match_movie_titles(self, cinema_schedule_data):
+    def match_movie_titles(self, cinema_schedule_data):
         """
         this process matched all movies title in the data object
         with its most probable imdb id
