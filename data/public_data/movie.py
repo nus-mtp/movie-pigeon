@@ -188,7 +188,7 @@ class MovieData:
         for anchor in anchors:
             if anchor.has_attr('title'):
                 release_text = anchor.text
-                if "Episode aired" in release_text:
+                if "Episode aired" in release_text or "Episode airs" in release_text:
                     raise utils.InvalidMovieTypeException("Invalid movie type.")
                 elif "TV Series" in release_text:
                     raise utils.InvalidMovieTypeException("Invalid movie type.")
