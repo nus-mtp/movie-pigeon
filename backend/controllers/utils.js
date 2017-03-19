@@ -1,5 +1,12 @@
 
-
+/**
+ * Check whether the movie is now showing.
+ *
+ * If the movie is now showing, add a field isShowing to be true
+ * else add the field to be false. Then remove the schedules.
+ *
+ * @param movies
+ */
 module.exports.hasSchedule = function (movies) {
   for (var i in movies) {
     var schedule = movies[i].dataValues.showings;

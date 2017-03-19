@@ -4,7 +4,8 @@ var _ = require('underscore');
 var dateFormat = require('dateformat');
 var utils = require('./utils');
 var moment = require('moment');
-// Create endpoint /api/movie for GET
+
+// Create endpoint /api/movies/title for GET
 exports.getMoviesByTitle = function (req, res) {
   // Use the Client model to find all clients
   Movie.getMovieByTitleCount(req.headers.title)
@@ -20,6 +21,7 @@ exports.getMoviesByTitle = function (req, res) {
     });
 };
 
+// Create endpoint /api/movies/showing for GET
 exports.getShowingMovieByTitle = function (req, res) {
   Movie.getShowingMovieByTitle(req.user.id, req.headers.title)
     .then(function (movies) {
@@ -30,6 +32,13 @@ exports.getShowingMovieByTitle = function (req, res) {
   );
 };
 
+/**
+ * Parse the schedule in the movies.
+ *
+ * - split showing timestamp into date and time
+ * - remove redundant info in the result. (i.e. cinema, movie_id and raw schedule)
+ *
+ */
 function parseSchedule(schedules) {
   for (var i in schedules) {
     schedules[i].schedule.setHours(schedules[i].schedule.getHours() - 8);
@@ -47,6 +56,12 @@ function parseSchedule(schedules) {
   return schedules;
 }
 
+/**
+ * Sort the parsed schedule.
+ *
+ * - Movie schedule are sorted in the order: Date --> Cinema --> Type --> Time
+ */
+
 function sortSchedule(schedules) {
   schedules = _.sortBy(schedules, 'type');
   schedules = _.sortBy(schedules, 'cinema_id');
@@ -57,6 +72,7 @@ function sortSchedule(schedules) {
   return schedules;
 }
 
+// Create endpoint for /api/movies/schedule for GET
 exports.getMovieScheduleById = function (req, res) {
   Movie.getMovieScheduleById(req.headers.movie_id)
     .then(function (schedules) {
@@ -68,7 +84,7 @@ exports.getMovieScheduleById = function (req, res) {
   })
 };
 
-// Create endpoint /api/movie for GET
+// Create endpoint /api/movies/id for GET
 exports.getMoviesById = function (req, res) {
   // Use the Client model to find all clients
   Movie.find({where: {id: req.headers.id}}).then(function (movies) {
@@ -78,7 +94,7 @@ exports.getMoviesById = function (req, res) {
   });
 };
 
-// Create endpoint /api/movie for GET
+// Create endpoint /api/movies/productionYear for GET
 exports.getMoviesByProductionYear = function (req, res) {
   // Use the Client model to find all clients
   Movie.find({where: {productionYear: req.headers.productionYear}})
