@@ -16,6 +16,7 @@ import logging
 from db_handler import DatabaseHandler
 from public_data.controller import ETLController
 from sklearn import linear_model
+from datetime import datetime
 
 
 import warnings
@@ -69,10 +70,39 @@ class Recommender:
         self.db.load_weights(weights, self.user_id)
 
     def update_user_recommendation(self):
-        pass
+        """
+        update the recommendations in database,
+        each user will be generated up to 10 recommended movies
+        upon executing this function
+
+        Consider at least 8.0 to be recommended
+        :return:
+        """
+        result_list = []
+        current_year = datetime.now().strftime("%Y")
+
+        while True:
+            if len(result_list) == 10:
+                break
+            user_ratings = self.db.get_user_ratings(self.user_id)
+
+            # get training data to fit model
+            # labelling
+            label = []
+            for user_rating in user_ratings:
+                movie_id, score = user_rating
+                if score >= 8.0:
+                    label.append([movie_id, 1])
+                else:
+                    label.append([movie_id, 0])
+
+            # TODO: quantify available data fields, make logistic regression model
+            # TODO: after classification, iterate through movie pools by year and store recommendation
+
+            break
 
 
 if __name__ == '__main__':
     warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")  # ignore lapack related warning
     recommender = Recommender('8')
-    recommender.update_user_scale()
+    recommender.update_user_recommendation()

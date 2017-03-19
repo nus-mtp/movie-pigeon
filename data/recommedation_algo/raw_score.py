@@ -3,6 +3,7 @@
     source for one user
 """
 
+
 class RawScore:
 
     def __init__(self):
