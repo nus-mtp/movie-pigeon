@@ -191,7 +191,6 @@ class CinemaSchedule:
                     break
 
                 each_day.click()  # select tab
-                self.driver.implicitly_wait(2)  # wait for page to load
                 web_element_titles = self.driver.find_elements_by_class_name("row")
 
                 self._update_gv_single_movie_schedule(cinema_schedule, current_date, web_element_titles)
