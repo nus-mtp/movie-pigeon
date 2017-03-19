@@ -91,7 +91,7 @@ class Recommender:
             label = []
             for user_rating in user_ratings:
                 movie_id, score = user_rating
-                if score >= 8.0:
+                if score >= 8.0:  # consider as favorable movie
                     label.append([movie_id, 1])
                 else:
                     label.append([movie_id, 0])
