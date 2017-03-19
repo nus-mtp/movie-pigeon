@@ -44,27 +44,26 @@ class CinemaList:
         # get actual list, in each url it may contain more than one cinema
         cinema_list = []
         for cinema_url in cinema_urls:
-            cinema_data = self._get_single_gv_cinema_data(cinema_url)
-            cinema_list.append(cinema_data)
+            self._get_single_gv_cinema_data(cinema_list, cinema_url)
 
         return cinema_list
 
     @staticmethod
-    def _get_single_gv_cinema_data(cinema_url):
+    def _get_single_gv_cinema_data(cinema_list, cinema_url):
         """
         get a single cinema data
+        :param cinema_list: list
         :param cinema_url: string
-        :return: dictionary
+        :return:
         """
-        driver = webdriver.PhantomJS()  # reinstantiate to avoid detach from DOM
+        driver = webdriver.PhantomJS()  # re-instantiate to avoid detach from DOM
         driver.get(cinema_url)
         div = driver.find_elements_by_class_name("ng-binding")
         for item in div:
             if item.get_attribute("ng-bind-html") == "cinema.name":
                 cinema_name = item.text
                 cinema_data = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_url, "gv")
-                return cinema_data
-        return None
+                cinema_list.append(cinema_data)
 
     def _get_gv_cinema_url(self):
         """
