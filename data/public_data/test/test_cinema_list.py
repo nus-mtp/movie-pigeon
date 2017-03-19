@@ -19,7 +19,10 @@ class TestCinemaList(unittest.TestCase):
         cinema_list = self.cinema_list._extract_cathay_cinema_list(soup)
         self.assertEqual(len(cinema_list), 7)  # 7 cinemas for cathay
 
-    # comment out because it takes too long to be run on CI tools
-    # def test_extract_gv_cinema_list(self):
-    #     cinema_list = self.cinema_list._extract_gv_cinema_list()
-    #     self.assertEqual(len(cinema_list), 31)  # 31 cinemas, 25 valid
+    # @unittest.skip  # test skipped for CI, tested using IDE
+    def test_extract_gv_cinema_list(self):
+        cinema_list = self.cinema_list._extract_gv_cinema_list()
+        self.assertEqual(len(cinema_list), 31)  # 31 cinemas, 25 valid
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,7 +1,3 @@
-"""
-    This class retrieves movie schedule from different sources and
-    parse all data into required format
-"""
 from datetime import datetime
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -12,7 +8,10 @@ import utils
 
 
 class CinemaList:
-
+    """
+    This class provides one single operation.
+    Return the list of cinemas, with their url and name
+    """
     GOLDEN_VILLAGE_LIST_HOME = "https://www.gv.com.sg/GVCinemas"
 
     CATHAY_LIST_HOME = "http://www.cathaycineplexes.com.sg/cinemas/"
@@ -40,28 +39,47 @@ class CinemaList:
         cinema names, and their corresponding url
         :return: list
         """
-        cinema_list = []
-        driver = webdriver.PhantomJS()
-        driver.get(self.GOLDEN_VILLAGE_LIST_HOME)
-
-        # get raw cinema list
-        raw_cinema_url = []
-        anchors = driver.find_element_by_class_name("cinemas-list").find_elements_by_class_name("ng-binding")
-        for anchor in anchors:
-            raw_cinema_url.append(anchor.get_attribute("href"))
+        cinema_urls = self._get_gv_cinema_url()
 
         # get actual list, in each url it may contain more than one cinema
-        for cinema_url in raw_cinema_url:
-            driver = webdriver.PhantomJS()  # reinstantiate to avoid detach from DOM
-            driver.get(cinema_url)
-            div = driver.find_elements_by_class_name("ng-binding")
-            for item in div:
-                if item.get_attribute("ng-bind-html") == "cinema.name":
-                    cinema_name = item.text
-                    inserted_tuple = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_url, "gv")
-                    cinema_list.append(inserted_tuple)
+        cinema_list = []
+        for cinema_url in cinema_urls:
+            cinema_data = self._get_single_gv_cinema_data(cinema_url)
+            cinema_list.append(cinema_data)
 
         return cinema_list
+
+    @staticmethod
+    def _get_single_gv_cinema_data(cinema_url):
+        """
+        get a single cinema data
+        :param cinema_url: string
+        :return: dictionary
+        """
+        driver = webdriver.PhantomJS()  # reinstantiate to avoid detach from DOM
+        driver.get(cinema_url)
+        div = driver.find_elements_by_class_name("ng-binding")
+        for item in div:
+            if item.get_attribute("ng-bind-html") == "cinema.name":
+                cinema_name = item.text
+                cinema_data = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_url, "gv")
+                return cinema_data
+        return None
+
+    def _get_gv_cinema_url(self):
+        """
+        get cinema urls from website
+        :return: list
+        """
+        driver = webdriver.PhantomJS()
+        driver.get(self.GOLDEN_VILLAGE_LIST_HOME)
+        cinema_urls = []
+        anchors = driver.find_element_by_class_name("cinemas-list").find_elements_by_class_name("ng-binding")
+
+        for anchor in anchors:
+            cinema_urls.append(anchor.get_attribute("href"))
+
+        return cinema_urls
 
     @staticmethod
     def _extract_cathay_cinema_list(soup):
