@@ -22,6 +22,7 @@ backend/node_modules/
 
 # config file and various api keys
 data/public_data/config.py
+data/recommedation_algo/config.py
 
 # python compiles
 data/__pycache__/

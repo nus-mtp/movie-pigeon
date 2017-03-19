@@ -27,10 +27,18 @@ before_install:
   - sudo apt-get -y install python3-pip
   - pip3 install bs4
   - pip3 install lxml
+  - pip3 install selenium
+  - pip3 install pytz
   - cd ..
 install:
   - cd backend
   - npm install
 script:
   - npm test
-
+  - cd ..
+  - cd data/movie_id_matcher
+  - python3 -m unittest test/test_matcher.py
+  - cd ..
+  - cd public_data
+  - python3 -m unittest test/test_cinema_list.py
+  - python3 -m unittest test/test_movie_data.py

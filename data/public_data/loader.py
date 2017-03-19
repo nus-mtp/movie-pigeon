@@ -135,4 +135,5 @@ class Loader:
         delete all outdated movies
         :return: None
         """
-        self.cursor.execute("DELETE FROM showings WHERE schedule <= now()")
+        self.cursor.execute("DELETE FROM showings WHERE schedule < now() + interval '1 hour' * 8;")
+        self.conn.commit()

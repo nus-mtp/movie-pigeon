@@ -7,7 +7,7 @@
     It includes four main methods in total:
         1. update movie data
         2. update movie public rating
-        3. update the list of cinemas in Singapore
+        3. update the list of cinemas in Singapore (manual from script only, since it will not be updated frequently)
         4. update cinema schedule for each cinema available
 
     AND a run() function, the only public function,
@@ -22,7 +22,6 @@ from movie_id_matcher.matcher import MovieIDMatcher
 from urllib import error
 from transformer import GeneralTransformer
 from http import client
-from apscheduler.schedulers.blocking import BlockingScheduler
 
 import utils
 import time
@@ -35,100 +34,72 @@ class ETLController:
     def __init__(self):
         self.loader = Loader()
 
-    def run(self):
-        scheduler = BlockingScheduler()
-        movie_ids = self.loader.get_movie_id_list()
-
-        # cron for movie data
-        # scheduler.add_job(self._update_movie_data, args=[1, 2000000, movie_ids])
-        # scheduler.add_job(self._update_movie_data, args=[2000000, 4000000, movie_ids])
-        # scheduler.add_job(self._update_movie_data, args=[4000000, 6000000, movie_ids])
-        # scheduler.add_job(self._update_movie_data, args=[6000000, 8000000, movie_ids])
-
-        # cron for movie rating
-        movie_ids_without_rating = self.loader.get_movie_id_list_without_rating()
-        total_length = len(movie_ids_without_rating)
-        split = int(total_length / 4)
-        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[:split]])
-        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[split:split * 2]])
-        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[split * 2:split * 3]])
-        scheduler.add_job(self._update_movie_rating, args=[movie_ids_without_rating[split * 3:]])
-
-        # cron for cinema rating, run at 0:00 everyday
-        scheduler.add_job(self._update_cinema_schedule, trigger='cron', hour='0')
-        scheduler.start()
-
-    def _update_movie_data(self, lower, upper, existing_movies_id):
+    def update_movie_data(self, lower, upper, existing_movies_id):
         """
-        updates movie data from IMDb
+        updates a range of movie data from IMDb, given the
+        lower and upper index of an imdb id
         :param lower: integer
         :param upper: integer
         :param existing_movies_id: list
         :return: None
         """
-        logging.warning("Initialise movie data retrieval process ..." + " Range: " + str(lower) + " to " + str(upper))
+        logging.warning("initialise movie data retrieval process ..." + " Range: " + str(lower) + " to " + str(upper))
 
         for index in range(lower, upper):  # iterate all possible titles
             current_imdb_id = GeneralTransformer.build_imdb_id(index)
 
             if index % 1000 == 0:  # id monitor
-                logging.warning("Currently at: " + current_imdb_id)
+                logging.warning("currently at: " + current_imdb_id)
 
-            if current_imdb_id in existing_movies_id:
+            if current_imdb_id in existing_movies_id:  # skip if data exists
                 continue
 
             try:
-                self._update_single_movie_data(current_imdb_id)
+                self.update_single_movie_data(current_imdb_id)
             except error.HTTPError:  # invalid id will cause an 404 error
                 continue
             except utils.InvalidMovieTypeException:  # ignore all non-movie types
                 continue
             except psycopg2.InterfaceError:  # database connection lost after a long time
-                logging.error("Reestablishing database connection")
+                logging.error("re-establishing database connection")
+                time.sleep(5)
                 self.loader = Loader()
                 continue
             except ConnectionResetError or TimeoutError or client.IncompleteRead:
-                logging.error("Connection reset by remote host, reconnecting in 5s ...")
+                logging.error("connection reset, reconnecting in 5s ...")
                 time.sleep(5)
-
-                # try again
                 try:
-                    self._update_single_movie_data(current_imdb_id)
-                except:  # skip any error
+                    self.update_single_movie_data(current_imdb_id)
+                except:  # skip any error in second try
                     continue
-            except Exception as e:  # unknown error
-                logging.error("Unknown error occurs. Please examine.")
-                logging.error(e)
-                logging.error(current_imdb_id)
 
-    def _update_movie_rating(self, movie_ids):
+        logging.warning("movie data update process completed.")
+
+    def update_movie_rating(self, movie_ids):
         """
         updates movie rating for a list of movie ids
         from various websites
         :param movie_ids: list
         :return:
         """
-        logging.warning("Initialise movie rating retrieval process ...")
+        logging.warning("initialise movie rating retrieval process ...")
+
         for current_imdb_id in movie_ids:
             try:
-                self._update_single_movie_rating(current_imdb_id)
+                self.update_single_movie_rating(current_imdb_id)
             except error.HTTPError:  # invalid id will cause an 404 error
                 continue
             except ConnectionResetError or TimeoutError or client.IncompleteRead or error.URLError:
-                logging.error("Connection reset by remote host, reconnecting in 5s ...")
+                logging.error("connection reset, reconnecting in 5s ...")
                 time.sleep(5)
-
-                # try again
                 try:
-                    self._update_single_movie_data(current_imdb_id)
-                except:  # skip any error
+                    self.update_single_movie_data(current_imdb_id)
+                except:  # skip any error in second try
                     continue
-            except Exception as e:  # unknown error
-                logging.error("Unknown error occurs. Please examine.")
-                logging.error(e)
-                logging.error(current_imdb_id)
 
-    def _update_cinema_list(self):
+        logging.warning("Movie rating update process completed.")
+
+    def update_cinema_list(self):
         """
         Update cinema list from various theatres websites
         :return: None
@@ -141,7 +112,7 @@ class ETLController:
 
         logging.warning("Cinema list update process complete.")
 
-    def _update_cinema_schedule(self):
+    def update_cinema_schedule(self):
         """
         Update latest cinema schedule from cinema list.
 
@@ -167,18 +138,41 @@ class ETLController:
             }
         }
         """
-        logging.warning("Initialise cinema schedule update process ...")
+        logging.warning("initialise cinema schedule update process ...")
 
-        logging.warning("Deleting outdated schedules ...")
+        logging.warning("deleting outdated schedules ...")
+
         self.loader.delete_outdated_schedules()
-        logging.warning("Deleting outdated schedules complete!")
+
+        logging.warning("deleting outdated schedules complete!")
 
         cinema_schedule_data = {}  # declare data object
         self._get_all_cinema_schedules(cinema_schedule_data)  # rearrange
         self._match_movie_titles(cinema_schedule_data)  # insert imdb id
         self.loader.load_cinema_schedule(cinema_schedule_data)  # load data
 
-        logging.warning("Cinema schedule update process complete.")
+        logging.warning("cinema schedule update process complete.")
+
+    def update_single_movie_data(self, imdb_id):
+        """
+        given imdb id, extract movie data and store it in database
+        :param imdb_id: string
+        :return: None
+        """
+        data_model = MovieData(imdb_id)
+        current_movie_data = data_model.get_movie_data()
+        self.loader.load_movie_data(current_movie_data)
+
+    def update_single_movie_rating(self, current_id):
+        """
+        given imdb id, extract movie ratings from various sources and
+        store them in database
+        :param current_id: string
+        :return: None
+        """
+        data_model = MovieRating(current_id)
+        movie_rating = data_model.get_movie_ratings()
+        self.loader.load_movie_rating(movie_rating)
 
     def _match_movie_titles(self, cinema_schedule_data):
         """
@@ -193,14 +187,14 @@ class ETLController:
 
             logging.warning("Matching movie: " + title)
 
-            imdb_id = matcher.match_imdb_id_for_cinema_schedule(title)
+            imdb_id = matcher.match_imdb_id_from_title_recent(title)
             if imdb_id is None:
                 logging.error("IMDb ID matched is invalid!")
                 invalid_titles.append(title)
                 continue
 
             content['imdb_id'] = imdb_id  # add in matched imdb id
-            self._update_single_movie_data(imdb_id)
+            self.update_single_movie_data(imdb_id)
             logging.warning("matching successful!")
 
         for invalid_title in invalid_titles:
@@ -237,30 +231,3 @@ class ETLController:
                 current_title['content'].append(movie)
 
             logging.warning("retrieval successful!")
-
-    def _update_single_movie_data(self, imdb_id):
-        """
-        given imdb id, extract movie data and store it in database
-        :param imdb_id: string
-        :return: None
-        """
-        data_model = MovieData(imdb_id)
-        current_movie_data = data_model.get_movie_data()
-        self.loader.load_movie_data(current_movie_data)
-
-    def _update_single_movie_rating(self, current_id):
-        """
-        given imdb id, extract movie ratings from various sources and
-        store them in database
-        :param current_id: string
-        :return: None
-        """
-        data_model = MovieRating(current_id)
-        movie_rating = data_model.get_movie_ratings()
-        self.loader.load_movie_rating(movie_rating)
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.WARNING)
-    controller = ETLController()
-    controller.run()
-
