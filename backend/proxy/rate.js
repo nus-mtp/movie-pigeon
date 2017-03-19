@@ -3,6 +3,7 @@ var movie = require('../models/movie.js');
 var PublicRate = require('../models/PublicRate.js');
 var RatingSource = require('../models/ratingSource.js');
 var Bookmark = require('../models/bookmarks.js');
+var showing = require('../models/showing');
 
 module.exports.postRates = function (score, movieId, userId) {
   return rate.create({
@@ -33,6 +34,10 @@ module.exports.getAllRates = function (userId) {
         where: {
           user_id: userId
         },
+        required: false
+      },
+      {
+        model :showing,
         required: false
       }
     ]

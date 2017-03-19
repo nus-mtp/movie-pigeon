@@ -52,7 +52,7 @@ exports.postRates = function (req, res) {
 exports.getRates = function (req, res) {
   rate.getAllRates(req.user.id)
     .then(function (movies) {
-      utils.hasSchedule(movies);
+      movies = utils.hasSchedule(movies);
       res.json(movies);
     });
 };

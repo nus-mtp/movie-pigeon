@@ -12,7 +12,7 @@ exports.getMoviesByTitle = function (req, res) {
     .then(function (count) {
       Movie.getMovieByTitle(req.user.id, req.headers.title, req.headers.offset, req.headers.limit)
         .then(function (movies) {
-          utils.hasSchedule(movies);
+          movies = utils.hasSchedule(movies);
           res.json({count: count, raw: movies});
         }).catch(function (err) {
           console.log(err);

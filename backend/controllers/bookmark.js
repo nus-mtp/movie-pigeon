@@ -63,7 +63,7 @@ exports.getBookmarks = function (req, res) {
   // retrieve all bookmarks wrapped by movie details.
   bookmarks.getAllBookmarks(req.user.id)
     .then(function (movies) {
-      utils.hasSchedule(movies);
+      movies = utils.hasSchedule(movies);
       res.json(movies);
     });
 };
