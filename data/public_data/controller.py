@@ -7,7 +7,7 @@
     It includes four main methods in total:
         1. update movie data
         2. update movie public rating
-        3. update the list of cinemas in Singapore
+        3. update the list of cinemas in Singapore (manual from script only, since it will not be updated frequently)
         4. update cinema schedule for each cinema available
 
     AND a run() function, the only public function,
