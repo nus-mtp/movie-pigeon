@@ -28,7 +28,7 @@ class TestMovieData(unittest.TestCase):
             """
             data_model = MovieData("mock-id")
             test_data_directory = os.path.realpath(
-                os.path.join(os.getcwd(), "data_movie_data/{}.html".format(imdb_id)))
+                os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
             io_wrapper = open(test_data_directory, encoding="utf8")
             data_model._build_soup_for_test(io_wrapper)
             data_model._extract_process()
@@ -55,7 +55,7 @@ class TestMovieData(unittest.TestCase):
             data_model = MovieData("mock-id")
 
             test_data_directory = os.path.realpath(
-                os.path.join(os.getcwd(), "data_movie_data/{}.html".format(imdb_id)))
+                os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
             io_wrapper = open(test_data_directory, encoding="utf8")
             data_model._build_soup_for_test(io_wrapper)
             data_model._extract_process()
@@ -85,7 +85,7 @@ class TestMovieData(unittest.TestCase):
             """
             data_model = MovieData("mock-id")
             test_data_directory = os.path.realpath(
-                os.path.join(os.getcwd(), "data_movie_data/{}.html".format(imdb_id)))
+                os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
             io_wrapper = open(test_data_directory, encoding="utf8")
             data_model._build_soup_for_test(io_wrapper)
             data_model._extract_process()
@@ -114,7 +114,7 @@ class TestMovieData(unittest.TestCase):
             """
             data_model = MovieData("mock-id")
             test_data_directory = os.path.realpath(
-                os.path.join(os.getcwd(), "data_movie_data/{}.html".format(imdb_id)))
+                os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
             io_wrapper = open(test_data_directory, encoding="utf8")
             data_model._build_soup_for_test(io_wrapper)
             data_model._extract_process()
@@ -140,7 +140,7 @@ class TestMovieData(unittest.TestCase):
             """
             data_model = MovieData("mock-id")
             test_data_directory = os.path.realpath(
-                os.path.join(os.getcwd(), "data_movie_data/{}.html".format(imdb_id)))
+                os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
             io_wrapper = open(test_data_directory, encoding="utf8")
             data_model._build_soup_for_test(io_wrapper)
             data_model._extract_process()
@@ -164,7 +164,7 @@ class TestMovieData(unittest.TestCase):
             """
             data_model = MovieData("mock-id")
             test_data_directory = os.path.realpath(
-                os.path.join(os.getcwd(), "data_movie_data/{}.html".format(imdb_id)))
+                os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
             io_wrapper = open(test_data_directory, encoding="utf8")
             data_model._build_soup_for_test(io_wrapper)
             data_model._extract_process()
@@ -194,7 +194,7 @@ class TestMovieData(unittest.TestCase):
             """
             data_model = MovieData("mock-id")
             test_data_directory = os.path.realpath(
-                os.path.join(os.getcwd(), "data_movie_data/{}.html".format(imdb_id)))
+                os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
             io_wrapper = open(test_data_directory, encoding="utf8")
             data_model._build_soup_for_test(io_wrapper)
             data_model._extract_process()
@@ -219,7 +219,7 @@ class TestMovieData(unittest.TestCase):
             """
             data_model = MovieData("mock-id")
             test_data_directory = os.path.realpath(
-                os.path.join(os.getcwd(), "data_movie_data/{}.html".format(imdb_id)))
+                os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
             io_wrapper = open(test_data_directory, encoding="utf8")
             data_model._build_soup_for_test(io_wrapper)
             data_model._extract_process()
