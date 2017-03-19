@@ -8,11 +8,13 @@ exports.postRates = function (req, res) {
   var score = parseFloat(req.body.score) || -1;
   var userId = req.user.id;
 
+  // Check whether the score is valid data. (0..10)
   if (score < 0 || score > 10) {
     res.json({status: 'fail', message: 'Invalid Score'});
     return;
   }
 
+  //Find if existed rating. If existed, update, else create.
   movie.getMovieById(movieId)
     .then(function (movie) {
       if (movie) {
@@ -50,7 +52,7 @@ exports.postRates = function (req, res) {
 exports.getRates = function (req, res) {
   rate.getAllRates(req.user.id)
     .then(function (movies) {
-      utils.hasSchedule(movies);
+      movies = utils.hasSchedule(movies);
       res.json(movies);
     });
 };

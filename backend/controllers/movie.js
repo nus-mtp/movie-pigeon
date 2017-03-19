@@ -3,14 +3,16 @@ var Movie = require('../proxy/movie.js');
 var _ = require('underscore');
 var dateFormat = require('dateformat');
 var utils = require('./utils');
-// Create endpoint /api/movie for GET
+var moment = require('moment');
+
+// Create endpoint /api/movies/title for GET
 exports.getMoviesByTitle = function (req, res) {
   // Use the Client model to find all clients
   Movie.getMovieByTitleCount(req.headers.title)
     .then(function (count) {
       Movie.getMovieByTitle(req.user.id, req.headers.title, req.headers.offset, req.headers.limit)
         .then(function (movies) {
-          utils.hasSchedule(movies);
+          movies = utils.hasSchedule(movies);
           res.json({count: count, raw: movies});
         }).catch(function (err) {
           console.log(err);
@@ -19,6 +21,7 @@ exports.getMoviesByTitle = function (req, res) {
     });
 };
 
+// Create endpoint /api/movies/showing for GET
 exports.getShowingMovieByTitle = function (req, res) {
   Movie.getShowingMovieByTitle(req.user.id, req.headers.title)
     .then(function (movies) {
@@ -29,20 +32,35 @@ exports.getShowingMovieByTitle = function (req, res) {
   );
 };
 
+/**
+ * Parse the schedule in the movies.
+ *
+ * - split showing timestamp into date and time
+ * - remove redundant info in the result. (i.e. cinema, movie_id and raw schedule)
+ *
+ */
 function parseSchedule(schedules) {
   for (var i in schedules) {
-    schedules[i].dataValues.date = dateFormat(schedules[i].schedule, 'isoDate');
-    schedules[i].dataValues.time = dateFormat(schedules[i].schedule, 'isoTime');
+    schedules[i].schedule.setHours(schedules[i].schedule.getHours() - 8);
+    schedules[i].dataValues.schedule = schedules[i].schedule;
+    schedules[i].dataValues.date = dateFormat(schedules[i].schedule, 'yyyy-mm-dd');
+    schedules[i].dataValues.time = dateFormat(schedules[i].schedule, 'HH:MM:ss');
     schedules[i].dataValues.cinema_name = schedules[i].cinema.cinema_name;
     schedules[i].date = schedules[i].dataValues.date;
     schedules[i].time = schedules[i].dataValues.time;
     schedules[i].cinema_name = schedules[i].cinema.cinema_name;
     delete schedules[i].dataValues.cinema;
     delete schedules[i].dataValues.movie_id;
-    // delete schedules[i].dataValues.schedule;
+    delete schedules[i].dataValues.schedule;
   }
   return schedules;
 }
+
+/**
+ * Sort the parsed schedule.
+ *
+ * - Movie schedule are sorted in the order: Date --> Cinema --> Type --> Time
+ */
 
 function sortSchedule(schedules) {
   schedules = _.sortBy(schedules, 'type');
@@ -54,6 +72,7 @@ function sortSchedule(schedules) {
   return schedules;
 }
 
+// Create endpoint for /api/movies/schedule for GET
 exports.getMovieScheduleById = function (req, res) {
   Movie.getMovieScheduleById(req.headers.movie_id)
     .then(function (schedules) {
@@ -65,7 +84,7 @@ exports.getMovieScheduleById = function (req, res) {
   })
 };
 
-// Create endpoint /api/movie for GET
+// Create endpoint /api/movies/id for GET
 exports.getMoviesById = function (req, res) {
   // Use the Client model to find all clients
   Movie.find({where: {id: req.headers.id}}).then(function (movies) {
@@ -75,7 +94,7 @@ exports.getMoviesById = function (req, res) {
   });
 };
 
-// Create endpoint /api/movie for GET
+// Create endpoint /api/movies/productionYear for GET
 exports.getMoviesByProductionYear = function (req, res) {
   // Use the Client model to find all clients
   Movie.find({where: {productionYear: req.headers.productionYear}})

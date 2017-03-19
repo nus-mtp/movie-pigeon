@@ -47,13 +47,13 @@ passport.use('bearer', new BearerStrategy(
           return callback(null, false);
         }
 
-        // Simple example with no scope
         callback(null, user, {scope: '*'});
       });
     });
   }
 ));
 
+//Currently accept both basic and access token authentication for testing and production.
 exports.isAuthenticated = passport.authenticate(['basic', 'bearer'], {session: false});
 exports.isClientAuthenticated = passport.authenticate('client-basic', {session: false});
 exports.isBearerAuthenticated = passport.authenticate('bearer', {session: false});

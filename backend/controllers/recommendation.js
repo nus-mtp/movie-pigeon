@@ -1,5 +1,6 @@
 var recommendation = require('../proxy/recommendation');
 
+// Create endpoint /api/recommendations for GET
 module.exports.getRecommendation = function (req, res) {
   var userId = req.user.id;
 

@@ -1,11 +1,13 @@
 var User = require('../proxy/user.js');
 var UserModel = require('../models/user.js');
 
+//Create endpoint for POST /api/users
 exports.postUser = function (req, res) {
   var username = req.body.username;
   var password = req.body.password;
   var email = req.body.email;
 
+  //Check if duplicate email
   User.getUserByEmail(email)
     .then(function (users) {
       if (users) {
@@ -30,10 +32,12 @@ exports.postUser = function (req, res) {
     });
 };
 
+//Create endpoint for GET /api/users
 exports.getUser = function (req, res) {
   res.json({email: req.user.email, username: req.user.username});
 };
 
+//Create endpoint ofr PUT /api/users/username
 exports.updateUsername = function (req, res) {
   var username = req.body.username;
   var user = req.user;
@@ -61,6 +65,7 @@ exports.updateUsername = function (req, res) {
   }
 };
 
+//Create endpoint for PUT /api/users/password
 exports.updatePassword = function (req, res) {
   var password = req.body.password;
   var user = req.user;

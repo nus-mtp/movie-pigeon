@@ -1,5 +1,6 @@
 var showing = require('../proxy/showing.js');
 
+//Create endpoint for /api/showing
 exports.getShowingByCinema = function (req, res) {
   showing.getShowingByCinema(req.user.id, req.headers.cinema_id)
     .then(function (result) {
@@ -11,6 +12,7 @@ exports.getShowingByCinema = function (req, res) {
     })
 };
 
+//Create endpoint for /api/showing/all
 exports.getAllShowingMovie = function (req, res) {
   showing.getAllShowingMovie(req.user.id)
     .then(function (result) {
