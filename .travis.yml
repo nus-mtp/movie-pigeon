@@ -39,5 +39,5 @@ script:
   - cd data/movie_id_matcher
   - python3 -m unittest test/test_matcher.py
   - cd ..
-  - cd data/public_data
+  - cd public_data
   - python3 -m unittest test/test_cinema_list.py
