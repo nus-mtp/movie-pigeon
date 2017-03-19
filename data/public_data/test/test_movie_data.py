@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from public_data.movie import MovieData
+from movie import MovieData
 
 
 class TestMovieData(unittest.TestCase):
