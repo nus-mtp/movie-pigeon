@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import time
 
 
-class Transformer:
+class MovieDataTransformer:
 
     @staticmethod
     def split_release_and_country_imdb(release_country):
@@ -91,7 +91,11 @@ class CinemaScheduleTransformer:
 
     @staticmethod
     def get_cathay_id_from_cathay_cinema_name(cinema_name):
-        """get cathay internal id from their cinema name for web elements"""
+        """
+        get cathay internal web element id from their cinema name for web elements
+        :param cinema_name:
+        :return:
+        """
         mapper = {
             "Cathay Cineplex Amk Hub": "",
             "Cathay Cineplex Causeway Point": "1",
@@ -101,7 +105,7 @@ class CinemaScheduleTransformer:
             "The Cathay Cineplex": "5",
             "Cathay Cineplex West Mall": "6"
         }
-        return mapper[cinema_name]
+        return "ContentPlaceHolder1_wucST{}_tabs".format(mapper[cinema_name])
 
     def parse_cinema_object_to_data(self, cinema_object, provider):
         """
@@ -128,7 +132,7 @@ class CinemaScheduleTransformer:
         :return: dictionary
         """
         data_object = []
-        parser = self._get_movie_title_parser(provider)
+        parser = self.get_movie_title_parser(provider)
 
         # parse title
         for key, value in cinema_object.items():
@@ -143,20 +147,20 @@ class CinemaScheduleTransformer:
                 })
         return data_object
 
-    def _get_movie_title_parser(self, provider):
+    def get_movie_title_parser(self, provider):
         """
         select the correct parser
         :param provider: string
         :return: function
         """
         if provider == "gv":
-            return self._parse_gv_movie_title
+            return self.parse_gv_movie_title
         elif provider == "sb":
-            return self._parse_sb_movie_title
+            return self.parse_sb_movie_title
         elif provider == "cathay":
-            return self._parse_cathay_movie_title
+            return self.parse_cathay_movie_title
 
-    def _parse_gv_movie_title(self, title):
+    def parse_gv_movie_title(self, title):
         """
         parse the raw title displayed on gv website into
         clean movie title plus a list of movie types
@@ -186,7 +190,7 @@ class CinemaScheduleTransformer:
 
         return self._parse_title_and_info(title, additional_info)
 
-    def _parse_sb_movie_title(self, title):
+    def parse_sb_movie_title(self, title):
         """
         parse the raw title displayed on sb website into
         clean movie title plus a list of movie types
@@ -216,7 +220,7 @@ class CinemaScheduleTransformer:
 
         return self._parse_title_and_info(title, additional_info)
 
-    def _parse_cathay_movie_title(self, title):
+    def parse_cathay_movie_title(self, title):
         """
         parse the raw title displayed on cathay website into
         clean movie title plus a list of movie types

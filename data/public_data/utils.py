@@ -136,6 +136,7 @@ def build_soup_from_url(url):
 def build_soup_from_file(directory):
     io_wrapper = open(directory, encoding="utf8")
     soup = BeautifulSoup(io_wrapper, "lxml")
+    io_wrapper.close()
     return soup
 
 
