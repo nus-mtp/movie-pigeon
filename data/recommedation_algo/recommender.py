@@ -12,8 +12,7 @@
         # store in database
 
 """
-import logging
-from db_handler import DatabaseHandler
+from database import DatabaseHandler
 from public_data.controller import ETLController
 from sklearn import linear_model
 from datetime import datetime
@@ -114,6 +113,7 @@ class Recommender:
 
             break
 
+
 def test():
     # Tokenize Corpus and filter out anything that is a
     # stop word or has a frequency <1
@@ -160,7 +160,6 @@ def test():
     # perform a similarity query against the corpus
     sims = index[vec_lsi]
     sims = sorted(enumerate(sims), key=lambda item: -item[1])
-
 
 if __name__ == '__main__':
     warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")  # ignore lapack related warning
