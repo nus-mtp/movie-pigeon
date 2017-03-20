@@ -19,9 +19,10 @@ class DatabaseHandler:
         self.cursor.execute("SELECT * FROM public_ratings WHERE movie_id=%s", (movie_id, ))
         return self.cursor.fetchall()
 
-    def get_movie_data_by_year(self, year):
-        self.cursor.execute("SELECT movie_id, rated, plot, actors, language, genre, runtime, director "
-                            "FROM movies WHERE production_year=%s", (year, ))
+    def get_movie_id_by_year(self, year):
+        self.cursor.execute("SELECT movie_id "
+                            "FROM movies WHERE production_year=%s AND runtime is not NULL "
+                            "AND actors is not NULL AND genre is not NULL", (year, ))
         return self.cursor.fetchall()
 
     def get_movie_data_by_id(self, movie_id):

@@ -18,7 +18,9 @@ class UserScale:
         self.user_id = user_id
         self.db = DatabaseHandler()
         self.controller = ETLController()
+
         self.model = linear_model.LinearRegression()
+        self._fit_model()
 
     def _fit_model(self):
         """
@@ -27,6 +29,9 @@ class UserScale:
         :return: None
         """
         user_rating_records = self.db.get_user_ratings(self.user_id)  # join public rating remove None
+
+        if len(user_rating_records) == 0:  # no previous watching history
+            return
 
         regressors = []
         responses = []

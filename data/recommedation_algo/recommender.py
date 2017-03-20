@@ -16,6 +16,9 @@ from database import DatabaseHandler
 from public_data.controller import ETLController
 from sklearn import linear_model
 from datetime import datetime
+from scale import UserScale
+from similarity import MovieSimilarity
+
 
 import warnings
 
@@ -31,85 +34,36 @@ class Recommender:
         # for every user generate recommendation if not enough
         pass
 
-    def update_user_scale(self):
-        """
-        update the user scale in the database
-        :return:
-        """
-        regressors = []
-        responses = []
-
-        # calculate raw score
-        user_rating_records = self.db.get_user_ratings(self.user_id)  # join public rating remove None
-
-        # TODO: No rating?
-
-        for record in user_rating_records:
-            current_id = record[0]
-
-            # regressors
-            public_rating_records = self.db.get_public_rating(current_id)
-            if not public_rating_records:
-                self.controller.update_single_movie_rating(current_id)  # update rating
-                public_rating_records = self.db.get_public_rating(current_id)
-
-            public_rating_records = sorted(public_rating_records, key=lambda x: x[1])  # sort records -> replace by sql
-            current_set = []
-            for regressor in public_rating_records:
-                current_set.append(regressor[3])
-            regressors.append(current_set)
-
-            # response
-            user_rating = record[1]
-            responses.append(user_rating)
-
-        regression = linear_model.LinearRegression()
-        regression.fit(regressors, responses)
-        weights = regression.coef_
-
-        self.db.load_weights(weights, self.user_id)
-
-    def update_user_recommendation(self):
-        """
-        update the recommendations in database,
-        each user will be generated up to 10 recommended movies
-        upon executing this function
-
-        Consider at least 8.0 to be recommended
-        :return:
-        """
+    def update_single_user_recommendations(self, user_id):
         result_list = []
-        current_year = datetime.now().strftime("%Y")
+        current_year = int(datetime.now().strftime("%Y"))
 
         while True:
-            if len(result_list) == 10:
-                break
-
-            user_ratings = self.db.get_user_ratings(self.user_id)
-
-            # labelling responses
-            label = []
-            attributes = []
-            for user_rating in user_ratings:
+            movie_pool = self.db.get_movie_id_by_year(current_year)
+            user_pool = self.db.get_user_ratings(user_id)
+            for user_rating in user_pool:
                 movie_id, score = user_rating
-                attributes.append([movie_id])
                 if score >= 8.0:  # consider as favorable movie
-                    label.append([movie_id, 1])
-                else:
-                    label.append([movie_id, 0])
+                    print(movie_id)
+                    for target in movie_pool:
+                        target_id = target[0]
+                        movie_similarity = MovieSimilarity(target_id, movie_id)
 
-            # TODO: quantify available data fields, make logistic regression model
-            # genre, actors, runtime
-            for attribute in attributes:
-                movie_id = attribute[0]
-                public = self.db.get_movie_data_by_id(movie_id)
-                print(public)
+                        try:
+                            similarity = movie_similarity.get_similarity()
+                        except ValueError:
+                            continue
 
-            # TODO: after classification, iterate through movie pools by year and store recommendation
-
+                        if similarity > 0.5:
+                            result_list.append(target_id)
+                            print(target_id)
+                            break
+            current_year -= 1
             break
+        scale = UserScale(user_id)
+
 
 if __name__ == '__main__':
-    # test()
-    recommender = Recommender('8')
-    recommender.update_user_recommendation()
+    warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")  # ignore lapack related warning
+    recommender = Recommender()
+    recommender.update_single_user_recommendations('8')
