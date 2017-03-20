@@ -1,11 +1,8 @@
 import database
-import difflib
 
 
 class MovieSimilarity:
-    """
-        Content based recommendation algorithm
-    """
+
     def __init__(self, target, source):
         """
         construct with 2 movie ids
@@ -20,34 +17,65 @@ class MovieSimilarity:
         self.source_data = self.db.get_movie_data_by_id(self.source)
 
     def get_similarity(self):
-        # assume weight
-        pass
+        """
+        calculate similarity of two movies based
+        on different fields
+        :return: float
+        """
+        genre_sim = self._calculate_genre_similarity()
+        actor_sim = self._calculate_actor_similarity()
+        runtime_sim = self._calculate_runtime_similarity()
+
+        # pre-set weights for each similarity
+        # genre : 0.5
+        # actor : 0.25
+        # runtime : 0.25
+        final_similarity = genre_sim * 0.5 + actor_sim * 0.25 + runtime_sim * 0.25
+        return final_similarity
 
     def _calculate_genre_similarity(self):
         """
         calculate similarity of genres between two movies
         :return: float
         """
-        target_genre_string = self.target_data[5]
-        source_genre_string = self.source_data[5]
-        target_genres = self._tokenize_genre(target_genre_string)
-        source_genres = self._tokenize_genre(source_genre_string)
-
-        average_genre_count = (len(target_genres) + len(source_genres)) / 2
-        similarity = len(set(source_genres).intersection(target_genres)) / average_genre_count
-
+        similarity = self._calculate_common_separated_string_similarity(5)
         return similarity
 
     def _calculate_actor_similarity(self):
-        target_runtime = self.target_data[3]
-        source_runtime = self.source_data[3]
-        target_token = target_runtime
-        print(target_token)
+        """
+        calculate similarity of actors between two movies
+        :return:
+        """
+        similarity = self._calculate_common_separated_string_similarity(3)
+        return similarity
 
     def _calculate_runtime_similarity(self):
-        target_runtime = self.target_data[6]
-        source_runtime = self.source_data[6]
-        print(target_runtime, source_runtime)
+        """
+        calculate similarity of runtime between two movies
+        based on the difference in runtime as a percentage
+        of the source movie
+        :return: float
+        """
+        target_runtime = int(self.target_data[6])
+        source_runtime = int(self.source_data[6])
+        difference = abs(target_runtime - source_runtime)
+        similarity = 1 - (difference / source_runtime)
+        return similarity
+
+    def _calculate_common_separated_string_similarity(self, index):
+        """
+        calculate similarity for string separated by comma,
+        identified by data object index
+        :param index: integer
+        :return: float
+        """
+        target_string = self.target_data[index]
+        source_string = self.source_data[index]
+        targets = self._tokenize_genre(target_string)
+        sources = self._tokenize_genre(source_string)
+        average_count = (len(targets) + len(sources)) / 2
+        similarity = len(set(sources).intersection(targets)) / average_count
+        return similarity
 
     @staticmethod
     def _tokenize_genre(genre):
@@ -55,6 +83,6 @@ class MovieSimilarity:
         return [token.strip() for token in tokens]
 
 if __name__ == '__main__':
-    ms = MovieSimilarity("tt3731562", "tt0360717")
-    ms._calculate_genre_similarity()
+    ms = MovieSimilarity("tt0330373", "tt0295297")
+    ms.get_similarity()
 
