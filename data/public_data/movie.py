@@ -224,8 +224,8 @@ class MovieData:
             genre_list.append(span.text)
         if len(genre_list) > 0:
             self.genre = ", ".join(genre_list)
-        if 'Short' in self.genre:
-            raise utils.InvalidMovieTypeException("Invalid movie type.")
+            if 'Short' in self.genre:
+                raise utils.InvalidMovieTypeException("Invalid movie type.")
         return self.genre
 
     def _extract_runtime(self):
