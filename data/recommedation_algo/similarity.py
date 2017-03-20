@@ -3,6 +3,11 @@ import database
 
 class MovieSimilarity:
 
+    # pre-set weights for each similarity
+    GENRE_WEIGHT = 0.5
+    ACTOR_WEIGHT = 0.25
+    RUNTIME_WEIGHT = 0.25
+
     def __init__(self, target, source):
         """
         construct with 2 movie ids
@@ -26,11 +31,8 @@ class MovieSimilarity:
         actor_sim = self._calculate_actor_similarity()
         runtime_sim = self._calculate_runtime_similarity()
 
-        # pre-set weights for each similarity
-        # genre : 0.5
-        # actor : 0.25
-        # runtime : 0.25
-        final_similarity = genre_sim * 0.5 + actor_sim * 0.25 + runtime_sim * 0.25
+        final_similarity = genre_sim * self.GENRE_WEIGHT + actor_sim * self.ACTOR_WEIGHT + runtime_sim \
+                                                                                           * self.RUNTIME_WEIGHT
         return final_similarity
 
     def _calculate_genre_similarity(self):
