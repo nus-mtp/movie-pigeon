@@ -35,6 +35,9 @@ class Recommender:
         pass
 
     def update_single_user_recommendations(self, user_id):
+        # 1. get all liked movies by the users -> act as source to get recommended movies
+        # 2. get a pool of similar movies based the seeds
+        # 3. rank the pool using scales, recommend tops
         result_list = []
         current_year = int(datetime.now().strftime("%Y"))
 
