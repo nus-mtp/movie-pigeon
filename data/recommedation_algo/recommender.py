@@ -110,7 +110,6 @@ class Recommender:
             break
 
 if __name__ == '__main__':
-    warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")  # ignore lapack related warning
     # test()
     recommender = Recommender('8')
     recommender.update_user_recommendation()
