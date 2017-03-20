@@ -4,6 +4,7 @@ var _ = require('underscore');
 var dateFormat = require('dateformat');
 var utils = require('./utils');
 var moment = require('moment');
+var timSort = require('timsort');
 
 // Create endpoint /api/movies/title for GET
 exports.getMoviesByTitle = function (req, res) {
@@ -61,11 +62,23 @@ function parseSchedule(schedules) {
  *
  * - Movie schedule are sorted in the order: Date --> Cinema --> Type --> Time
  */
-
+function typeCmp(a, b) {
+  return String(a.type).localeCompare(b.type);
+}function cinemaCmp(a, b) {
+  return String(a.cinema_name).localeCompare(b.cinema_name);
+}function dateCmp(a, b) {
+  return String(a.date).localeCompare(b.date);
+}function timeCmp(a, b) {
+  return String(a.time).localeCompare(b.time);
+}
 function sortSchedule(schedules) {
-  schedules = _.sortBy(schedules, 'type');
-  schedules = _.sortBy(schedules, 'cinema_id');
-  schedules = _.sortBy(schedules, 'date');
+  // schedules = _.sortBy(schedules, 'type');
+  // schedules = _.sortBy(schedules, 'cinema_id');
+  // schedules = _.sortBy(schedules, 'date');
+  timSort.sort(schedules, timeCmp);
+  timSort.sort(schedules, typeCmp);
+  timSort.sort(schedules, cinemaCmp);
+  timSort.sort(schedules, dateCmp);
   for (var i in schedules) {
     delete schedules[i]['cinema']
   }
