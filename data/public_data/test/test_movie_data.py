@@ -113,5 +113,26 @@ class TestMovieData(unittest.TestCase):
         helper_extract_runtime(self.test_id_list[4], 83)
         helper_extract_runtime(self.test_id_list[6], None)
 
+    def test_get_movie_data(self):
+        data_model = MovieData(self.test_id_list[0], test=True)
+        data_model.extract_all()
+        self.assertEqual(data_model.get_movie_data(),
+                         {'production_year': '2017',
+                          'runtime': 129,
+                          'released': '2017-03-16',
+                          'rated': 'PG',
+                          'movie_id': 'tt2771200',
+                          'poster_url': 'https://images-na.ssl-images-amazon.com/'
+                                        'images/M/MV5BMTUwNjUxMTM4NV5BMl5BanBnXkFtZTgwODExMDQzMTI@.'
+                                        '_V1_UX182_CR0,0,182,268_AL_.jpg', 'title': 'Beauty and the Beast',
+                          'plot': 'An adaptation of the Disney fairy tale about a monstrous-looking'
+                                  ' prince and a young woman who fall in love.',
+                          'language': None,
+                          'director': 'Bill Condon',
+                          'genre': 'Family, Fantasy, Musical',
+                          'type': 'movie',
+                          'country': 'Singapore',
+                          'actors': 'Emma Watson, Dan Stevens, Luke Evans'})
+
 if __name__ == '__main__':
     unittest.main()

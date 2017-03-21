@@ -54,7 +54,7 @@ class MovieData:
                                                self.released, self.runtime, self.title, self.type)
         return movie_data
 
-    def _extract_all(self):
+    def extract_all(self):
         self._extract_release()
         self._extract_rated()
         self._extract_genre()
