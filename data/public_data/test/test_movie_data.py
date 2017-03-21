@@ -1,214 +1,117 @@
-import unittest
-import os
-
 from movie import MovieData
+from utils import InvalidMovieTypeException
+
+import unittest
 
 
 class TestMovieData(unittest.TestCase):
 
-    test_id_list = ['tt2771200', 'tt0460648', 'tt2345678', 'tt4346792', 'tt3107288', 'tt0395865',
-                    'tt3783958', 'tt0000004', 'tt0000007', 'tt0000502', 'tt0001304', 'tt0000869', 'tt0000019',
-                    'tt0000025', 'tt0010781', 'tt0000481', 'tt0000012', 'tt0000399', 'tt0039624', 'tt0030298',
-                    'tt0039445']
+    test_id_list = ['tt2771200', 'tt3227946', 'tt3271078', 'tt6023350', 'tt0068918', 'tt0125590',
+                    'tt0378422', 'tt2016315', 'tt0141399', 'tt0142231', 'tt3107288', 'tt0034517']
 
     def test_extract_title_and_year(self):
 
-        def helper(imdb_id, expected):
-            data_model = MovieData(imdb_id)
+        def helper_extract_title_and_year(imdb_id, expected):
+            data_model = MovieData(imdb_id, test=True)
             self.assertEqual(data_model._extract_title_and_year(), expected)
 
-        helper(self.test_id_list[0], ('Beauty and the Beast', 2017))
+        helper_extract_title_and_year(self.test_id_list[0], ('Beauty and the Beast', 2017))
+        helper_extract_title_and_year(self.test_id_list[1], ('Death Test', None))
 
-    # def test_extract_poster(self):
-    #     """
-    #     test the extractor of movie poster url
-    #     1. url is nullable
-    #     :return:
-    #     """
-    #
-    #     def helper(imdb_id, expected):
-    #         """
-    #         takes in imdb id and the tuple of expected result
-    #         :param imdb_id:
-    #         :param expected:
-    #         :return:
-    #         """
-    #         data_model = MovieData("mock-id")
-    #
-    #         test_data_directory = os.path.realpath(
-    #             os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
-    #         io_wrapper = open(test_data_directory, encoding="utf8")
-    #         data_model._build_soup_for_test(io_wrapper)
-    #         data_model._extract_process()
-    #         self.assertEqual(data_model._extract_poster(), expected)
-    #         io_wrapper.close()
-    #
-    #     helper(self.test_id_list[0],
-    #                 "https://images-na.ssl-images-amazon.com/images/"
-    #                 "M/MV5BMjAzNDEwMzk3OV5BMl5BanBnXkFtZTcwOTk4OTM5Ng@@._V1_UY268_CR6,0,182,268_AL_.jpg")
-    #     helper(self.test_id_list[13], None)
-    #     helper(self.test_id_list[14], None)
-    #
-    # def test_extract_credits(self):
-    #     """
-    #     test the extractor of credits
-    #     1. actors can be nullable, one token or multiple tokens
-    #     2. directors can be nullable, one token or multiple tokens
-    #     :return:
-    #     """
-    #
-    #     def helper_test(imdb_id, expected):
-    #         """
-    #         takes in imdb id and the tuple of expected result
-    #         :param imdb_id:
-    #         :param expected:
-    #         :return:
-    #         """
-    #         data_model = MovieData("mock-id")
-    #         test_data_directory = os.path.realpath(
-    #             os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
-    #         io_wrapper = open(test_data_directory, encoding="utf8")
-    #         data_model._build_soup_for_test(io_wrapper)
-    #         data_model._extract_process()
-    #         self.assertEqual(data_model._extract_credits(), expected)
-    #         io_wrapper.close()
-    #
-    #     helper_test(self.test_id_list[16], (None, None))
-    #     helper_test(self.test_id_list[14], (None, "Birt Acres"))
-    #     helper_test(self.test_id_list[17], (None, "Auguste Lumière, Louis Lumière"))
-    #     helper_test(self.test_id_list[0], ("Carmencita", "William K.L. Dickson"))
-    #     helper_test(self.test_id_list[18], ("Thomas White", "George S. Fleming, Edwin S. Porter"))
-    #     helper_test(self.test_id_list[15], ("Ruth Roland, George Larkin, Mark Strong", "Robert Ellis, Louis J. Gasnier"))
-    #
-    # def test_extract_plot(self):
-    #     """
-    #     test plot
-    #     :return:
-    #     """
-    #
-    #     def helper_test(imdb_id, expected):
-    #         """
-    #         takes in imdb id and the tuple of expected result
-    #         :param imdb_id:
-    #         :param expected:
-    #         :return:
-    #         """
-    #         data_model = MovieData("mock-id")
-    #         test_data_directory = os.path.realpath(
-    #             os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
-    #         io_wrapper = open(test_data_directory, encoding="utf8")
-    #         data_model._build_soup_for_test(io_wrapper)
-    #         data_model._extract_process()
-    #         self.assertEqual(data_model._extract_plot(), expected)
-    #         io_wrapper.close()
-    #
-    #     helper_test(self.test_id_list[0], "Performing on what looks like a small wooden stage, wearing a dress with a "
-    #                                       "hoop skirt and white high-heeled pumps, Carmencita does a dance with kicks "
-    #                                       "and twirls, a smile always on her face.")
-    #
-    # def test_extract_rated(self):
-    #     """
-    #     test the rated token
-    #     :return:
-    #     """
-    #
-    #     def helper_test(imdb_id, expected):
-    #         """
-    #         takes in imdb id and the tuple of expected result
-    #         :param imdb_id:
-    #         :param expected:
-    #         :return:
-    #         """
-    #         data_model = MovieData("mock-id")
-    #         test_data_directory = os.path.realpath(
-    #             os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
-    #         io_wrapper = open(test_data_directory, encoding="utf8")
-    #         data_model._build_soup_for_test(io_wrapper)
-    #         data_model._extract_process()
-    #         self.assertEqual(data_model._extract_rated(), expected)
-    #         io_wrapper.close()
-    #
-    #     helper_test(self.test_id_list[0], "NOT RATED")
-    #
-    # def test_extract_release(self):
-    #     """
-    #     test the release token of subtext
-    #     :return:
-    #     """
-    #
-    #     def helper_test(imdb_id, expected):
-    #         """
-    #         takes in imdb id and the tuple of expected result
-    #         :param imdb_id:
-    #         :param expected:
-    #         :return:
-    #         """
-    #         data_model = MovieData("mock-id")
-    #         test_data_directory = os.path.realpath(
-    #             os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
-    #         io_wrapper = open(test_data_directory, encoding="utf8")
-    #         data_model._build_soup_for_test(io_wrapper)
-    #         data_model._extract_process()
-    #         self.assertEqual(data_model._extract_release(), expected)
-    #         io_wrapper.close()
-    #
-    #     helper_test(self.test_id_list[0], ('1894-03-10', 'USA', 'movie'))
-    #     helper_test(self.test_id_list[7], ('2016-12-25', 'USA', 'movie'))
-    #     helper_test(self.test_id_list[8], ('1892-10-28', 'France', 'movie'))
-    #     helper_test(self.test_id_list[9], (None, None, 'movie'))
-    #     helper_test(self.test_id_list[10], (None, None, 'movie'))
-    #     helper_test(self.test_id_list[11], ('1913-01-10', 'Germany', 'movie'))
-    #     helper_test(self.test_id_list[12], (None, None, 'movie'))
-    #
-    # def test_extract_genre(self):
-    #     """
-    #     test the genre token of subtext
-    #     :return:
-    #     """
-    #
-    #     def helper_test(imdb_id, expected):
-    #         """
-    #         takes in imdb id and the tuple of expected result
-    #         :param imdb_id:
-    #         :param expected:
-    #         :return:
-    #         """
-    #         data_model = MovieData("mock-id")
-    #         test_data_directory = os.path.realpath(
-    #             os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
-    #         io_wrapper = open(test_data_directory, encoding="utf8")
-    #         data_model._build_soup_for_test(io_wrapper)
-    #         data_model._extract_process()
-    #         self.assertEqual(data_model._extract_genre(), expected)
-    #         io_wrapper.close()
-    #
-    #     helper_test(self.test_id_list[0], 'Documentary, Short')
-    #     helper_test(self.test_id_list[12], None)
-    #
-    # def test_extract_runtime(self):
-    #     """
-    #     test runtime
-    #     :return:
-    #     """
-    #
-    #     def helper_test(imdb_id, expected):
-    #         """
-    #         takes in imdb id and the tuple of expected result
-    #         :param imdb_id:
-    #         :param expected:
-    #         :return:
-    #         """
-    #         data_model = MovieData("mock-id")
-    #         test_data_directory = os.path.realpath(
-    #             os.path.join(os.getcwd(), "test/data_movie_data/{}.html".format(imdb_id)))
-    #         io_wrapper = open(test_data_directory, encoding="utf8")
-    #         data_model._build_soup_for_test(io_wrapper)
-    #         data_model._extract_process()
-    #         self.assertEqual(data_model._extract_runtime(), expected)
-    #         io_wrapper.close()
-    #
-    #     helper_test(self.test_id_list[0], 1)
-    #     helper_test(self.test_id_list[12], None)
+    def test_extract_poster(self):
+
+        def helper_extract_poster(imdb_id, expected):
+            data_model = MovieData(imdb_id, test=True)
+            self.assertEqual(data_model._extract_poster(), expected)
+
+        helper_extract_poster(self.test_id_list[0], "https://images-na.ssl-images-amazon.com/"
+                                                    "images/M/MV5BMTUwNjUxMTM4NV5BMl5BanBnXkFtZTgwODExMDQzMTI@._"
+                                                    "V1_UX182_CR0,0,182,268_AL_.jpg")
+        helper_extract_poster(self.test_id_list[2], None)
+
+    def test_extract_credits(self):
+
+        def helper_extract_credits(imdb_id, expected):
+            data_model = MovieData(imdb_id, test=True)
+            self.assertEqual(data_model._extract_credits(), expected)
+
+        # test single actor, single director tt6023350
+        helper_extract_credits(self.test_id_list[3], ('Ben Leonberg', 'Ben Leonberg'))
+
+        # test multiple directors tt0068918
+        helper_extract_credits(self.test_id_list[4], ('Mary Brunner, Vincent Bugliosi, Bruce Davis',
+                                                      'Robert Hendrickson, Laurence Merrick'))
+
+        # test null actors tt3227946
+        helper_extract_credits(self.test_id_list[5], (None, 'Hsiao-Ming Hsu'))
+
+        # test null directors tt0378422
+        helper_extract_credits(self.test_id_list[6], ('Tonton Gutierrez, Sheila Ysrael', None))
+
+        # test both null tt2016315
+        helper_extract_credits(self.test_id_list[7], (None, None))
+
+    def test_extract_plot(self):
+
+        def helper_extract_plot(imdb_id, expected):
+            data_model = MovieData(imdb_id, test=True)
+            self.assertEqual(data_model._extract_plot(), expected)
+
+        helper_extract_plot(self.test_id_list[0], 'An adaptation of the Disney fairy tale about '
+                                                  'a monstrous-looking prince and a young woman who fall in love.')
+        helper_extract_plot(self.test_id_list[5], None)
+
+    def test_extract_rated(self):
+
+        def helper_extract_rated(imdb_id, expected):
+            data_model = MovieData(imdb_id, test=True)
+            self.assertEqual(data_model._extract_rated(), expected)
+
+        helper_extract_rated(self.test_id_list[0], 'PG')
+        helper_extract_rated(self.test_id_list[1], None)
+        helper_extract_rated(self.test_id_list[8], 'R')
+        helper_extract_rated(self.test_id_list[9], 'PG-13')
+
+    def test_extract_release(self):
+
+        def helper_extract_release(imdb_id, expected):
+            data_model = MovieData(imdb_id, test=True)
+            self.assertEqual(data_model._extract_release(), expected)
+
+        # date, country, type
+        helper_extract_release(self.test_id_list[0], ('2017-03-16', 'Singapore', 'movie'))
+        helper_extract_release(self.test_id_list[1], (None, None, 'movie'))
+        helper_extract_release(self.test_id_list[2], ('2016-04-08', 'USA', 'movie'))
+        helper_extract_release(self.test_id_list[3], (None, None, 'movie'))
+
+        def helper_extract_release_error(imdb_id):
+            data_model = MovieData(imdb_id, test=True)
+            with self.assertRaises(InvalidMovieTypeException):
+                data_model._extract_release()
+
+        # exceptions tt3107288
+        helper_extract_release_error(self.test_id_list[10])
+
+    def test_extract_genre(self):
+
+        def helper_extract_genre(imdb_id, expected):
+            data_model = MovieData(imdb_id, test=True)
+            self.assertEqual(data_model._extract_genre(), expected)
+
+        helper_extract_genre(self.test_id_list[0], 'Family, Fantasy, Musical')
+        helper_extract_genre(self.test_id_list[1], 'Sci-Fi, Thriller')
+        helper_extract_genre(self.test_id_list[11], None)
+
+    def test_extract_runtime(self):
+
+        def helper_extract_runtime(imdb_id, expected):
+            data_model = MovieData(imdb_id, test=True)
+            self.assertEqual(data_model._extract_runtime(), expected)
+
+        helper_extract_runtime(self.test_id_list[0], 129)
+        helper_extract_runtime(self.test_id_list[1], 110)
+        helper_extract_runtime(self.test_id_list[4], 83)
+        helper_extract_runtime(self.test_id_list[6], None)
 
 if __name__ == '__main__':
     unittest.main()

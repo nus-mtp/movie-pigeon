@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
 from urllib import request, error
 
-import html
 import utils
 import json
 
@@ -43,6 +42,19 @@ class MovieData:
             self.soup = utils.build_soup_from_url(self.IMDB_URL_FORMAT.format(imdb_id))
 
         self._extract_subtext()
+
+    def get_movie_data(self):
+        """
+        return a dict that contains all data to extractor
+        :return: dictionary of data in various type
+        """
+        # TODO : refactor packaging under same class
+        movie_data = utils.get_movie_data_dict(self.actors, self.country, self.director, self.genre, self.imdb_id,
+                                               None, self.plot, self.poster_url, self.production_year, self.rated,
+                                               self.released, self.runtime, self.title, self.type)
+        return movie_data
+
+    def _extract_all(self):
         self._extract_release()
         self._extract_rated()
         self._extract_genre()
@@ -52,16 +64,6 @@ class MovieData:
         self._extract_poster()
         self._extract_credits()
         self._extract_plot()
-
-    def get_movie_data(self):
-        """
-        return a dict that contains all data to extractor
-        :return: dictionary of data in various type
-        """
-        movie_data = utils.get_movie_data_dict(self.actors, self.country, self.director, self.genre, self.imdb_id,
-                                               None, self.plot, self.poster_url, self.production_year, self.rated,
-                                               self.released, self.runtime, self.title, self.type)
-        return movie_data
 
     def _extract_title_and_year(self):
         """
