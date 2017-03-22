@@ -160,6 +160,7 @@ class ETLController:
         :return: None
         """
         data_model = MovieData(imdb_id)
+        data_model.extract_all()
         current_movie_data = data_model.get_movie_data()
         self.loader.load_movie_data(current_movie_data)
 

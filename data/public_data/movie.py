@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
 from urllib import request, error
 
-import html
 import utils
 import json
 
@@ -11,6 +10,7 @@ class MovieData:
     This class handles all operations related to movie data
     extraction
     """
+    IMDB_URL_FORMAT = "http://www.imdb.com/title/{}/"
 
     title = None
     production_year = None
@@ -28,33 +28,33 @@ class MovieData:
     subtext = None
     soup = None
 
-    def __init__(self, imdb_id):
+    def __init__(self, imdb_id, test=False):
         """
         It takes an imdb_id to instantiate a MovieData object, upon instantiation,
         it will get relevant html content and store as instance attribute
         :param imdb_id:
         """
         self.imdb_id = imdb_id
-        if imdb_id != "mock-id":  # special identifier for test cases. i.e. normal instantiation
-            self._build_soup(self._get_html_content())
-            self._extract_process()
+
+        if test:
+            self.soup = utils.build_soup_from_file("test/data_movie_data/{}.html".format(imdb_id))
+        else:
+            self.soup = utils.build_soup_from_url(self.IMDB_URL_FORMAT.format(imdb_id))
+
+        self._extract_subtext()
 
     def get_movie_data(self):
         """
         return a dict that contains all data to extractor
         :return: dictionary of data in various type
         """
+        # TODO : refactor packaging under same class
         movie_data = utils.get_movie_data_dict(self.actors, self.country, self.director, self.genre, self.imdb_id,
                                                None, self.plot, self.poster_url, self.production_year, self.rated,
                                                self.released, self.runtime, self.title, self.type)
         return movie_data
 
-    def _extract_process(self):
-        """
-        main logic for extraction of imdb data
-        :return:
-        """
-        self._extract_subtext()
+    def extract_all(self):
         self._extract_release()
         self._extract_rated()
         self._extract_genre()
@@ -64,31 +64,6 @@ class MovieData:
         self._extract_poster()
         self._extract_credits()
         self._extract_plot()
-
-    def _get_html_content(self):
-        """
-        get html source based on imdb_id
-        :return: string
-        """
-        url = utils.UrlFormatter.IMDB_URL_FORMAT.value.format(self.imdb_id)
-        request_result = html.unescape(request.urlopen(url).read().decode("utf-8"))
-        return request_result
-
-    def _build_soup(self, request_result):
-        """
-        build soup based on html content in string format
-        :param request_result:
-        :return: None
-        """
-        self.soup = BeautifulSoup(request_result, "lxml")  # soup builder
-
-    def _build_soup_for_test(self, html_file_io_wrapper):
-        """
-        build soup based on imported html source code file
-        :param html_file_io_wrapper:
-        :return: None
-        """
-        self.soup = BeautifulSoup(html_file_io_wrapper, "lxml")
 
     def _extract_title_and_year(self):
         """
@@ -224,6 +199,8 @@ class MovieData:
             genre_list.append(span.text)
         if len(genre_list) > 0:
             self.genre = ", ".join(genre_list)
+            if 'Short' in self.genre:
+                raise utils.InvalidMovieTypeException("Invalid movie type.")
         return self.genre
 
     def _extract_runtime(self):

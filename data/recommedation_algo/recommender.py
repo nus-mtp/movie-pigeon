@@ -12,7 +12,6 @@
         # store in database
 
 """
-import logging
 from db_handler import DatabaseHandler
 from public_data.controller import ETLController
 from sklearn import linear_model
