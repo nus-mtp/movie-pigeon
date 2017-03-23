@@ -66,13 +66,15 @@ class Loader:
     def load_cinema_list(self, cinema_list):
         for cinema in cinema_list:
             self.cursor.execute(
-                "INSERT INTO cinemas (cinema_name, url, provider) VALUES (%s, %s, %s) "
+                "INSERT INTO cinemas (cinema_name, url, provider, location_x, location_y) VALUES (%s, %s, %s, %s, %s) "
                 "ON CONFLICT (cinema_name) "
-                "DO UPDATE SET (cinema_name, url, provider) = (%s, %s, %s)"
+                "DO UPDATE SET (url, provider, location_x, location_y) = (%s, %s, %s, %s)"
                 "WHERE cinemas.cinema_name=%s",
                 (
-                    cinema['cinema_name'], cinema['url'], cinema['provider'], cinema['cinema_name'],
-                    cinema['url'], cinema['provider'], cinema['cinema_name']
+                    cinema['cinema_name'], cinema['url'], cinema['provider'], str(cinema['location_x']),
+                    str(cinema['location_y']),
+                    cinema['url'], cinema['provider'], str(cinema['location_x']), str(cinema['location_y']),
+                    cinema['cinema_name']
                 )
             )
             self.conn.commit()

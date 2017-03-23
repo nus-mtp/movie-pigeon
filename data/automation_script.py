@@ -27,6 +27,7 @@ def run(con):
 
 if __name__ == '__main__':
     con = controller.ETLController()
-    run(con)
+    con.update_cinema_list()
+    # run(con)
 
 
