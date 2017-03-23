@@ -18,6 +18,12 @@ var Cinema = sequelize.define('cinemas', {
   },
   url: {
     type: DataTypes.TEXT
+  },
+  location_x: {
+    type: DataTypes.FLOAT
+  },
+  location_y: {
+    type: DataTypes.FLOAT
   }
 });
 
