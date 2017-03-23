@@ -196,7 +196,7 @@ class CinemaSchedule:
         self.transformer = CinemaScheduleTransformer()
 
         from loader import Loader
-        self.loader = Loader()  # for specific use
+        self.loader = Loader()  # for matching cinema id
 
     # ==================
     #   Golden Village
