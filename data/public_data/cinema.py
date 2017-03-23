@@ -186,7 +186,7 @@ class CinemaSchedule:
     of movie schedules in cinemas
     """
 
-    SHAW_SCHEDULES = 'http://www.shaw.sg/sw_buytickets.aspx?CplexCode=&FilmCode=&date=3/26/2017'
+    SHAW_SCHEDULES = 'http://www.shaw.sg/sw_buytickets.aspx?CplexCode=&FilmCode=&date={}'
 
     GV_SCHEDULES = 'https://www.gv.com.sg/GVBuyTickets#/'
 
@@ -205,7 +205,6 @@ class CinemaSchedule:
         else:
             raise utils.InvalidCinemaTypeException
 
-        self.driver.get(self.url)
 
         self.transformer = CinemaScheduleTransformer()
         self.loader = Loader()
@@ -214,6 +213,8 @@ class CinemaSchedule:
     #   Golden Village
     # ==================
     def get_gv_schedule(self):
+        self.driver.get(self.url)
+
         provider_schedule = {}
         for i in range(6):
 
@@ -233,9 +234,6 @@ class CinemaSchedule:
 
                 for current_movie in movie_iterators:
                     movie_title = current_movie.find_element_by_css_selector('span').text
-
-                    if 'Zen Zone' in movie_title:
-                        continue
 
                     movie_timing = []
                     buttons = current_movie.find_elements_by_css_selector("button")
@@ -275,34 +273,39 @@ class CinemaSchedule:
     # ==========
 
     def get_cathay_schedule(self):
+        self.driver.get(self.url)
+
         provider_schedule = {}
 
         cathay_index = 0
         while True:
             if cathay_index == 0:
                 cathay_id = self.transformer.get_cathay_id_from_cathay_cinema_name('')
+                cathay_index_for_title = ''
             else:
                 cathay_id = self.transformer.get_cathay_id_from_cathay_cinema_name(cathay_index)
-
-            cathay_index += 1
-
+                cathay_index_for_title = cathay_index
             try:
                 current_cinema_all = self.driver.find_element_by_id(cathay_id)
             except common.exceptions.NoSuchElementException:  # end of list
                 break
 
-            cinema_name = capwords(self.driver.find_element_by_id('ContentPlaceHolder1_wucST{}_tab_title'.format(cathay_index)).text)
+            cinema_name = capwords(
+                self.driver.find_element_by_id('ContentPlaceHolder1_wucST{}_tab_title'.format(cathay_index_for_title)).text)
             if cinema_name == 'The Cathay':
                 cinema_name = 'The Cathay Cineplex'
             else:
                 cinema_name = "Cathay Cineplex " + cinema_name
+
             cinema_id = self.loader.get_cinema_id_from_name(cinema_name)
 
             cinema_iterators = current_cinema_all.find_elements_by_class_name('tabbers')
+            date_iterators = current_cinema_all.find_elements_by_class_name('caps')
 
             for i in range(6):  # each date
                 current_date = GeneralTransformer.get_singapore_date(i)
                 current_cinema = cinema_iterators[i]
+                date_iterators[i].click()
                 movie_iterators = current_cinema.find_elements_by_class_name('movie-container')
 
                 for current_movie in movie_iterators[:-1]:  # remove last no session container
@@ -317,7 +320,7 @@ class CinemaSchedule:
                     data_object = {
                         "cinema_id": cinema_id,
                         "schedule": movie_timing,
-                        "type": additional_info
+                        "additional_info": additional_info
                     }
 
                     if title in provider_schedule:
@@ -325,13 +328,49 @@ class CinemaSchedule:
                     else:
                         provider_schedule[title] = [data_object]
 
+            cathay_index += 1
+
         print(provider_schedule)
 
     # ================
     #   Shaw Brother
     # ================
     def get_sb_schedule(self):
-        pass
+        provider_schedule = {}
+        for i in range(6):
+            current_date = GeneralTransformer.get_singapore_date(i)
+            sb_date = datetime.strptime(current_date, '%Y-%m-%d').strftime('%-m/%d/%Y')
+            self.driver.get(self.url.format(sb_date))
+            cinema_iterators = self.driver.find_elements_by_class_name('persist-area')
+
+            for current_cinema in cinema_iterators:
+                cinema_name = current_cinema.find_element_by_class_name('txtScheduleHeaderCineplex').text
+                cinema_name = capwords(cinema_name.split("(")[0].strip().replace('\n', ''))
+
+                cinema_id = self.loader.get_cinema_id_from_name(cinema_name)
+
+                movie_iterators = current_cinema.find_elements_by_class_name('panelSchedule')
+                for movie_row in movie_iterators[2:]:  # remove table header
+                    movie_title, schedule = movie_row.text.strip().split("\n", 1)
+
+                    if "PM" in schedule or "AM" in schedule:
+                        movie_title = self._get_sb_single_movie_title(movie_title)
+                        movie_timing = self._get_sb_single_movie_time(current_date, schedule)
+
+                        title, additional_info = self.transformer.parse_sb_movie_title(movie_title)
+
+                        data_object = {
+                            "cinema_id": cinema_id,
+                            "schedule": movie_timing,
+                            "additional_info": additional_info
+                        }
+
+                        if title in provider_schedule:
+                            provider_schedule[title].append(data_object)
+                        else:
+                            provider_schedule[title] = [data_object]
+
+        print(provider_schedule)
 
     def _extract_sb_schedule(self):
         """
