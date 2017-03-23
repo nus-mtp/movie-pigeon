@@ -4,6 +4,7 @@ from selenium import webdriver
 from string import capwords
 from transformer import CinemaScheduleTransformer, GeneralTransformer, CinemaListTransformer
 from urllib import request
+from loader import Loader
 
 import utils
 import json
@@ -191,7 +192,7 @@ class CinemaSchedule:
 
     CATHAY_SCHEDULES = 'http://www.cathaycineplexes.com.sg/showtimes/'
 
-    def __init__(self, provider, test=False, test_directory=None):
+    def __init__(self, provider):
         self.driver = webdriver.PhantomJS()
         self.driver.set_window_size(1124, 850)  # set browser size
 
@@ -204,18 +205,70 @@ class CinemaSchedule:
         else:
             raise utils.InvalidCinemaTypeException
 
-        if test:
-            self.driver.get(test_directory)
-        else:
-            self.driver.get(self.url)
+        self.driver.get(self.url)
 
         self.transformer = CinemaScheduleTransformer()
+        self.loader = Loader()
 
     # ==================
     #   Golden Village
     # ==================
     def _new_extract_gv_schedule(self):
-        pass
+        provider_schedule = {}
+        for i in range(6):
+
+            # select date
+            current_date = GeneralTransformer.get_singapore_date(i)
+            self._new_get_date_iterator_gv()[i].click()
+            self.driver.implicitly_wait(2)
+
+            cinema_iterators = self.driver.find_elements_by_class_name("buy-tickets-section")
+            assert len(cinema_iterators) == 25  # number of gv theatres
+
+            for current_cinema in cinema_iterators:
+                cinema_name = current_cinema.find_element_by_css_selector('p').text
+                cinema_id = self.loader.get_cinema_id_from_name(cinema_name)
+
+                movie_iterators = current_cinema.find_elements_by_class_name('row')[1:]  # skip date row
+
+                for current_movie in movie_iterators:
+                    movie_title = current_movie.find_element_by_css_selector('span').text
+
+                    if 'Zen Zone' in movie_title:
+                        continue
+
+                    movie_timing = []
+                    buttons = current_movie.find_elements_by_css_selector("button")
+
+                    for button in buttons:
+                        movie_timing.append(current_date + " " +
+                                            GeneralTransformer.convert_12_to_24_hour_time(button.text))
+
+                    title, additional_info = self.transformer.parse_gv_movie_title(movie_title)
+
+                    data_object = {
+                        "cinema_id": cinema_id,
+                        "schedule": movie_timing,
+                        "type": additional_info
+                    }
+
+                    if title in provider_schedule:
+                        provider_schedule[title].append(data_object)
+                    else:
+                        provider_schedule[title] = [data_object]
+
+        print(provider_schedule)
+
+    def _new_get_date_iterator_gv(self):
+        date_iterators = []
+        tabs = self.driver.find_elements_by_class_name("ng-binding")
+        for tab in tabs:
+            if tab.get_attribute("ng-bind-html") == "date.name":
+                if tab.text == "Advance Sales":  # reach the end of tabs
+                    break
+
+                date_iterators.append(tab)
+        return date_iterators
 
     def _extract_gv_schedule(self):
         """

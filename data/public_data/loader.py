@@ -131,6 +131,10 @@ class Loader:
             id_list.append(item[0])
         return id_list
 
+    def get_cinema_id_from_name(self, cinema_name):
+        self.cursor.execute("SELECT cinema_id FROM cinemas WHERE cinema_name=%s", (cinema_name, ))
+        return self.cursor.fetchone()[0]
+
     # delete
     def delete_outdated_schedules(self):
         """
