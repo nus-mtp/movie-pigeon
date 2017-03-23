@@ -147,7 +147,6 @@ class CinemaList:
         :param address: string
         :return: float, float
         """
-        logging.warning(address)
         address = self._parse_special_cinema(address)
 
         time.sleep(1)  # important to avoid violating google api limit
