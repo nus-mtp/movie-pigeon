@@ -339,6 +339,7 @@ class CinemaSchedule:
         provider_schedule = {}
         for i in range(6):
             current_date = GeneralTransformer.get_singapore_date(i)
+            print(current_date)
             sb_date = datetime.strptime(current_date, '%Y-%m-%d').strftime('%-m/%d/%Y')
             self.driver.get(self.url.format(sb_date))
             cinema_iterators = self.driver.find_elements_by_class_name('persist-area')
@@ -351,7 +352,10 @@ class CinemaSchedule:
 
                 movie_iterators = current_cinema.find_elements_by_class_name('panelSchedule')
                 for movie_row in movie_iterators[2:]:  # remove table header
-                    movie_title, schedule = movie_row.text.strip().split("\n", 1)
+                    try:
+                        movie_title, schedule = movie_row.text.strip().split("\n", 1)
+                    except ValueError:
+                        continue
 
                     if "PM" in schedule or "AM" in schedule:
                         movie_title = self._get_sb_single_movie_title(movie_title)
