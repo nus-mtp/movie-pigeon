@@ -1,6 +1,6 @@
 from datetime import datetime
 from bs4 import BeautifulSoup
-from selenium import webdriver
+from selenium import webdriver, common
 from string import capwords
 from transformer import CinemaScheduleTransformer, GeneralTransformer, CinemaListTransformer
 from urllib import request
@@ -213,13 +213,13 @@ class CinemaSchedule:
     # ==================
     #   Golden Village
     # ==================
-    def _new_extract_gv_schedule(self):
+    def get_gv_schedule(self):
         provider_schedule = {}
         for i in range(6):
 
             # select date
             current_date = GeneralTransformer.get_singapore_date(i)
-            self._new_get_date_iterator_gv()[i].click()
+            self._get_gv_date_iterator(i).click()
             self.driver.implicitly_wait(2)
 
             cinema_iterators = self.driver.find_elements_by_class_name("buy-tickets-section")
@@ -259,7 +259,7 @@ class CinemaSchedule:
 
         print(provider_schedule)
 
-    def _new_get_date_iterator_gv(self):
+    def _get_gv_date_iterator(self, index):
         date_iterators = []
         tabs = self.driver.find_elements_by_class_name("ng-binding")
         for tab in tabs:
@@ -268,219 +268,71 @@ class CinemaSchedule:
                     break
 
                 date_iterators.append(tab)
-        return date_iterators
-
-    def _extract_gv_schedule(self):
-        """
-        extract current gv cinema schedule
-        return a dict contains only raw movie title and a
-        list of timing
-        :return: dictionary
-        """
-        cinema_schedule = {}
-
-        date_iterator = self._get_gv_date_iterator()
-
-        date_counter = 0  # date counter into the future
-        for each_day in date_iterator:
-            if each_day.get_attribute("ng-bind-html") == "day.day":  # iterate through date tabs
-                current_date = GeneralTransformer.get_singapore_date(date_counter)
-
-                if each_day.text == "Advance Sales":  # reach the end of tabs
-                    break
-
-                each_day.click()  # select tab
-                web_element_titles = self.driver.find_elements_by_class_name("row")
-
-                self._update_gv_single_movie_schedule(cinema_schedule, current_date, web_element_titles)
-
-                date_counter += 1
-
-        return cinema_schedule
-
-    def _get_gv_date_iterator(self):
-        """
-        get the outmost layer of web element, representing
-        each day, which will be iterated for every movie
-        :return: selenium web element
-        """
-        self.driver.get(self.cinema_url)
-        tabs = self.driver.find_elements_by_class_name("ng-binding")
-        return tabs
-
-    def _update_gv_single_movie_schedule(self, cinema_schedule, current_date, movie_iterator):
-        """
-        update the dictionary with data of each movie
-        :param cinema_schedule: dictionary
-        :param current_date: datetime
-        :param movie_iterator: selenium web element
-        :return:
-        """
-        for movie_row in movie_iterator:
-            current_title = self._get_gv_single_movie_title(movie_row)
-            current_time = self._get_gv_single_movie_time(current_date, movie_row)
-            self._merge_gv_single_movie_schedule(cinema_schedule, current_time, current_title)
-
-    @staticmethod
-    def _merge_gv_single_movie_schedule(cinema_schedule, current_time, current_title):
-        """
-        merge the time list and title list into dictionary
-        :param cinema_schedule: dictionary
-        :param current_time: list
-        :param current_title: string
-        :return:
-        """
-        if current_title is not None:
-            if current_title in cinema_schedule:
-                cinema_schedule[current_title].extend(current_time)
-            else:
-                cinema_schedule[current_title] = current_time
-
-    @staticmethod
-    def _get_gv_single_movie_time(current_date, web_element_title):
-        """
-        get time list from one web element
-        :param current_date:
-        :param web_element_title:
-        :return:
-        """
-        current_time = []
-        buttons = web_element_title.find_elements_by_css_selector("button")
-
-        for button in buttons:
-            if button.get_attribute("ng-bind-html") == "time.time":
-                current_time.append(current_date + " " +
-                                    GeneralTransformer.convert_12_to_24_hour_time(button.text))
-
-        return current_time
-
-    @staticmethod
-    def _get_gv_single_movie_title(web_element_title):
-        """
-        get title from one web element
-        :param web_element_title:
-        :return:
-        """
-        current_title = None
-        anchors = web_element_title.find_elements_by_class_name("ng-binding")
-
-        for anchor in anchors:
-            if anchor.get_attribute("ng-bind-html") == "getFilmTitle(movie)":
-                current_title = anchor.text
-
-        return current_title
+        return date_iterators[index]
 
     # ==========
     #   Cathay
     # ==========
-    def _extract_cathay_schedule(self):
-        """
-        extract current cathay cinema schedule
-        return a dict contains only raw movie title and a
-        list of timing
-        :return: dictionary
-        """
-        cinema_schedule = {}
 
-        date_iterator = self._get_cathay_date_iterator()
+    def get_cathay_schedule(self):
+        provider_schedule = {}
 
-        date_counter = 0
-        for each_day in date_iterator:  # for each day
-            current_date = GeneralTransformer.get_singapore_date(date_counter)
+        cathay_index = 0
+        while True:
+            if cathay_index == 0:
+                cathay_id = self.transformer.get_cathay_id_from_cathay_cinema_name('')
+            else:
+                cathay_id = self.transformer.get_cathay_id_from_cathay_cinema_name(cathay_index)
 
-            rows = each_day.find_elements_by_class_name("movie-container")
-            self._update_cathay_single_movie_schedule(cinema_schedule, current_date, rows)
-
-            date_counter += 1
-
-        return cinema_schedule
-
-    def _get_cathay_date_iterator(self):
-        """
-        get the outmost layer of web element, representing
-        each day, which will be iterated for every movie
-        :return: selenium web element
-        """
-        self.driver.get(self.cinema_url)
-        self.driver.implicitly_wait(2)  # wait for page to load
-        cathay_id = CinemaScheduleTransformer.get_cathay_id_from_cathay_cinema_name(self.cinema_name)
-        outer_div = self.driver.find_element_by_id(cathay_id)
-        tabs = outer_div.find_elements_by_class_name("tabbers")
-        return tabs
-
-    def _update_cathay_single_movie_schedule(self, cinema_schedule, current_date, movie_iterator):
-        """
-        update the dictionary with data of each movie
-        :param cinema_schedule: dictionary
-        :param current_date: datetime
-        :param movie_iterator: selenium web element
-        :return: None
-        """
-        for movie_row in movie_iterator:
-            soup = self._parse_cathay_inner_html(movie_row)
+            cathay_index += 1
 
             try:
-                current_title = self._get_cathay_single_movie_title(soup)
-            except AttributeError:  # break when there is no more content in tabs
+                current_cinema_all = self.driver.find_element_by_id(cathay_id)
+            except common.exceptions.NoSuchElementException:  # end of list
                 break
 
-            current_time = self._get_cathay_single_movie_time(current_date, soup)
-            self._merge_cathay_single_movie_schedule(cinema_schedule, current_time, current_title)
-
-    @staticmethod
-    def _merge_cathay_single_movie_schedule(cinema_schedule, current_time, current_title):
-        """
-        merge the time list and title list into dictionary
-        :param cinema_schedule: dictionary
-        :param current_time: list
-        :param current_title: string
-        :return: None
-        """
-        if current_title is not None:
-            if current_title in cinema_schedule:
-                cinema_schedule[current_title].extend(current_time)
+            cinema_name = capwords(self.driver.find_element_by_id('ContentPlaceHolder1_wucST{}_tab_title'.format(cathay_index)).text)
+            if cinema_name == 'The Cathay':
+                cinema_name = 'The Cathay Cineplex'
             else:
-                cinema_schedule[current_title] = current_time
+                cinema_name = "Cathay Cineplex " + cinema_name
+            cinema_id = self.loader.get_cinema_id_from_name(cinema_name)
 
-    @staticmethod
-    def _get_cathay_single_movie_time(current_date, soup):
-        """
-        get time list from one web element
-        :param current_date: datetime
-        :param soup: BeautifulSoup object
-        :return: list
-        """
-        current_time = []
-        times = soup.find_all("a", {"class": "cine_time"})
-        for show_time in times:
-            current_time.append(current_date + " " + show_time.text + ":00")
-        return current_time
+            cinema_iterators = current_cinema_all.find_elements_by_class_name('tabbers')
 
-    @staticmethod
-    def _get_cathay_single_movie_title(soup):
-        """
-        get title from one web element
-        :param soup: BeautifulSoup object
-        :return: string
-        """
-        current_title = soup.find("strong").text
-        return current_title
+            for i in range(6):  # each date
+                current_date = GeneralTransformer.get_singapore_date(i)
+                current_cinema = cinema_iterators[i]
+                movie_iterators = current_cinema.find_elements_by_class_name('movie-container')
 
-    @staticmethod
-    def _parse_cathay_inner_html(row):
-        """
-        parse the inner html of the movie web element
-        for the extraction of title and schedules
-        :param row: selenium web element
-        :return: BeautifulSoup object
-        """
-        row_content = row.get_attribute("innerHTML")
-        soup = BeautifulSoup(row_content, "lxml")
-        return soup
+                for current_movie in movie_iterators[:-1]:  # remove last no session container
+                    movie_info = current_movie.find_elements_by_css_selector('a')
+                    movie_title = movie_info[0].text
+                    movie_timing = []
+                    for current_timing in movie_info[1:]:
+                        movie_timing.append(current_date + " " + current_timing.text + ":00")
+
+                    title, additional_info = self.transformer.parse_cathay_movie_title(movie_title)
+
+                    data_object = {
+                        "cinema_id": cinema_id,
+                        "schedule": movie_timing,
+                        "type": additional_info
+                    }
+
+                    if title in provider_schedule:
+                        provider_schedule[title].append(data_object)
+                    else:
+                        provider_schedule[title] = [data_object]
+
+        print(provider_schedule)
 
     # ================
     #   Shaw Brother
     # ================
+    def get_sb_schedule(self):
+        pass
+
     def _extract_sb_schedule(self):
         """
         extract current shaw cinema schedule
