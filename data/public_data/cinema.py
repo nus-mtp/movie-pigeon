@@ -192,19 +192,9 @@ class CinemaSchedule:
 
     CATHAY_SCHEDULES = 'http://www.cathaycineplexes.com.sg/showtimes/'
 
-    def __init__(self, provider):
+    def __init__(self):
         self.driver = webdriver.PhantomJS()
         self.driver.set_window_size(1124, 850)  # set browser size
-
-        if provider == 'sb':
-            self.url = self.SHAW_SCHEDULES
-        elif provider == 'gv':
-            self.url = self.GV_SCHEDULES
-        elif provider == 'cathay':
-            self.url = self.CATHAY_SCHEDULES
-        else:
-            raise utils.InvalidCinemaTypeException
-
 
         self.transformer = CinemaScheduleTransformer()
         self.loader = Loader()
@@ -213,7 +203,7 @@ class CinemaSchedule:
     #   Golden Village
     # ==================
     def get_gv_schedule(self):
-        self.driver.get(self.url)
+        self.driver.get(self.GV_SCHEDULES)
 
         provider_schedule = {}
         for i in range(6):
@@ -255,7 +245,7 @@ class CinemaSchedule:
                     else:
                         provider_schedule[title] = [data_object]
 
-        print(provider_schedule)
+        return provider_schedule
 
     def _get_gv_date_iterator(self, index):
         date_iterators = []
@@ -273,7 +263,7 @@ class CinemaSchedule:
     # ==========
 
     def get_cathay_schedule(self):
-        self.driver.get(self.url)
+        self.driver.get(self.CATHAY_SCHEDULES)
 
         provider_schedule = {}
 
@@ -330,7 +320,7 @@ class CinemaSchedule:
 
             cathay_index += 1
 
-        print(provider_schedule)
+        return provider_schedule
 
     # ================
     #   Shaw Brother
@@ -339,9 +329,8 @@ class CinemaSchedule:
         provider_schedule = {}
         for i in range(6):
             current_date = GeneralTransformer.get_singapore_date(i)
-            print(current_date)
             sb_date = datetime.strptime(current_date, '%Y-%m-%d').strftime('%-m/%d/%Y')
-            self.driver.get(self.url.format(sb_date))
+            self.driver.get(self.SHAW_SCHEDULES.format(sb_date))
             cinema_iterators = self.driver.find_elements_by_class_name('persist-area')
 
             for current_cinema in cinema_iterators:
@@ -374,74 +363,7 @@ class CinemaSchedule:
                         else:
                             provider_schedule[title] = [data_object]
 
-        print(provider_schedule)
-
-    def _extract_sb_schedule(self):
-        """
-        extract current shaw cinema schedule
-        return a dict contains only raw movie title and a
-        list of timing
-        :return: dictionary
-        """
-        cinema_schedule = {}
-
-        date_iterator = self._get_sb_date_iterator()
-
-        for each_day in date_iterator:  # each day
-            current_date = self.parse_sb_date(each_day)
-
-            self._load_page_by_date(each_day)  # click on the date to load page
-            rows = self.driver.find_elements_by_class_name("panelSchedule")
-            self._update_sb_single_movie_schedule(cinema_schedule, current_date, rows)
-
-        return cinema_schedule
-
-    def _get_sb_date_iterator(self):
-        """
-        get the outmost layer of web element, representing
-        each day, which will be iterated for every movie
-        :return: selenium web element
-        """
-        self.driver.get(self.cinema_url)
-        show_dates = []
-        options = self.driver.find_element_by_id("ctl00_Content_ddlShowDate")\
-            .find_elements_by_css_selector("option")
-
-        for show_date in options:
-            show_dates.append(show_date.get_attribute("value"))
-
-        return show_dates
-
-    def _update_sb_single_movie_schedule(self, cinema_schedule, current_date, movie_iterator):
-        """
-        update the dictionary with data of each movie
-        :param cinema_schedule: dictionary
-        :param current_date: datetime
-        :param movie_iterator: selenium element
-        :return: None
-        """
-        for movie_row in movie_iterator[2:]:  # remove table header
-            current_title, schedule = movie_row.text.strip().split("\n", 1)
-
-            if "PM" in schedule or "AM" in schedule:
-                current_title = self._get_sb_single_movie_title(current_title)
-                current_time = self._get_sb_single_movie_time(current_date, schedule)
-                self._merge_sb_single_movie_schedule(cinema_schedule, current_time, current_title)
-
-    @staticmethod
-    def _merge_sb_single_movie_schedule(cinema_schedule, current_time, current_title):
-        """
-        merge the time list and title list into dictionary
-        :param cinema_schedule: dictionary
-        :param current_time: list
-        :param current_title: string
-        :return: None
-        """
-        if current_title is not None:
-            if current_title in cinema_schedule:
-                cinema_schedule[current_title].extend(current_time)
-            else:
-                cinema_schedule[current_title] = current_time
+        return provider_schedule
 
     @staticmethod
     def _get_sb_single_movie_title(current_title):
@@ -477,20 +399,6 @@ class CinemaSchedule:
 
         return current_time
 
-    def _load_page_by_date(self, each_day):
-        """
-        navigate the webdriver and click the corresponding
-        date selector, loading a web component
-        :param each_day: string
-        :return: None
-        """
-        self.driver.find_element_by_xpath(
-            "//select[@id='ctl00_Content_ddlShowDate']/option[@value='{}']".format(each_day)).click()
-        self.driver.implicitly_wait(2)
 
-    @staticmethod
-    def parse_sb_date(each_day):
-        current_date = datetime.strptime(each_day, "%m/%d/%Y").strftime("%Y-%m-%d")
-        return current_date
 
 

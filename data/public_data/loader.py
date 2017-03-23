@@ -84,7 +84,7 @@ class Loader:
             movie_id = cinema_content['imdb_id']
             for cinema in cinema_content['content']:
                 cinema_id = cinema['cinema_id']
-                additional_info = cinema['type']
+                additional_info = cinema['additional_info']
                 schedule_list = cinema['schedule']
                 for timing in schedule_list:
                     self.cursor.execute(

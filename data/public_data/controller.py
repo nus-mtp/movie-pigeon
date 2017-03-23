@@ -146,8 +146,23 @@ class ETLController:
 
         logging.warning("deleting outdated schedules complete!")
 
+        cinema_schedule = CinemaSchedule()
         cinema_schedule_data = {}  # declare data object
-        self._get_all_cinema_schedules(cinema_schedule_data)  # rearrange
+
+        logging.warning("retrieving and merging cathay schedules ...")
+        cathay_schedule = cinema_schedule.get_cathay_schedule()
+        self._merge_schedules(cinema_schedule_data, cathay_schedule)
+
+        # logging.warning("retrieving and merging golden village schedules ...")
+        # gv_schedule = cinema_schedule.get_gv_schedule()
+        # self._merge_schedules(cinema_schedule_data, gv_schedule)
+        #
+        # logging.warning("retrieving and merging shaw brother schedules ...")
+        # sb_schedule = cinema_schedule.get_sb_schedule()
+        # self._merge_schedules(cinema_schedule_data, sb_schedule)
+
+        print(cinema_schedule_data)
+
         self._match_movie_titles(cinema_schedule_data)  # insert imdb id
         self.loader.load_cinema_schedule(cinema_schedule_data)  # load data
 
@@ -178,6 +193,14 @@ class ETLController:
     # ==========
     #   helper
     # ==========
+    @staticmethod
+    def _merge_schedules(result, provider_schedule):
+        for title, value in provider_schedule.items():
+            if title in result:
+                result[title].extend(value)
+            else:
+                result[title] = value
+
     def _match_movie_titles(self, cinema_schedule_data):
         """
         this process matched all movies title in the data object
@@ -197,41 +220,14 @@ class ETLController:
                 invalid_titles.append(title)
                 continue
 
-            content['imdb_id'] = imdb_id  # add in matched imdb id
+            cinema_schedule_data[title] = {
+                'imdb_id': imdb_id,
+                'content': content
+            }
             self.update_single_movie_data(imdb_id)
             logging.warning("matching successful!")
 
         for invalid_title in invalid_titles:
             cinema_schedule_data.pop(invalid_title)
 
-    def _get_all_cinema_schedules(self, cinema_schedule_data):
-        """
-        rearrange all schedules such that the highest level of the
-        dictionary is movie title
-        :param cinema_schedule_data: dictionary
-        :return: None
-        """
-        cinema_list = self.loader.get_cinema_list()
-        for cinema in cinema_list:
-            cinema_id, cinema_name, provider, cinema_url = cinema
 
-            logging.warning("retrieving schedule from: " + cinema_name)
-
-            cinema_schedule = CinemaSchedule(cinema_name, cinema_url, provider)
-            current_schedules = cinema_schedule.get_cinema_schedule()
-
-            # parse each cinema's schedule and update data object
-            for movie in current_schedules:
-                current_title = movie['title']
-                if movie['title'] not in cinema_schedule_data:
-                    cinema_schedule_data[current_title] = {}
-                    current_title = cinema_schedule_data[current_title]
-                    current_title['content'] = []
-                else:
-                    current_title = cinema_schedule_data[current_title]
-
-                del movie['title']
-                movie['cinema_id'] = cinema_id
-                current_title['content'].append(movie)
-
-            logging.warning("retrieval successful!")
