@@ -73,8 +73,8 @@ class Loader:
                 (
                     cinema['cinema_name'], cinema['url'], cinema['provider'], str(cinema['location_x']),
                     str(cinema['location_y']),
-                    cinema['cinema_name'],
-                    cinema['url'], cinema['provider'], str(cinema['location_x']), str(cinema['location_y'])
+                    cinema['url'], cinema['provider'], str(cinema['location_x']), str(cinema['location_y']),
+                    cinema['cinema_name']
                 )
             )
             self.conn.commit()

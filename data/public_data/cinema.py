@@ -141,6 +141,12 @@ class CinemaList:
         return cinema_list
 
     def _get_geocode(self, address):
+        """
+        return the latitude and longtitude of an address,
+        given by google geocode api
+        :param address: string
+        :return: float, float
+        """
         logging.warning(address)
         address = self._parse_special_cinema(address)
 
