@@ -153,9 +153,9 @@ class CinemaList:
 
         web_result = self._get_json_result_from_google_geocode(address)
         location = web_result['results'][0]['geometry']['location']
-        lat = location['lat']
-        long = location['lng']
-        return lat, long
+        latitude = location['lat']
+        longitude = location['lng']
+        return latitude, longitude
 
     @staticmethod
     def _parse_special_cinema(address):
