@@ -153,15 +153,13 @@ class ETLController:
         cathay_schedule = cinema_schedule.get_cathay_schedule()
         self._merge_schedules(cinema_schedule_data, cathay_schedule)
 
-        # logging.warning("retrieving and merging golden village schedules ...")
-        # gv_schedule = cinema_schedule.get_gv_schedule()
-        # self._merge_schedules(cinema_schedule_data, gv_schedule)
-        #
-        # logging.warning("retrieving and merging shaw brother schedules ...")
-        # sb_schedule = cinema_schedule.get_sb_schedule()
-        # self._merge_schedules(cinema_schedule_data, sb_schedule)
+        logging.warning("retrieving and merging golden village schedules ...")
+        gv_schedule = cinema_schedule.get_gv_schedule()
+        self._merge_schedules(cinema_schedule_data, gv_schedule)
 
-        print(cinema_schedule_data)
+        logging.warning("retrieving and merging shaw brother schedules ...")
+        sb_schedule = cinema_schedule.get_sb_schedule()
+        self._merge_schedules(cinema_schedule_data, sb_schedule)
 
         self._match_movie_titles(cinema_schedule_data)  # insert imdb id
         self.loader.load_cinema_schedule(cinema_schedule_data)  # load data
