@@ -184,37 +184,39 @@ class CinemaSchedule:
     This class handles all operations related to the extraction
     of movie schedules in cinemas
     """
-    def __init__(self, cinema_name, cinema_url, cinema_provider):
+
+    SHAW_SCHEDULES = 'http://www.shaw.sg/sw_buytickets.aspx?CplexCode=&FilmCode=&date=3/26/2017'
+
+    GV_SCHEDULES = 'https://www.gv.com.sg/GVBuyTickets#/'
+
+    CATHAY_SCHEDULES = 'http://www.cathaycineplexes.com.sg/showtimes/'
+
+    def __init__(self, provider, test=False, test_directory=None):
         self.driver = webdriver.PhantomJS()
         self.driver.set_window_size(1124, 850)  # set browser size
 
-        self.cinema_name = cinema_name
-        self.cinema_url = cinema_url
-        self.provider = cinema_provider
+        if provider == 'sb':
+            self.url = self.SHAW_SCHEDULES
+        elif provider == 'gv':
+            self.url = self.GV_SCHEDULES
+        elif provider == 'cathay':
+            self.url = self.CATHAY_SCHEDULES
+        else:
+            raise utils.InvalidCinemaTypeException
+
+        if test:
+            self.driver.get(test_directory)
+        else:
+            self.driver.get(self.url)
 
         self.transformer = CinemaScheduleTransformer()
-
-    def get_cinema_schedule(self):
-        """
-        it will auto select the extract method based on the url
-        or cinema name given, return the formatted data object
-        that can be used by Loader
-        :return: list
-        """
-        if self.provider == "gv":
-            cinema_object = self._extract_gv_schedule()
-        elif self.provider == "sb":
-            cinema_object = self._extract_sb_schedule()
-        elif self.provider == "cathay":
-            cinema_object = self._extract_cathay_schedule()
-        else:
-            raise utils.InvalidCinemaTypeException("Invalid Cinema provider!")
-
-        return self.transformer.parse_cinema_object_to_data(cinema_object, self.provider)
 
     # ==================
     #   Golden Village
     # ==================
+    def _new_extract_gv_schedule(self):
+        pass
+
     def _extract_gv_schedule(self):
         """
         extract current gv cinema schedule

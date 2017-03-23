@@ -119,7 +119,7 @@ class Loader:
         return data_object
 
     def get_cinema_list(self):
-        self.cursor.execute("SELECT * FROM cinemas")
+        self.cursor.execute("SELECT cinema_id, cinema_name, provider, url FROM cinemas")
         data_object = self.cursor.fetchall()
         return data_object
 

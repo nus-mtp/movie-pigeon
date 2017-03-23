@@ -175,6 +175,9 @@ class ETLController:
         movie_rating = data_model.get_movie_ratings()
         self.loader.load_movie_rating(movie_rating)
 
+    # ==========
+    #   helper
+    # ==========
     def _match_movie_titles(self, cinema_schedule_data):
         """
         this process matched all movies title in the data object
