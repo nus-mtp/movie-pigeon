@@ -67,8 +67,8 @@ class CinemaList:
         for item in div:
             if item.get_attribute("ng-bind-html") == "cinema.name":
                 cinema_name = item.text
-                lat, long = self._get_geocode(cinema_name)
-                cinema_data = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_url, "gv", lat, long)
+                latitude, longitude = self._get_geocode(cinema_name)
+                cinema_data = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_url, "gv", latitude, longitude)
                 cinema_list.append(cinema_data)
 
     def _get_gv_cinema_url(self):
@@ -97,9 +97,9 @@ class CinemaList:
         divs = soup.find_all("div", {"class": "description"})
         for div in divs:
             cinema_name = capwords(div.find("h1").text)
-            lat, long = self._get_geocode(cinema_name)
+            latitude, longitude = self._get_geocode(cinema_name)
             inserted_tuple = CinemaListTransformer.insert_cinema_data(
-                cinema_name, "http://www.cathaycineplexes.com.sg/showtimes/", "cathay", lat, long)
+                cinema_name, "http://www.cathaycineplexes.com.sg/showtimes/", "cathay", latitude, longitude)
             cinema_list.append(inserted_tuple)
         return cinema_list
 
@@ -134,8 +134,8 @@ class CinemaList:
 
         # merge lists
         for i in range(name_list_length):
-            lat, long = self._get_geocode(name_list[i])
-            inserted_tuple = CinemaListTransformer.insert_cinema_data(name_list[i], url_list[i], "sb", lat, long)
+            latitude, longitude = self._get_geocode(name_list[i])
+            inserted_tuple = CinemaListTransformer.insert_cinema_data(name_list[i], url_list[i], "sb", latitude, longitude)
             cinema_list.append(inserted_tuple)
 
         return cinema_list
