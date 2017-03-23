@@ -29,6 +29,7 @@ before_install:
   - pip3 install lxml
   - pip3 install selenium
   - pip3 install pytz
+  - pip3 install psycopg2
   - cd ..
 install:
   - cd backend

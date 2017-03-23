@@ -21,8 +21,6 @@ def run(con):
     # scheduler.add_job(con.update_movie_rating, args=[movie_ids_without_rating[split * 2:split * 3]])
     # scheduler.add_job(con.update_movie_rating, args=[movie_ids_without_rating[split * 3:]])
 
-    # cron for cinema rating, run at 0:00 everyday
-    scheduler.add_job(con.update_cinema_schedule)
     scheduler.start()
 
 if __name__ == '__main__':

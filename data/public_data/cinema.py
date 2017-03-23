@@ -1,5 +1,4 @@
 from datetime import datetime
-from bs4 import BeautifulSoup
 from selenium import webdriver, common
 from string import capwords
 from transformer import CinemaScheduleTransformer, GeneralTransformer, CinemaListTransformer
@@ -8,7 +7,6 @@ from loader import Loader
 
 import utils
 import json
-import logging
 import time
 
 
@@ -225,6 +223,9 @@ class CinemaSchedule:
                 for current_movie in movie_iterators:
                     movie_title = current_movie.find_element_by_css_selector('span').text
 
+                    if 'Zen Zone' in movie_title:
+                        continue
+
                     movie_timing = []
                     buttons = current_movie.find_elements_by_css_selector("button")
 
@@ -237,7 +238,7 @@ class CinemaSchedule:
                     data_object = {
                         "cinema_id": cinema_id,
                         "schedule": movie_timing,
-                        "type": additional_info
+                        "additional_info": additional_info
                     }
 
                     if title in provider_schedule:
