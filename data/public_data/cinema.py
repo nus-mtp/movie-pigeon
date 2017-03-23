@@ -3,7 +3,6 @@ from selenium import webdriver, common
 from string import capwords
 from transformer import CinemaScheduleTransformer, GeneralTransformer, CinemaListTransformer
 from urllib import request
-from loader import Loader
 
 import utils
 import json
@@ -195,7 +194,9 @@ class CinemaSchedule:
         self.driver.set_window_size(1124, 850)  # set browser size
 
         self.transformer = CinemaScheduleTransformer()
-        self.loader = Loader()
+
+        from loader import Loader
+        self.loader = Loader()  # for specific use
 
     # ==================
     #   Golden Village
