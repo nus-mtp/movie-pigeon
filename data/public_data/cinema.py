@@ -3,8 +3,12 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from string import capwords
 from transformer import CinemaScheduleTransformer, GeneralTransformer, CinemaListTransformer
+from urllib import request
 
 import utils
+import json
+import logging
+import time
 
 
 class CinemaList:
@@ -17,6 +21,8 @@ class CinemaList:
     CATHAY_LIST_HOME = "http://www.cathaycineplexes.com.sg/cinemas/"
 
     SHAW_BROTHER_LIST_HOME = "http://www.shaw.sg/sw_cinema.aspx"
+
+    GOOGLE_GEOCODE_API = 'http://maps.google.com/maps/api/geocode/json?address={}'
 
     def __init__(self):
         self.cathay_soup = utils.build_soup_from_url(self.CATHAY_LIST_HOME)
@@ -48,8 +54,7 @@ class CinemaList:
 
         return cinema_list
 
-    @staticmethod
-    def _get_single_gv_cinema_data(cinema_list, cinema_url):
+    def _get_single_gv_cinema_data(self, cinema_list, cinema_url):
         """
         get a single cinema data
         :param cinema_list: list
@@ -62,7 +67,8 @@ class CinemaList:
         for item in div:
             if item.get_attribute("ng-bind-html") == "cinema.name":
                 cinema_name = item.text
-                cinema_data = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_url, "gv")
+                lat, long = self._get_geocode(cinema_name)
+                cinema_data = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_url, "gv", lat, long)
                 cinema_list.append(cinema_data)
 
     def _get_gv_cinema_url(self):
@@ -80,8 +86,7 @@ class CinemaList:
 
         return cinema_urls
 
-    @staticmethod
-    def _extract_cathay_cinema_list(soup):
+    def _extract_cathay_cinema_list(self, soup):
         """
         get a list of dictionaries contain all cathay cinema names.
         :param soup: BeautifulSoup()
@@ -92,13 +97,13 @@ class CinemaList:
         divs = soup.find_all("div", {"class": "description"})
         for div in divs:
             cinema_name = capwords(div.find("h1").text)
+            lat, long = self._get_geocode(cinema_name)
             inserted_tuple = CinemaListTransformer.insert_cinema_data(
-                cinema_name, "http://www.cathaycineplexes.com.sg/showtimes/", "cathay")
+                cinema_name, "http://www.cathaycineplexes.com.sg/showtimes/", "cathay", lat, long)
             cinema_list.append(inserted_tuple)
         return cinema_list
 
-    @staticmethod
-    def _extract_sb_cinema_list(soup):
+    def _extract_sb_cinema_list(self, soup):
         """
         get a list of dictionaries contain all SB cinema names,
         and their corresponding urls
@@ -129,10 +134,44 @@ class CinemaList:
 
         # merge lists
         for i in range(name_list_length):
-            inserted_tuple = CinemaListTransformer.insert_cinema_data(name_list[i], url_list[i], "sb")
+            lat, long = self._get_geocode(name_list[i])
+            inserted_tuple = CinemaListTransformer.insert_cinema_data(name_list[i], url_list[i], "sb", lat, long)
             cinema_list.append(inserted_tuple)
 
         return cinema_list
+
+    def _get_geocode(self, address):
+        logging.warning(address)
+        address = self._parse_special_cinema(address)
+
+        time.sleep(1)  # important to avoid violating google api limit
+
+        web_result = self._get_json_result_from_google_geocode(address)
+        location = web_result['results'][0]['geometry']['location']
+        lat = location['lat']
+        long = location['lng']
+        return lat, long
+
+    @staticmethod
+    def _parse_special_cinema(address):
+        """
+        parse the name of special cinemas, so it
+        can be used for google API
+        :param address: string
+        :return: string
+        """
+        if ',' in address:
+            address = address.split(",")[-1].strip()  # special cinema will be determined by their location
+        if '(' in address:
+            address = address.split('(')[0].strip()  # remove stalls
+        address = address.replace(" ", '%20')  # replace space for html encoding
+        return address
+
+    def _get_json_result_from_google_geocode(self, address):
+        url = self.GOOGLE_GEOCODE_API.format(address)
+        json_content = request.urlopen(url).read().decode('utf-8')
+        web_result = json.loads(json_content)
+        return web_result
 
 
 class CinemaSchedule:
