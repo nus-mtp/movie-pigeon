@@ -24,13 +24,24 @@ class DatabaseHandler:
         upper = str(year) + "-" + today
         lower = str(year - 1) + "-" + today
         self.cursor.execute("SELECT movie_id, actors, genre, runtime, director "
-                            "FROM movies WHERE released <= %s AND released >= %s AND runtime is not NULL "
-                            "AND actors is not NULL AND genre is not NULL", (upper, lower))
+                            "FROM movies "
+                            "WHERE released <= %s AND released >= %s "
+                            "AND actors is not null "
+                            "and genre is not null "
+                            "and runtime is not null "
+                            "and runtime <> '' "
+                            "and director is not null", (upper, lower))
         return self.cursor.fetchall()
 
     def get_movie_data_by_id(self, movie_id):
         self.cursor.execute("SELECT movie_id, rated, plot, actors, language, genre, runtime, director "
-                            "FROM movies WHERE movie_id=%s", (movie_id, ))
+                            "FROM movies "
+                            "WHERE movie_id=%s "
+                            "AND actors is not null "
+                            "and genre is not null "
+                            "and runtime is not null "
+                            "and runtime <> '' "
+                            "and director is not null", (movie_id, ))
         return self.cursor.fetchone()
 
     def load_weights(self, weights, user_id):
