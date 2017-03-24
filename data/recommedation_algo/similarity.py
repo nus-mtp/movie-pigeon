@@ -10,15 +10,14 @@ class MovieSimilarity:
 
     def __init__(self, target, source):
         """
-        construct with 2 movie ids
-        :param target: string
+        :param target: list
         :param source: string
         """
         self.target = target
         self.source = source
 
         self.db = database.DatabaseHandler()
-        self.target_data = self.db.get_movie_data_by_id(self.target)
+        self.target_data_list = [self.db.get_movie_data_by_id(element) for element in self.target]
         self.source_data = self.db.get_movie_data_by_id(self.source)
 
     def get_similarity(self):
@@ -27,13 +26,19 @@ class MovieSimilarity:
         on different fields
         :return: float
         """
-        genre_sim = self._calculate_genre_similarity()
-        actor_sim = self._calculate_actor_similarity()
-        runtime_sim = self._calculate_runtime_similarity()
+        similarity_list = []
+        for current_data in self.target_data_list:
+            self.target_data = current_data
+            genre_sim = self._calculate_genre_similarity()
+            actor_sim = self._calculate_actor_similarity()
+            runtime_sim = self._calculate_runtime_similarity()
 
-        final_similarity = genre_sim * self.GENRE_WEIGHT + actor_sim * self.ACTOR_WEIGHT + runtime_sim \
-                                                                                           * self.RUNTIME_WEIGHT
-        return final_similarity
+            final_similarity = genre_sim * self.GENRE_WEIGHT + \
+                               actor_sim * self.ACTOR_WEIGHT + \
+                               runtime_sim * self.RUNTIME_WEIGHT
+            similarity_list.append(final_similarity)
+
+        return max(similarity_list)
 
     def _calculate_genre_similarity(self):
         """
@@ -85,6 +90,5 @@ class MovieSimilarity:
         return [token.strip() for token in tokens]
 
 if __name__ == '__main__':
-    ms = MovieSimilarity("tt0330373", "tt0295297")
+    ms = MovieSimilarity(['tt0304141', 'tt5544384', 'tt2119532', 'tt3315342', 'tt1201607'], "tt0295297")
     ms.get_similarity()
-

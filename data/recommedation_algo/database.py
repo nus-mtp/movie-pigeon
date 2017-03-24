@@ -4,7 +4,7 @@ import time
 import psycopg2
 import utils
 import config
-
+import datetime
 
 class DatabaseHandler:
 
@@ -20,9 +20,12 @@ class DatabaseHandler:
         return self.cursor.fetchall()
 
     def get_movie_id_by_year(self, year):
-        self.cursor.execute("SELECT movie_id "
-                            "FROM movies WHERE production_year=%s AND runtime is not NULL "
-                            "AND actors is not NULL AND genre is not NULL", (year, ))
+        today = datetime.datetime.now().strftime("%m-%d")
+        upper = str(year) + "-" + today
+        lower = str(year - 1) + "-" + today
+        self.cursor.execute("SELECT movie_id, actors, genre, runtime, director "
+                            "FROM movies WHERE released <= %s AND released >= %s AND runtime is not NULL "
+                            "AND actors is not NULL AND genre is not NULL", (upper, lower))
         return self.cursor.fetchall()
 
     def get_movie_data_by_id(self, movie_id):

@@ -67,14 +67,14 @@ class UserScale:
         :return: float
         """
         try:
-            self.model.predict(public_ratings)
+            self.model.predict([public_ratings])
         except exceptions.NotFittedError:
             return numpy.mean(public_ratings)
-        return self.model.predict(public_ratings)
+        return self.model.predict([public_ratings])
 
 if __name__ == '__main__':
     warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")  # ignore lapack related warning
     user_scale = UserScale('8')
     # user_scale._fit_model()
-    print(user_scale.predict_user_score([8, 7, 6]))
+    print(user_scale.predict_user_score([7, 7, 7]))
 
