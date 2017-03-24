@@ -35,7 +35,6 @@ class Recommender:
 
     def update_single_user_recommendations(self, user_id):
         # 1. get all liked movies by the users -> act as source to get recommended movies
-        # 3. rank the pool using scales, recommend tops
         logging.warning("generating user movie pool ...")
         user_pool = self.db.get_user_ratings(user_id)
         user_list = []
@@ -45,12 +44,13 @@ class Recommender:
                 user_list.append(movie_id)
 
         # 2. get a pool of similar movies based the seeds
-        result_list = []
+        similar_list = []
         current_year = int(datetime.now().strftime("%Y"))
 
         scale = UserScale(user_id)
 
-        while True:
+        flag = True
+        while flag:
             logging.warning("initialising movie pool selection ...")
             movie_pool = self.db.get_movie_id_by_year(current_year)
             logging.warning("size of pool:" + str(len(movie_pool)))
@@ -58,15 +58,20 @@ class Recommender:
                 movie_id = movie[0]
                 current_movie_similarity = MovieSimilarity(user_list, movie_id)
                 highest_similarity = current_movie_similarity.get_similarity()
-                if highest_similarity >= 0.5:
-                    result_list.append(movie_id)
+                if highest_similarity >= 0.5 and movie_id not in user_list:  # similar and not the same
+                    logging.debug("similar movie found: " + movie_id)
+                    similar_list.append(movie_id)
 
-            current_year -= 1
-            break
-        print(result_list)
+                if len(similar_list) == 100:
+                    flag = False  # break outer loop
+                    break
 
+            logging.warning("searching for previous year ...")
+            current_year -= 1  # continue to search on next year
+
+        # 3. rank the pool using scales, recommend tops
         recommend_list = []
-        for potential in result_list:
+        for potential in similar_list:
             logging.debug("current movie is: " + potential)
             public_ratings = self.db.get_public_rating(potential)
             if not public_ratings:
@@ -80,15 +85,16 @@ class Recommender:
             imdb_rating, douban_rating, trakt_rating = public_ratings
             regressors = [imdb_rating[3], douban_rating[3], trakt_rating[3]]
             expected_score = scale.predict_user_score(regressors)[0]
-
-            if expected_score > 7.5:
-                recommend_list.append(potential)
+            print(expected_score)
+            if expected_score > 7:
+                recommend_list.append([potential, expected_score])
 
         print(recommend_list)
+        return recommend_list
 
 
 if __name__ == '__main__':
     warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")  # ignore lapack related warning
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     recommender = Recommender()
     recommender.update_single_user_recommendations('8')

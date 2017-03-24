@@ -90,5 +90,5 @@ class MovieSimilarity:
         return [token.strip() for token in tokens]
 
 if __name__ == '__main__':
-    ms = MovieSimilarity(['tt0304141', 'tt5544384', 'tt2119532', 'tt3315342', 'tt1201607'], "tt0295297")
-    ms.get_similarity()
+    ms = MovieSimilarity(['tt1083452'], "tt0295297")
+    print(ms.get_similarity())
