@@ -1,16 +1,5 @@
 """
     Main class for recommendation operations
-
-    # calculate raw score
-
-    # get relevant movies pool (crude criteria) (waiting to be classified)
-
-    # for every movie in pool
-        # calculate multiplier : classification (logistic regression)
-        # obtain final score (expected output)
-        # sort and rank
-        # store in database
-
 """
 from database import DatabaseHandler
 from public_data.controller import ETLController
@@ -26,23 +15,39 @@ class Recommender:
 
     USER_CRITERION = 8.0
 
-    SIMILARITY_CRITERION = 5.0
+    SIMILARITY_CRITERION = 0.5
 
     RECOMMEND_CRITERION = 7.0
 
-    SIMILAR_MOVIE_POOL_SIZE = 100
+    SIMILAR_MOVIE_POOL_SIZE = 50
 
     def __init__(self):
         self.controller = ETLController()
         self.db = DatabaseHandler()
 
     def run(self):
-        # for every user update scale
-        # for every user generate recommendation if not enough
-        pass
+        users = self.db.get_users()
+        for user in users:
+            user_id = user[0]
+            recommender_list = self.get_single_user_recommendations(user_id)
+            self.db.save_recommendations(recommender_list, user_id)
 
-    def update_single_user_recommendations(self, user_id):
-        # 1. get all liked movies by the users -> act as criteria to get similar movies movies
+    def get_single_user_recommendations(self, user_id):
+        """
+        The recommendation logic is as follows:
+            1. get all liked movies by the users,
+               which will act as a selection criteria
+               to get similar movies
+            2. based the above criterion, select up to
+               n movies from the database, order by their
+               release time in descending order (recommending)
+               new movies first
+            3. predict the expected output using regression
+               the user's historical ratings, select and recommend
+               to users
+        :param user_id: string
+        :return: list
+        """
         logging.warning("retrieving user movie pool ...")
         user_pool = self.db.get_user_ratings(user_id)
         logging.warning("size of user pool:" + str(len(user_pool)))
@@ -68,19 +73,20 @@ class Recommender:
 
                 current_movie_similarity = MovieSimilarity(user_list, movie_id)
                 highest_similarity = current_movie_similarity.get_similarity()
-
                 if highest_similarity >= self.SIMILARITY_CRITERION and movie_id not in user_list:
                     similar_list.append(movie_id)
 
                 # escape condition
-                if len(similar_list) == 100:
+                if len(similar_list) == self.SIMILAR_MOVIE_POOL_SIZE:
                     flag = False  # break outer loop
                     break
 
             logging.warning("max searching for previous year ...")
-            current_year -= 1  # continue to search on next year
+            # continue to search on next year
+            current_year -= 1
 
         # 3. rank the pool using scales, recommend tops
+        logging.warning("initialising predicting process ...")
         scale = UserScale(user_id)
         recommend_list = []
         for potential in similar_list:
@@ -95,7 +101,7 @@ class Recommender:
             imdb_rating, douban_rating, trakt_rating = public_ratings
             regressors = [imdb_rating[3], douban_rating[3], trakt_rating[3]]
             expected_score = scale.predict_user_score(regressors)[0]
-            if expected_score > 7:
+            if expected_score > self.RECOMMEND_CRITERION:
                 recommend_list.append([potential, expected_score])
 
         print(recommend_list)
@@ -106,4 +112,4 @@ if __name__ == '__main__':
     warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")  # ignore lapack related warning
     logging.basicConfig(level=logging.INFO)
     recommender = Recommender()
-    recommender.update_single_user_recommendations('8')
+    recommender.get_single_user_recommendations('8')

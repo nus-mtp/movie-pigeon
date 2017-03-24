@@ -6,10 +6,15 @@ import utils
 import config
 import datetime
 
+
 class DatabaseHandler:
 
     def __init__(self):
         self.cursor, self.conn = config.database_connection()
+
+    def get_users(self):
+        self.cursor.execute("SELECT id FROM users")
+        return self.cursor.fetchall()
 
     def get_user_ratings(self, user_id):
         self.cursor.execute("SELECT movie_id, score FROM user_ratings WHERE user_id=%s", (user_id, ))
@@ -59,4 +64,19 @@ class DatabaseHandler:
                 )
             )
             source_id += 1
+        self.conn.commit()
+
+    def save_recommendations(self, recommendations, user_id):
+        for recommendation in recommendations:
+            movie_id, score = recommendation
+            self.cursor.execute(
+                "INSERT INTO recommendations (user_id, movie_id, score) "
+                "VALUES (%s, %s, %s) "
+                "ON CONFLICT (user_id, movie_id)"
+                "DO UPDATE SET score=%s"
+                "WHERE recommendations.user_id =%s AND recommendations.movie_id=%s",
+                (
+                    user_id, movie_id, score, user_id, movie_id
+                )
+            )
         self.conn.commit()
