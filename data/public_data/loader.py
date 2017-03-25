@@ -84,7 +84,7 @@ class Loader:
             movie_id = cinema_content['imdb_id']
             for cinema in cinema_content['content']:
                 cinema_id = cinema['cinema_id']
-                additional_info = cinema['type']
+                additional_info = cinema['additional_info']
                 schedule_list = cinema['schedule']
                 for timing in schedule_list:
                     self.cursor.execute(
@@ -119,7 +119,7 @@ class Loader:
         return data_object
 
     def get_cinema_list(self):
-        self.cursor.execute("SELECT * FROM cinemas")
+        self.cursor.execute("SELECT cinema_id, cinema_name, provider, url FROM cinemas")
         data_object = self.cursor.fetchall()
         return data_object
 
@@ -130,6 +130,10 @@ class Loader:
         for item in data_object:
             id_list.append(item[0])
         return id_list
+
+    def get_cinema_id_from_name(self, cinema_name):
+        self.cursor.execute("SELECT cinema_id FROM cinemas WHERE cinema_name=%s", (cinema_name, ))
+        return self.cursor.fetchone()[0]
 
     # delete
     def delete_outdated_schedules(self):
