@@ -58,6 +58,14 @@ class Recommender:
             if score >= self.USER_CRITERION:  # consider as favorable movie
                 user_list.append(movie_id)
 
+        if len(user_list) == 0:
+            popular_movies = self.db.get_10_popular_movies()
+            popular_list = []
+            for popular in popular_movies:
+                popular_list.append(popular[0])
+
+            return popular_list
+
         # 2. get a pool of similar movies based the seeds
         similar_list = []
         current_year = int(datetime.now().strftime("%Y"))
@@ -112,4 +120,4 @@ if __name__ == '__main__':
     warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")  # ignore lapack related warning
     logging.basicConfig(level=logging.INFO)
     recommender = Recommender()
-    recommender.get_single_user_recommendations('8')
+    recommender.get_single_user_recommendations('100')

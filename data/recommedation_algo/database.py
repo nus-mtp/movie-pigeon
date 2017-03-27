@@ -49,6 +49,12 @@ class DatabaseHandler:
                             "and director is not null", (movie_id, ))
         return self.cursor.fetchone()
 
+    def get_10_popular_movies(self):
+        self.cursor.execute("SELECT m.movie_id FROM movies m, public_ratings r "
+                            "WHERE m.movie_id = r.movie_id AND r.vote is not null "
+                            "AND r.score is not null ORDER BY r.vote DESC LIMIT 10")
+        return self.cursor.fetchall()
+
     def load_weights(self, weights, user_id):
         source_id = 1
         for weight in weights:
