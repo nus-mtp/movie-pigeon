@@ -27,7 +27,7 @@ class UserScale:
         a linear regression model
         :return: None
         """
-        user_rating_records = self.db.get_user_ratings(self.user_id)  # join public rating remove None
+        user_rating_records = self.db.get_user_history(self.user_id)  # join public rating remove None
 
         if len(user_rating_records) == 0:  # no previous watching history
             return

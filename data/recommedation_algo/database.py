@@ -12,7 +12,7 @@ class DatabaseHandler:
         self.cursor.execute("SELECT id FROM users")
         return self.cursor.fetchall()
 
-    def get_user_ratings(self, user_id):
+    def get_user_history(self, user_id):
         self.cursor.execute("SELECT movie_id, score FROM user_ratings WHERE user_id=%s", (user_id, ))
         return self.cursor.fetchall()
 

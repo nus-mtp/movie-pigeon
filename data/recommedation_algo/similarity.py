@@ -20,7 +20,7 @@ class MovieSimilarity:
         self.target_data_list = [self.db.get_movie_data_by_id(element) for element in self.target]
         self.source_data = self.db.get_movie_data_by_id(self.source)
 
-    def get_similarity(self):
+    def get_highest_similarity(self):
         """
         calculate similarity of two movies based
         on different fields
@@ -76,10 +76,8 @@ class MovieSimilarity:
         :param index: integer
         :return: float
         """
-        target_string = self.target_data[index]
-        source_string = self.source_data[index]
-        targets = self._tokenize_genre(target_string)
-        sources = self._tokenize_genre(source_string)
+        targets = self._tokenize_genre(self.target_data[index])
+        sources = self._tokenize_genre(self.source_data[index])
         average_count = (len(targets) + len(sources)) / 2
         similarity = len(set(sources).intersection(targets)) / average_count
         return similarity

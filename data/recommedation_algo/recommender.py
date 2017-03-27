@@ -13,13 +13,13 @@ import warnings
 
 class Recommender:
 
-    USER_CRITERION = 8.0
+    USER_RATINGS_CRITERION = 8.0  # 4 stars or above can be considered a good seed for generating similar movies
 
-    SIMILARITY_CRITERION = 0.5
+    SIMILARITY_CRITERION = 0.5  # similarity index above 0.5 means roughly more than one similar feature
 
-    RECOMMEND_CRITERION = 7.0
+    RECOMMEND_CRITERION = 7.0  # user ratings are limited, a relatively lower criterion is good to generate more recom
 
-    SIMILAR_MOVIE_POOL_SIZE = 50
+    SIMILAR_MOVIE_POOL_SIZE = 50  # iteration wise, 50 similar movies will be selected and subjected to recommendation
 
     def __init__(self):
         self.controller = ETLController()
@@ -54,15 +54,16 @@ class Recommender:
         :return: list
         """
         logging.warning("retrieving user watching history ...")
-        user_pool = self.db.get_user_ratings(user_id)
+        user_history = self.db.get_user_history(user_id)
 
-        logging.warning("size of user pool:" + str(len(user_pool)))
+        logging.warning("size of user ratings pool:" + str(len(user_history)))
 
-        user_list = self._generate_recommend_seeds(user_pool)
+        similarity_seeds = self._generate_recommend_seeds(user_history)
 
         # no rating history found, directly return default list
-        if len(user_list) == 0:
+        if len(similarity_seeds) == 0:
             logging.warning("no user rating history found, recommending default list ...")
+
             popular_movies = self.db.get_10_popular_movies()
             popular_list = []
             for popular in popular_movies:
@@ -70,7 +71,7 @@ class Recommender:
 
             return popular_list
 
-        similar_list = self._generate_similar_movies(user_list)
+        similar_list = self._generate_similar_movies(similarity_seeds)
         recommend_list = self._generate_recommend_list(similar_list, user_id)
         return recommend_list
 
@@ -114,7 +115,7 @@ class Recommender:
                 movie_id = movie[0]
 
                 current_movie_similarity = MovieSimilarity(user_list, movie_id)
-                highest_similarity = current_movie_similarity.get_similarity()
+                highest_similarity = current_movie_similarity.get_highest_similarity()
                 if highest_similarity >= self.SIMILARITY_CRITERION and movie_id not in user_list:
                     similar_list.append(movie_id)
 
@@ -138,7 +139,7 @@ class Recommender:
         user_list = []
         for user_rating in user_pool:
             movie_id, score = user_rating
-            if score >= self.USER_CRITERION:  # consider as favorable movie
+            if score >= self.USER_RATINGS_CRITERION:  # consider as favorable movie
                 user_list.append(movie_id)
         return user_list
 
