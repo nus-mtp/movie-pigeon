@@ -59,10 +59,11 @@ class Recommender:
                 user_list.append(movie_id)
 
         if len(user_list) == 0:
+            logging.warning("no user rating history found, recommending default list ...")
             popular_movies = self.db.get_10_popular_movies()
             popular_list = []
             for popular in popular_movies:
-                popular_list.append(popular[0])
+                popular_list.append([popular[0], popular[1]])
 
             return popular_list
 
@@ -120,4 +121,4 @@ if __name__ == '__main__':
     warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")  # ignore lapack related warning
     logging.basicConfig(level=logging.INFO)
     recommender = Recommender()
-    recommender.get_single_user_recommendations('100')
+    recommender.run()

@@ -50,7 +50,7 @@ class DatabaseHandler:
         return self.cursor.fetchone()
 
     def get_10_popular_movies(self):
-        self.cursor.execute("SELECT m.movie_id FROM movies m, public_ratings r "
+        self.cursor.execute("SELECT m.movie_id, r.score FROM movies m, public_ratings r "
                             "WHERE m.movie_id = r.movie_id AND r.vote is not null "
                             "AND r.score is not null ORDER BY r.vote DESC LIMIT 10")
         return self.cursor.fetchall()
@@ -79,10 +79,10 @@ class DatabaseHandler:
                 "INSERT INTO recommendations (user_id, movie_id, score) "
                 "VALUES (%s, %s, %s) "
                 "ON CONFLICT (user_id, movie_id)"
-                "DO UPDATE SET score=%s"
+                "DO UPDATE SET score=%s "
                 "WHERE recommendations.user_id =%s AND recommendations.movie_id=%s",
                 (
-                    user_id, movie_id, score, user_id, movie_id
+                    user_id, movie_id, score, score, user_id, movie_id
                 )
             )
         self.conn.commit()

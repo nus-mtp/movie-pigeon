@@ -50,6 +50,10 @@ class UserScale:
             current_set = []
             for regressor in public_rating_records:
                 current_set.append(regressor[3])
+
+            if None in current_set:  # skip invalid data points
+                continue
+
             regressors.append(current_set)
 
             # response
