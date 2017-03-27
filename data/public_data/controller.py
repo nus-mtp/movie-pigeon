@@ -48,7 +48,7 @@ class ETLController:
         for index in range(lower, upper):  # iterate all possible titles
             current_imdb_id = GeneralTransformer.build_imdb_id(index)
 
-            if index % 1000 == 0:  # id monitor
+            if index % 10000 == 0:  # id monitor
                 logging.warning("currently at: " + current_imdb_id)
 
             if current_imdb_id in existing_movies_id:  # skip if data exists
