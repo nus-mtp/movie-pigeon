@@ -76,33 +76,38 @@ class Recommender:
 
     def _generate_recommend_list(self, similar_list, user_id):
         logging.warning("initialising predicting process ...")
+
         scale = UserScale(user_id)
         recommend_list = []
+
         for potential in similar_list:
             public_ratings = self.db.get_public_rating(potential)
 
             if not public_ratings:
                 self.controller.update_single_movie_rating(potential)
                 public_ratings = self.db.get_public_rating(potential)
-            print(public_ratings)
-            if any(None in element for element in public_ratings):
+
+            if any(None in element for element in public_ratings):  # skip if the data is invalid
                 continue
 
             imdb_rating, douban_rating, trakt_rating = public_ratings
             regressors = [imdb_rating[3], douban_rating[3], trakt_rating[3]]
             expected_score = scale.predict_user_score(regressors)[0]
+
             if expected_score > self.RECOMMEND_CRITERION:
                 recommend_list.append([potential, expected_score])
+
         return recommend_list
 
     def _generate_similar_movies(self, user_list):
-        # 2. get a pool of similar movies based the seeds
         similar_list = []
         current_year = int(datetime.now().strftime("%Y"))
+
         flag = True
         while flag:
             logging.warning("initialising movie pool selection ...")
             movie_pool = self.db.get_movie_id_by_year(current_year)
+
             logging.warning("size of pool:" + str(len(movie_pool)))
 
             for movie in movie_pool:
@@ -119,12 +124,17 @@ class Recommender:
                     break
 
             logging.warning("searching for previous year ...")
-            # continue to search on next year
             current_year -= 1
 
         return similar_list
 
     def _generate_recommend_seeds(self, user_pool):
+        """
+        given user watching history, generate similar
+        movies that may be recommended
+        :param user_pool: list
+        :return: list
+        """
         user_list = []
         for user_rating in user_pool:
             movie_id, score = user_rating
@@ -137,4 +147,4 @@ if __name__ == '__main__':
     warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")  # ignore lapack related warning
     logging.basicConfig(level=logging.INFO)
     recommender = Recommender()
-    recommender.get_single_user_recommendations('5')
+    recommender.run()
