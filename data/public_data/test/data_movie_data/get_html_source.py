@@ -4,11 +4,8 @@
 """
 from urllib import request
 
-
-test_id_list = ['tt0000001', 'tt1234567', 'tt0460648', 'tt2345678', 'tt4346792', 'tt3107288', 'tt0395865',
-                'tt3783958', 'tt0000004', 'tt0000007', 'tt0000502', 'tt0001304', 'tt0000869', 'tt0000019',
-                'tt0000025', 'tt0010781', 'tt0000481', 'tt0000012', 'tt0000399', 'tt0039624', 'tt0030298',
-                'tt0039445']
+test_id_list = ['tt2771200', 'tt3227946', 'tt3271078', 'tt6023350', 'tt0068918', 'tt0125590',
+                'tt0378422', 'tt2016315', 'tt0141399', 'tt0142231', 'tt3107288', 'tt0034517']
 
 for item in test_id_list:
     site = request.urlretrieve('http://www.imdb.com/title/{}'.format(item), item + ".html")
