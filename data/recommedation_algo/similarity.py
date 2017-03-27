@@ -1,4 +1,4 @@
-import database
+import recommedation_algo.database as database
 
 
 class MovieSimilarity:

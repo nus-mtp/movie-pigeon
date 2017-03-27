@@ -1,9 +1,5 @@
 """handles all interactions with database"""
-import logging
-import time
-import psycopg2
-import utils
-import config
+import public_data.config as config
 
 
 class Loader:

@@ -15,15 +15,15 @@
 
     It includes all the scheduled time for the above four tasks
 """
-from cinema import CinemaList, CinemaSchedule
-from movie import MovieData, MovieRating
-from loader import Loader
+from public_data.cinema import CinemaList, CinemaSchedule
+from public_data.movie import MovieData, MovieRating
+from public_data.loader import Loader
 from movie_id_matcher.matcher import MovieIDMatcher
 from urllib import error
-from transformer import GeneralTransformer
+from public_data.transformer import GeneralTransformer
 from http import client
 
-import utils
+import public_data.utils as utils
 import time
 import logging
 import psycopg2
