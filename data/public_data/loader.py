@@ -66,13 +66,15 @@ class Loader:
     def load_cinema_list(self, cinema_list):
         for cinema in cinema_list:
             self.cursor.execute(
-                "INSERT INTO cinemas (cinema_name, url, provider) VALUES (%s, %s, %s) "
+                "INSERT INTO cinemas (cinema_name, url, provider, location_x, location_y) VALUES (%s, %s, %s, %s, %s) "
                 "ON CONFLICT (cinema_name) "
-                "DO UPDATE SET (cinema_name, url, provider) = (%s, %s, %s)"
+                "DO UPDATE SET (url, provider, location_x, location_y) = (%s, %s, %s, %s)"
                 "WHERE cinemas.cinema_name=%s",
                 (
-                    cinema['cinema_name'], cinema['url'], cinema['provider'], cinema['cinema_name'],
-                    cinema['url'], cinema['provider'], cinema['cinema_name']
+                    cinema['cinema_name'], cinema['url'], cinema['provider'], str(cinema['location_x']),
+                    str(cinema['location_y']),
+                    cinema['url'], cinema['provider'], str(cinema['location_x']), str(cinema['location_y']),
+                    cinema['cinema_name']
                 )
             )
             self.conn.commit()
@@ -82,7 +84,7 @@ class Loader:
             movie_id = cinema_content['imdb_id']
             for cinema in cinema_content['content']:
                 cinema_id = cinema['cinema_id']
-                additional_info = cinema['type']
+                additional_info = cinema['additional_info']
                 schedule_list = cinema['schedule']
                 for timing in schedule_list:
                     self.cursor.execute(
@@ -117,7 +119,7 @@ class Loader:
         return data_object
 
     def get_cinema_list(self):
-        self.cursor.execute("SELECT * FROM cinemas")
+        self.cursor.execute("SELECT cinema_id, cinema_name, provider, url FROM cinemas")
         data_object = self.cursor.fetchall()
         return data_object
 
@@ -128,6 +130,10 @@ class Loader:
         for item in data_object:
             id_list.append(item[0])
         return id_list
+
+    def get_cinema_id_from_name(self, cinema_name):
+        self.cursor.execute("SELECT cinema_id FROM cinemas WHERE cinema_name=%s", (cinema_name, ))
+        return self.cursor.fetchone()[0]
 
     # delete
     def delete_outdated_schedules(self):
