@@ -1,8 +1,4 @@
 """handles all interactions with database"""
-import logging
-import time
-import psycopg2
-import utils
 import config
 import datetime
 

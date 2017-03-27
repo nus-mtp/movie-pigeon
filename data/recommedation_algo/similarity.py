@@ -89,6 +89,3 @@ class MovieSimilarity:
         tokens = genre.split(",")
         return [token.strip() for token in tokens]
 
-if __name__ == '__main__':
-    ms = MovieSimilarity(['tt1083452'], "tt0295297")
-    print(ms.get_similarity())

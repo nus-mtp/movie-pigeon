@@ -7,7 +7,6 @@ from database import DatabaseHandler
 from data.public_data.controller import ETLController
 
 import numpy
-import warnings
 
 
 class UserScale:
@@ -76,9 +75,4 @@ class UserScale:
             return numpy.mean(public_ratings)
         return self.model.predict([public_ratings])
 
-if __name__ == '__main__':
-    warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")  # ignore lapack related warning
-    user_scale = UserScale('8')
-    # user_scale._fit_model()
-    print(user_scale.predict_user_score([7, 7, 7]))
 
