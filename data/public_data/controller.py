@@ -160,7 +160,6 @@ class ETLController:
         logging.warning("retrieving and merging shaw brother schedules ...")
         sb_schedule = cinema_schedule.get_sb_schedule()
         self._merge_schedules(cinema_schedule_data, sb_schedule)
-
         self._match_movie_titles(cinema_schedule_data)  # insert imdb id
         self.loader.load_cinema_schedule(cinema_schedule_data)  # load data
 
