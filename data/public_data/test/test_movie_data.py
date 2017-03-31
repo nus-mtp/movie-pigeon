@@ -1,5 +1,5 @@
-from movie import MovieData
-from utils import InvalidMovieTypeException
+from public_data.movie import MovieData
+from public_data.utils import InvalidMovieTypeException
 
 import unittest
 

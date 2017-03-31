@@ -5,6 +5,50 @@ from urllib import request
 from bs4 import BeautifulSoup
 
 import time
+import json
+
+
+def get_geocode(address):
+    """
+    return the latitude and longtitude of an address,
+    given by google geocode api
+    :param address: string
+    :return: float, float
+    """
+    address = _parse_special_cinema(address)
+
+    time.sleep(1)  # important to avoid violating google api limit
+
+    web_result = _get_json_result_from_google_geocode(address)
+    location = web_result['results'][0]['geometry']['location']
+    latitude = location['lat']
+    longitude = location['lng']
+    return latitude, longitude
+
+
+def _parse_special_cinema(address):
+    """
+    parse the name of special cinemas, so it
+    can be used for google API
+    :param address: string
+    :return: string
+    """
+    address += "Singapore"  # ensure the search is in Singapore
+    if ',' in address:
+        address = address.split(",")[-1].strip()  # special cinema will be determined by their location
+    if '(' in address:
+        address = address.split('(')[0].strip()  # remove stalls
+    address = address.replace(" ", '%20')  # replace space for html encoding
+    return address
+
+
+def _get_json_result_from_google_geocode(address):
+    GOOGLE_GEOCODE_API = 'http://maps.google.com/maps/api/geocode/json?address={}'
+
+    url = GOOGLE_GEOCODE_API.format(address)
+    json_content = request.urlopen(url).read().decode('utf-8')
+    web_result = json.loads(json_content)
+    return web_result
 
 
 class UrlFormatter(Enum):

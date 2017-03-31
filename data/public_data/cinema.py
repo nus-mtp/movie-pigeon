@@ -20,7 +20,11 @@ class CinemaList:
 
     SHAW_BROTHER_LIST_HOME = "http://www.shaw.sg/sw_cinema.aspx"
 
-    GOOGLE_GEOCODE_API = 'http://maps.google.com/maps/api/geocode/json?address={}'
+    SHAW_SCHEDULES = 'http://www.shaw.sg/sw_buytickets.aspx?CplexCode=&FilmCode=&date={}'
+
+    GV_SCHEDULES = 'https://www.gv.com.sg/GVBuyTickets#/'
+
+    CATHAY_SCHEDULES = 'http://www.cathaycineplexes.com.sg/showtimes/'
 
     def __init__(self):
         self.cathay_soup = utils.build_soup_from_url(self.CATHAY_LIST_HOME)
@@ -108,73 +112,18 @@ class CinemaList:
         :param soup: BeautifulSoup()
         :return: list
         """
+        cinema_provider = 'sb'  # shaw brother
         cinema_list = []
-
-        name_list = []
-        url_list = []
 
         # get names list
         divs = soup.find_all("a", {"class": "txtHeaderBold"})
         for div in divs:
-            name_list.append(div.text)
-
-        # get url list
-        buy_tickets = soup.find_all("a", {"class": "txtNormalDim"})
-        for item in buy_tickets:
-            current_link = item["href"]
-            if "buytickets" in current_link:
-                url_list.append("http://" + "www.shaw.sg/" + item["href"])
-
-        # check list length
-        name_list_length = len(name_list)
-        url_list_length = len(url_list)
-        assert name_list_length == url_list_length  # check whether there is mistake in matching cinema name and url
-
-        # merge lists
-        for i in range(name_list_length):
-            latitude, longitude = self._get_geocode(name_list[i])
-            inserted_tuple = CinemaListTransformer.insert_cinema_data(name_list[i], url_list[i], "sb", latitude, longitude)
+            cinema_name = div.text
+            latitude, longitude = utils.get_geocode(cinema_name)
+            inserted_tuple = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_provider, latitude, longitude)
             cinema_list.append(inserted_tuple)
-
+        print(cinema_list)
         return cinema_list
-
-    def _get_geocode(self, address):
-        """
-        return the latitude and longtitude of an address,
-        given by google geocode api
-        :param address: string
-        :return: float, float
-        """
-        address = self._parse_special_cinema(address)
-
-        time.sleep(1)  # important to avoid violating google api limit
-
-        web_result = self._get_json_result_from_google_geocode(address)
-        location = web_result['results'][0]['geometry']['location']
-        latitude = location['lat']
-        longitude = location['lng']
-        return latitude, longitude
-
-    @staticmethod
-    def _parse_special_cinema(address):
-        """
-        parse the name of special cinemas, so it
-        can be used for google API
-        :param address: string
-        :return: string
-        """
-        if ',' in address:
-            address = address.split(",")[-1].strip()  # special cinema will be determined by their location
-        if '(' in address:
-            address = address.split('(')[0].strip()  # remove stalls
-        address = address.replace(" ", '%20')  # replace space for html encoding
-        return address
-
-    def _get_json_result_from_google_geocode(self, address):
-        url = self.GOOGLE_GEOCODE_API.format(address)
-        json_content = request.urlopen(url).read().decode('utf-8')
-        web_result = json.loads(json_content)
-        return web_result
 
 
 class CinemaSchedule:

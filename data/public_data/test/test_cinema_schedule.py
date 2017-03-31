@@ -1,5 +1,5 @@
 """These test cases will only be run in local environment"""
-from cinema import CinemaSchedule
+from public_Data.cinema import CinemaSchedule
 
 import unittest
 
@@ -15,5 +15,5 @@ class TestCinemaList(unittest.TestCase):
     #     self.cinema_schedule.get_cathay_schedule()
 
     def test_extract_sb_schedule(self):
-        self.cinema_schedule = CinemaSchedule('sb')
+        self.cinema_schedule = CinemaSchedule()
         self.cinema_schedule.get_sb_schedule()
