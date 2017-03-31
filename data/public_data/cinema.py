@@ -41,6 +41,8 @@ class CinemaList:
         cinema_list.extend(self._extract_gv_cinema_list())
         return cinema_list
 
+    # ============ Golden Village ============
+
     def _extract_gv_cinema_list(self):
         """
         return a list of dictionaries contain all Golden Village
@@ -54,7 +56,7 @@ class CinemaList:
         for cinema_web in cinema_iterator:
             try:
                 if cinema_web['ng-bind-html'] == 'cinema.name':
-                    cinema_name = cinema_web.text
+                    cinema_name = cinema_web.text.strip()
                     displayed_name, location = self._parse_gv_cinema_name(cinema_name)
                     latitude, longitude = utils.get_geocode(location)
                     inserted_tuple = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_provider, latitude,
@@ -97,6 +99,8 @@ class CinemaList:
             final_text = self.GV_PROVIDER + " @ " + (location.strip() + " " + cinema_name.strip())
         return final_text, location
 
+    # ============ Cathay ============
+
     def _extract_cathay_cinema_list(self):
         """
         get a list of dictionaries contain all cathay cinema names.
@@ -107,7 +111,7 @@ class CinemaList:
 
         cinema_list = []
         for cinema_web in cinema_iterator:
-            cinema_name = capwords(cinema_web.find("h1").text)
+            cinema_name = capwords(cinema_web.find("h1").text).strip()
 
             displayed_name = self._parse_cathay_cinema_name(cinema_name)
 
@@ -129,6 +133,8 @@ class CinemaList:
         displayed_name = cinema_name.replace("Cathay Cineplex", "").strip()
         return self.CATHAY_PROVIDER + " @ " + displayed_name
 
+    # ============ Shaw Brother ============
+
     def _extract_sb_cinema_list(self):
         """
         get a list of dictionaries contain all SB cinema names,
@@ -140,13 +146,13 @@ class CinemaList:
 
         cinema_list = []
         for cinema_web in cinema_iterator:
-            cinema_name = cinema_web.text
+            cinema_name = cinema_web.text.strip()
 
             displayed_name = self._parse_shaw_cinema_name(cinema_name)
 
             latitude, longitude = utils.get_geocode(cinema_name)
-            inserted_tuple = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_provider, latitude, longitude,
-                                                                      displayed_name)
+            inserted_tuple = CinemaListTransformer.insert_cinema_data(capwords(cinema_name), cinema_provider, latitude,
+                                                                      longitude, displayed_name)
             cinema_list.append(inserted_tuple)
 
         return cinema_list
@@ -162,6 +168,8 @@ class CinemaList:
             displayed_name = displayed_name.replace('nex', 'Nex')
         displayed_name = self.SHAW_PROVIDER + " @" + displayed_name
         return displayed_name
+
+    # ============ General Helper ============
 
     def _get_cinema_iterator(self, provider):
         """
@@ -186,9 +194,7 @@ class CinemaSchedule:
     """
 
     SHAW_SCHEDULES = 'http://www.shaw.sg/sw_buytickets.aspx?CplexCode=&FilmCode=&date={}'
-
     GV_SCHEDULES = 'https://www.gv.com.sg/GVBuyTickets#/'
-
     CATHAY_SCHEDULES = 'http://www.cathaycineplexes.com.sg/showtimes/'
 
     def __init__(self):
