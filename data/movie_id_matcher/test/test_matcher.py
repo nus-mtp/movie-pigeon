@@ -1,4 +1,4 @@
-from matcher import MovieIDMatcher
+from movie_id_matcher.matcher import MovieIDMatcher
 
 import unittest
 

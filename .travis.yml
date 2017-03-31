@@ -37,8 +37,7 @@ install:
 script:
   - npm test
   - cd ..
-  - cd data/movie_id_matcher
-  - python3 -m unittest test/test_matcher.py
+  - cd data
+  - python3 -m unittest movie_id_matcher/test/test_matcher.py
   - cd ..
-  - cd public_data
-  - python3 -m unittest test/test_movie_data.py
+  - python3 -m unittest public_data/test/test_movie_data.py
