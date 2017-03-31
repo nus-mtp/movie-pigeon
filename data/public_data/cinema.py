@@ -154,7 +154,6 @@ class CinemaList:
             inserted_tuple = CinemaListTransformer.insert_cinema_data(capwords(cinema_name), cinema_provider, latitude,
                                                                       longitude, displayed_name)
             cinema_list.append(inserted_tuple)
-
         return cinema_list
 
     def _parse_shaw_cinema_name(self, cinema_name):

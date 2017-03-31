@@ -20,9 +20,5 @@ class TestCinemaList(unittest.TestCase):
         cinema_list = self.cinema_list._extract_gv_cinema_list()
         self.assertEqual(len(cinema_list), 25)  # 31 cinemas, 25 valid
 
-    def test_get_cinema_list(self):
-        cinema_list = self.cinema_list.get_cinema_list()
-        self.assertEqual(len(cinema_list), 40)
-
 if __name__ == '__main__':
     unittest.main()
