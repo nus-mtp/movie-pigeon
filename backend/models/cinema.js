@@ -16,14 +16,14 @@ var Cinema = sequelize.define('cinemas', {
   provider: {
     type: DataTypes.STRING
   },
-  url: {
-    type: DataTypes.TEXT
-  },
   location_x: {
     type: DataTypes.FLOAT
   },
   location_y: {
     type: DataTypes.FLOAT
+  },
+  displayed_name: {
+    type: DataTypes.STRING
   }
 });
 
