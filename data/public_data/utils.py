@@ -1,8 +1,9 @@
 from enum import Enum
 from datetime import datetime, timedelta
 from pytz import timezone
-from urllib import request
+from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
+from selenium import webdriver
 
 import time
 import json
@@ -46,7 +47,7 @@ def _get_json_result_from_google_geocode(address):
     GOOGLE_GEOCODE_API = 'http://maps.google.com/maps/api/geocode/json?address={}'
 
     url = GOOGLE_GEOCODE_API.format(address)
-    json_content = request.urlopen(url).read().decode('utf-8')
+    json_content = urlopen(url).read().decode('utf-8')
     web_result = json.loads(json_content)
     return web_result
 
@@ -172,7 +173,8 @@ def get_movie_rating_dict(score, votes, imdb_id, rating_source):
 
 
 def build_soup_from_url(url):
-    web_content = request.urlopen(url).read().decode("utf-8")
+    req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    web_content = urlopen(req).read().decode("utf-8")
     soup = BeautifulSoup(web_content, "lxml")
     return soup
 
@@ -181,6 +183,13 @@ def build_soup_from_file(directory):
     io_wrapper = open(directory, encoding="utf8")
     soup = BeautifulSoup(io_wrapper, "lxml")
     io_wrapper.close()
+    return soup
+
+
+def build_soup_from_selenium(url):
+    driver = webdriver.PhantomJS()
+    driver.get(url)
+    soup = BeautifulSoup(driver.page_source, "lxml")
     return soup
 
 

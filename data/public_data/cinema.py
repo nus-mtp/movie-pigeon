@@ -14,21 +14,21 @@ class CinemaList:
     This class provides one single operation.
     Return the list of cinemas, with their url and name
     """
-    GOLDEN_VILLAGE_LIST_HOME = "https://www.gv.com.sg/GVCinemas"
+    CATHAY_LIST = "http://www.cathaycineplexes.com.sg/cinemas/"
 
-    CATHAY_LIST_HOME = "http://www.cathaycineplexes.com.sg/cinemas/"
+    SHAW_BROTHER_LIST = "http://www.shaw.sg/sw_cinema.aspx"
 
-    SHAW_BROTHER_LIST_HOME = "http://www.shaw.sg/sw_cinema.aspx"
+    GV_LIST = 'https://www.gv.com.sg/GVBuyTickets#/'
 
-    SHAW_SCHEDULES = 'http://www.shaw.sg/sw_buytickets.aspx?CplexCode=&FilmCode=&date={}'
-
-    GV_SCHEDULES = 'https://www.gv.com.sg/GVBuyTickets#/'
-
-    CATHAY_SCHEDULES = 'http://www.cathaycineplexes.com.sg/showtimes/'
-
-    def __init__(self):
-        self.cathay_soup = utils.build_soup_from_url(self.CATHAY_LIST_HOME)
-        self.sb_soup = utils.build_soup_from_url(self.SHAW_BROTHER_LIST_HOME)
+    def __init__(self, test=False):
+        if test:
+            self.cathay_soup = utils.build_soup_from_file('data_cinema_list/cathay_home.html')
+            self.sb_soup = utils.build_soup_from_file('data_cinema_list/shaw_home.html')
+            self.gv_soup = utils.build_soup_from_file('data_cinema_list/gv_home.html')
+        else:
+            self.cathay_soup = utils.build_soup_from_url(self.CATHAY_LIST)
+            self.sb_soup = utils.build_soup_from_url(self.SHAW_BROTHER_LIST)
+            self.gv_soup = utils.build_soup_from_selenium(self.GV_LIST)
 
     def get_latest_cinema_list(self):
         """
@@ -36,8 +36,8 @@ class CinemaList:
         :return: list
         """
         cinema_list = []
-        cinema_list.extend(self._extract_cathay_cinema_list(self.cathay_soup))
-        cinema_list.extend(self._extract_sb_cinema_list(self.sb_soup))
+        cinema_list.extend(self._extract_cathay_cinema_list())
+        cinema_list.extend(self._extract_sb_cinema_list())
         cinema_list.extend(self._extract_gv_cinema_list())
         return cinema_list
 
@@ -47,65 +47,41 @@ class CinemaList:
         cinema names, and their corresponding url
         :return: list
         """
-        cinema_urls = self._get_gv_cinema_url()
-
-        # get actual list, in each url it may contain more than one cinema
+        cinema_provider = "gv"
         cinema_list = []
-        for cinema_url in cinema_urls:
-            self._get_single_gv_cinema_data(cinema_list, cinema_url)
+        cinema_element_iterator = self.gv_soup.find_all('p', {'class': 'ng-binding'})
+        for cinema_element in cinema_element_iterator:
+            try:
+                if cinema_element['ng-bind-html'] == 'cinema.name':
+                    cinema_name = cinema_element.text
+                    latitude, longitude = utils.get_geocode(cinema_name)
+                    inserted_tuple = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_provider, latitude,
+                                                                              longitude)
+                    cinema_list.append(inserted_tuple)
+            except KeyError:
+                continue
 
         return cinema_list
 
-    def _get_single_gv_cinema_data(self, cinema_list, cinema_url):
-        """
-        get a single cinema data
-        :param cinema_list: list
-        :param cinema_url: string
-        :return:
-        """
-        driver = webdriver.PhantomJS()  # re-instantiate to avoid detach from DOM
-        driver.get(cinema_url)
-        div = driver.find_elements_by_class_name("ng-binding")
-        for item in div:
-            if item.get_attribute("ng-bind-html") == "cinema.name":
-                cinema_name = item.text
-                latitude, longitude = self._get_geocode(cinema_name)
-                cinema_data = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_url, "gv", latitude, longitude)
-                cinema_list.append(cinema_data)
-
-    def _get_gv_cinema_url(self):
-        """
-        get cinema urls from website
-        :return: list
-        """
-        driver = webdriver.PhantomJS()
-        driver.get(self.GOLDEN_VILLAGE_LIST_HOME)
-        cinema_urls = []
-        anchors = driver.find_element_by_class_name("cinemas-list").find_elements_by_class_name("ng-binding")
-
-        for anchor in anchors:
-            cinema_urls.append(anchor.get_attribute("href"))
-
-        return cinema_urls
-
-    def _extract_cathay_cinema_list(self, soup):
+    def _extract_cathay_cinema_list(self):
         """
         get a list of dictionaries contain all cathay cinema names.
         :param soup: BeautifulSoup()
         :return: list
         """
+        cinema_provider = 'cathay'
         cinema_list = []
 
-        divs = soup.find_all("div", {"class": "description"})
+        divs = self.cathay_soup.find_all("div", {"class": "description"})
         for div in divs:
             cinema_name = capwords(div.find("h1").text)
-            latitude, longitude = self._get_geocode(cinema_name)
-            inserted_tuple = CinemaListTransformer.insert_cinema_data(
-                cinema_name, "http://www.cathaycineplexes.com.sg/showtimes/", "cathay", latitude, longitude)
+            latitude, longitude = utils.get_geocode(cinema_name)
+            inserted_tuple = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_provider, latitude, longitude)
             cinema_list.append(inserted_tuple)
+
         return cinema_list
 
-    def _extract_sb_cinema_list(self, soup):
+    def _extract_sb_cinema_list(self):
         """
         get a list of dictionaries contain all SB cinema names,
         and their corresponding urls
@@ -115,14 +91,13 @@ class CinemaList:
         cinema_provider = 'sb'  # shaw brother
         cinema_list = []
 
-        # get names list
-        divs = soup.find_all("a", {"class": "txtHeaderBold"})
+        divs = self.sb_soup.find_all("a", {"class": "txtHeaderBold"})
         for div in divs:
             cinema_name = div.text
             latitude, longitude = utils.get_geocode(cinema_name)
             inserted_tuple = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_provider, latitude, longitude)
             cinema_list.append(inserted_tuple)
-        print(cinema_list)
+
         return cinema_list
 
 
