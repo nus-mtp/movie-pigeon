@@ -21,6 +21,10 @@ class TestCinemaList(unittest.TestCase):
         cinema_list = self.cinema_list._extract_gv_cinema_list()
         self.assertEqual(len(cinema_list), 25)  # 31 cinemas, 25 valid
 
+    def test_get_cinema_list(self):
+        cinema_list = self.cinema_list.get_cinema_list()
+        self.assertEqual(len(cinema_list), 40)
+
     # @unittest.skip  # test skipped for CI, tested using IDE
     # def test_get_geocode(self):
     #     self.assertEqual(self.cinema_list._get_geocode("27 Prince George's Park"), (1.2913898, 103.7810233))

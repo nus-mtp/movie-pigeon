@@ -107,7 +107,7 @@ class ETLController:
         logging.warning("Initialise cinema list update process ...")
 
         cinema_list_object = CinemaList()
-        cinema_list = cinema_list_object.get_latest_cinema_list()
+        cinema_list = cinema_list_object.get_cinema_list()
         self.loader.load_cinema_list(cinema_list)
 
         logging.warning("Cinema list update process complete.")

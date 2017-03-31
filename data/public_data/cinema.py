@@ -12,7 +12,7 @@ import time
 class CinemaList:
     """
     This class provides one single operation.
-    Return the list of cinemas, with their url and name
+    Return the list of cinemas with name and their geocode
     """
     CATHAY_LIST = "http://www.cathaycineplexes.com.sg/cinemas/"
 
@@ -30,7 +30,7 @@ class CinemaList:
             self.sb_soup = utils.build_soup_from_url(self.SHAW_BROTHER_LIST)
             self.gv_soup = utils.build_soup_from_selenium(self.GV_LIST)
 
-    def get_latest_cinema_list(self):
+    def get_cinema_list(self):
         """
         return the latest cinema list for all providers
         :return: list
