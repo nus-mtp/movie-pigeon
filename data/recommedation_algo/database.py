@@ -1,5 +1,5 @@
 """handles all interactions with database"""
-import config
+import recommedation_algo.config as config
 import datetime
 
 

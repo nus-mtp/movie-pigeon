@@ -1,10 +1,10 @@
 from datetime import datetime
 from selenium import webdriver, common
 from string import capwords
-from transformer import CinemaScheduleTransformer, GeneralTransformer, CinemaListTransformer
+from public_data.transformer import CinemaScheduleTransformer, GeneralTransformer, CinemaListTransformer
 from urllib import request
 
-import utils
+import public_data.utils as utils
 import json
 import time
 
@@ -195,7 +195,7 @@ class CinemaSchedule:
 
         self.transformer = CinemaScheduleTransformer()
 
-        from loader import Loader
+        from public_data.loader import Loader
         self.loader = Loader()  # for matching cinema id
 
     # ============ Golden Village ============

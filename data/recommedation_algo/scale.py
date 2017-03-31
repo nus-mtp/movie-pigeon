@@ -3,7 +3,7 @@
     source for one user
 """
 from sklearn import linear_model, exceptions
-from database import DatabaseHandler
+from recommedation_algo.database import DatabaseHandler
 from data.public_data.controller import ETLController
 
 import numpy

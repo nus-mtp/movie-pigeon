@@ -1,11 +1,11 @@
 """
     Main class for recommendation operations
 """
-from database import DatabaseHandler
+from recommedation_algo.database import DatabaseHandler
 from public_data.controller import ETLController
 from datetime import datetime
-from scale import UserScale
-from similarity import MovieSimilarity
+from recommedation_algo.scale import UserScale
+from recommedation_algo.similarity import MovieSimilarity
 
 import logging
 import warnings
