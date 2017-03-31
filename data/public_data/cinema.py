@@ -2,23 +2,23 @@ from datetime import datetime
 from selenium import webdriver, common
 from string import capwords
 from public_data.transformer import CinemaScheduleTransformer, GeneralTransformer, CinemaListTransformer
-from urllib import request
 
 import public_data.utils as utils
-import json
-import time
 
 
 class CinemaList:
     """
-    This class provides one single operation.
-    Return the list of cinemas with name and their geocode
+    This class provides one single operation:
+    return the list of cinemas with name and their geocode
     """
+
     CATHAY_LIST = "http://www.cathaycineplexes.com.sg/cinemas/"
-
     SHAW_BROTHER_LIST = "http://www.shaw.sg/sw_cinema.aspx"
-
     GV_LIST = 'https://www.gv.com.sg/GVBuyTickets#/'
+
+    GV_PROVIDER = 'GV'
+    CATHAY_PROVIDER = 'Cathay'
+    SHAW_PROVIDER = 'Shaw'
 
     def __init__(self, test=False):
         if test:
@@ -47,58 +47,136 @@ class CinemaList:
         cinema names, and their corresponding url
         :return: list
         """
-        cinema_provider = "gv"
+        cinema_provider = self.GV_PROVIDER
+        cinema_iterator = self._get_cinema_iterator(cinema_provider)
+
         cinema_list = []
-        cinema_element_iterator = self.gv_soup.find_all('p', {'class': 'ng-binding'})
-        for cinema_element in cinema_element_iterator:
+        for cinema_web in cinema_iterator:
             try:
-                if cinema_element['ng-bind-html'] == 'cinema.name':
-                    cinema_name = cinema_element.text
-                    latitude, longitude = utils.get_geocode(cinema_name)
+                if cinema_web['ng-bind-html'] == 'cinema.name':
+                    cinema_name = cinema_web.text
+                    displayed_name, location = self._parse_gv_cinema_name(cinema_name)
+                    latitude, longitude = utils.get_geocode(location)
                     inserted_tuple = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_provider, latitude,
-                                                                              longitude)
+                                                                              longitude, displayed_name)
                     cinema_list.append(inserted_tuple)
             except KeyError:
                 continue
 
         return cinema_list
 
+    def _parse_gv_cinema_name(self, original_cinema_name):
+        """
+        parse the messed up GV cinema name into standard
+        format, return both the text and the location
+        :param original_cinema_name: string
+        :return: string
+        """
+        if "," in original_cinema_name:
+            tokens = original_cinema_name.split(",")
+            cinema_name = "(" + tokens[0].strip() + ")"
+            location = tokens[1].strip()
+            if location == "Grand":
+                location = "Great World City"
+            final_text = self.GV_PROVIDER + " @ " + (location + " " + cinema_name).replace("GV ", "")
+        elif "@" in original_cinema_name:
+            location = "Capitol"
+            final_text = original_cinema_name
+        else:
+            if "Gold Class" in original_cinema_name:
+                location = original_cinema_name.replace("Gold Class", "")
+                cinema_name = "(Gold Class)"
+            elif "GV " in original_cinema_name:
+                location = original_cinema_name.replace("GV ", "")
+                cinema_name = ""
+            elif "Gemini" in original_cinema_name:
+                location = "City Square"
+                cinema_name = "(Gemini)"
+            else:
+                raise utils.InvalidCinemaTypeException
+            final_text = self.GV_PROVIDER + " @ " + (location.strip() + " " + cinema_name.strip())
+        return final_text, location
+
     def _extract_cathay_cinema_list(self):
         """
         get a list of dictionaries contain all cathay cinema names.
-        :param soup: BeautifulSoup()
         :return: list
         """
-        cinema_provider = 'cathay'
-        cinema_list = []
+        cinema_provider = self.CATHAY_PROVIDER
+        cinema_iterator = self._get_cinema_iterator(cinema_provider)
 
-        divs = self.cathay_soup.find_all("div", {"class": "description"})
-        for div in divs:
-            cinema_name = capwords(div.find("h1").text)
+        cinema_list = []
+        for cinema_web in cinema_iterator:
+            cinema_name = capwords(cinema_web.find("h1").text)
+
+            displayed_name = self._parse_cathay_cinema_name(cinema_name)
+
             latitude, longitude = utils.get_geocode(cinema_name)
-            inserted_tuple = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_provider, latitude, longitude)
+            inserted_tuple = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_provider, latitude, longitude,
+                                                                      displayed_name)
             cinema_list.append(inserted_tuple)
 
         return cinema_list
+
+    def _parse_cathay_cinema_name(self, cinema_name):
+        """
+        parse the cathay cinema name into standard format
+        :param cinema_name: string
+        :return: string
+        """
+        if cinema_name == "The Cathay Cineplex":
+            return self.CATHAY_PROVIDER + " @ " + "The Cathay"
+        displayed_name = cinema_name.replace("Cathay Cineplex", "").strip()
+        return self.CATHAY_PROVIDER + " @ " + displayed_name
 
     def _extract_sb_cinema_list(self):
         """
         get a list of dictionaries contain all SB cinema names,
         and their corresponding urls
-        :param soup: BeautifulSoup()
         :return: list
         """
-        cinema_provider = 'sb'  # shaw brother
-        cinema_list = []
+        cinema_provider = self.SHAW_PROVIDER
+        cinema_iterator = self._get_cinema_iterator(cinema_provider)
 
-        divs = self.sb_soup.find_all("a", {"class": "txtHeaderBold"})
-        for div in divs:
-            cinema_name = div.text
+        cinema_list = []
+        for cinema_web in cinema_iterator:
+            cinema_name = cinema_web.text
+
+            displayed_name = self._parse_shaw_cinema_name(cinema_name)
+
             latitude, longitude = utils.get_geocode(cinema_name)
-            inserted_tuple = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_provider, latitude, longitude)
+            inserted_tuple = CinemaListTransformer.insert_cinema_data(cinema_name, cinema_provider, latitude, longitude,
+                                                                      displayed_name)
             cinema_list.append(inserted_tuple)
 
         return cinema_list
+
+    def _parse_shaw_cinema_name(self, cinema_name):
+        """
+        parse the shaw cinema name into standard format
+        :param cinema_name: string
+        :return: string
+        """
+        displayed_name = cinema_name.replace("Shaw Theatres", "")
+        if 'nex' in displayed_name:
+            displayed_name = displayed_name.replace('nex', 'Nex')
+        displayed_name = self.SHAW_PROVIDER + " @" + displayed_name
+        return displayed_name
+
+    def _get_cinema_iterator(self, provider):
+        """
+        get the list of web elements from BeautifulSoup object
+        :param provider: string
+        :return: list
+        """
+        if provider == self.GV_PROVIDER:
+            return self.gv_soup.find_all('p', {'class': 'ng-binding'})
+        elif provider == self.SHAW_PROVIDER:
+            return self.sb_soup.find_all("a", {"class": "txtHeaderBold"})
+        elif provider == self.CATHAY_PROVIDER:
+            return self.cathay_soup.find_all("div", {"class": "description"})
+        else:
+            raise utils.InvalidCinemaTypeException
 
 
 class CinemaSchedule:

@@ -65,16 +65,17 @@ class Loader:
             cinema_provider = cinema['provider']
             location_x = str(cinema['location_x'])
             location_y = str(cinema['location_y'])
-
+            displayed_name = cinema['displayed_name']
             self.cursor.execute(
-                "INSERT INTO cinemas (cinema_name, provider, location_x, location_y) VALUES (%s, %s, %s, %s) "
+                "INSERT INTO cinemas (cinema_name, provider, location_x, location_y, displayed_name) "
+                "VALUES (%s, %s, %s, %s, %s) "
                 "ON CONFLICT (cinema_name) "
-                "DO UPDATE SET (provider, location_x, location_y) = (%s, %s, %s)"
+                "DO UPDATE SET (provider, location_x, location_y, displayed_name) = (%s, %s, %s, %s)"
                 "WHERE cinemas.cinema_name=%s",
 
                 (
-                    cinema_name, cinema_provider, location_x, location_y,
-                    cinema_provider, location_x, location_y,
+                    cinema_name, cinema_provider, location_x, location_y, displayed_name,
+                    cinema_provider, location_x, location_y, displayed_name,
                     cinema_name
                 )
             )

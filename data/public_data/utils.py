@@ -34,7 +34,6 @@ def _parse_special_cinema(address):
     :param address: string
     :return: string
     """
-    address += "Singapore"  # ensure the search is in Singapore
     if ',' in address:
         address = address.split(",")[-1].strip()  # special cinema will be determined by their location
     if '(' in address:
@@ -44,8 +43,8 @@ def _parse_special_cinema(address):
 
 
 def _get_json_result_from_google_geocode(address):
-    GOOGLE_GEOCODE_API = 'http://maps.google.com/maps/api/geocode/json?address={}'
-
+    address += ",Singapore"  # ensure the search is in Singapore
+    GOOGLE_GEOCODE_API = 'http://maps.google.com/maps/api/geocode/json?address={}&components=country:SG'
     url = GOOGLE_GEOCODE_API.format(address)
     json_content = urlopen(url).read().decode('utf-8')
     web_result = json.loads(json_content)

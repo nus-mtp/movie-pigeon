@@ -4,10 +4,6 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 import logging
 
 
-def update_cinema_list(con):
-    con.update_cinema_list()
-
-
 def run(connection):
     scheduler = BlockingScheduler()
 
@@ -18,4 +14,3 @@ def run(connection):
 if __name__ == '__main__':
     con = controller.ETLController()
     logging.basicConfig(level=logging.INFO)
-    update_cinema_list(con)
