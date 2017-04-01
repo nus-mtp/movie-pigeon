@@ -92,8 +92,8 @@ class CinemaList:
                 location = original_cinema_name.replace("GV ", "")
                 cinema_name = ""
             elif "Gemini" in original_cinema_name:
-                location = "City Square"
-                cinema_name = "(Gemini)"
+                location, cinema_name = original_cinema_name.split(" ", 0)
+                cinema_name = "({})".format(cinema_name)
             else:
                 raise utils.InvalidCinemaTypeException
             final_text = self.GV_PROVIDER + " @ " + (location.strip() + " " + cinema_name.strip())
