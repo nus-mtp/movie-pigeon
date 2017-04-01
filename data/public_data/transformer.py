@@ -249,13 +249,13 @@ class CinemaScheduleTransformer:
 class CinemaListTransformer:
 
     @staticmethod
-    def insert_cinema_data(cinema_name, cinema_url, provider, x, y):
+    def insert_cinema_data(cinema_name, provider, x, y, displayed_name):
         inserted_tuple = {
-            "url": cinema_url,
             "cinema_name": cinema_name,
             "provider": provider,
             "location_x": x,
-            "location_y": y
+            "location_y": y,
+            "displayed_name": displayed_name
         }
         return inserted_tuple
 

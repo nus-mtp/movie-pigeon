@@ -14,4 +14,4 @@ def run(connection):
 if __name__ == '__main__':
     con = controller.ETLController()
     logging.basicConfig(level=logging.INFO)
-    run(con)
+    con.update_cinema_schedule()
