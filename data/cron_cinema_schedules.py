@@ -8,7 +8,7 @@ def run(connection):
     scheduler = BlockingScheduler()
 
     # cron for cinema schedule, run at 0:00 everyday
-    scheduler.add_job(connection.update_cinema_schedule, trigger='cron', hour=18, minute=5, second=0)
+    scheduler.add_job(connection.update_cinema_schedule, trigger='cron', hour=15, minute=47, second=0)
     scheduler.start()
 
 if __name__ == '__main__':

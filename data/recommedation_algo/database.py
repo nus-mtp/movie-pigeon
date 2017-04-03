@@ -16,12 +16,17 @@ class DatabaseHandler:
         return self.dict_cursor.fetchall()
 
     def get_user_history(self, user_id):
-        self.cursor.execute("SELECT movie_id, score FROM user_ratings WHERE user_id=%s", (user_id, ))
+        self.cursor.execute("SELECT DISTINCT(u.movie_id), u.score FROM user_ratings u, public_ratings p "
+                            "WHERE user_id=%s AND u.movie_id = p.movie_id and p.score is not NULL", (user_id, ))
         return self.cursor.fetchall()
 
-    def get_public_rating(self, movie_id):
-        self.dict_cursor.execute("SELECT * FROM public_ratings WHERE movie_id=%s", (movie_id, ))
+    def get_public_rating_dict(self, movie_id):
+        self.dict_cursor.execute("SELECT * FROM public_ratings WHERE movie_id=%s AND score is not NULL", (movie_id, ))
         return self.dict_cursor.fetchall()
+
+    def get_public_rating(self, movie_id):
+        self.cursor.execute("SELECT * FROM public_ratings WHERE movie_id=%s AND score is not NULL", (movie_id, ))
+        return self.cursor.fetchall()
 
     def get_movie_id_by_year(self, year):
         today = datetime.datetime.now().strftime("%m-%d")

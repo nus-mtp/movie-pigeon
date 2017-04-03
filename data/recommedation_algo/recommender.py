@@ -3,7 +3,7 @@
 """
 from recommedation_algo.database import DatabaseHandler
 from public_data.controller import ETLController
-from datetime import datetime
+from datetime import datetime, timedelta
 from recommedation_algo.scale import UserScale
 from recommedation_algo.similarity import MovieSimilarity
 
@@ -24,7 +24,7 @@ class Recommender:
         self.controller = ETLController()
         self.db = DatabaseHandler()
 
-    def run(self):
+    def update_user_recommendations(self):
         """
         for each user, generate recommendations and store them
         :return: None
@@ -35,13 +35,13 @@ class Recommender:
             user_id = user['id']
             logging.info("initialise recommending process for user: " + str(user_id))
 
-            recommender_list = self.get_single_user_recommendations(user_id)
+            recommender_list = self._get_single_user_recommendations(user_id)
 
             self.db.save_recommendations(recommender_list, user_id)
 
-            logging.info(str(len(recommender_list)) + " movies stored.")
+            logging.info(str(len(recommender_list)) + " movies stored and recommended.")
 
-    def get_single_user_recommendations(self, user_id):
+    def _get_single_user_recommendations(self, user_id):
         """
         The recommendation logic is as follows:
             1. get all liked movies by the users,
@@ -58,9 +58,10 @@ class Recommender:
         :return: list
         """
         logging.debug("retrieving user watching history ...")
+
         user_history = self.db.get_user_history(user_id)
 
-        logging.debug("size of user ratings pool:" + str(len(user_history)))
+        logging.debug("size of user ratings pool: " + str(len(user_history)))
 
         similarity_seeds = self._generate_recommend_seeds(user_history)
 
@@ -79,31 +80,19 @@ class Recommender:
         recommend_list = self._generate_recommend_list(similar_list, user_id)
         return recommend_list
 
-    def _generate_recommend_list(self, similar_list, user_id):
-        logging.debug("initialising predicting process ...")
-
-        scale = UserScale(user_id)
-        recommend_list = []
-
-        for potential in similar_list:
-            public_ratings = self.db.get_public_rating(potential)
-            print(public_ratings)
-
-            break
-            self.controller.update_single_movie_rating(potential)
-            public_ratings = self.db.get_public_rating(potential)
-
-            if any(None in element for element in public_ratings):  # skip if the data is invalid
-                continue
-
-            imdb_rating, douban_rating, trakt_rating = public_ratings
-            regressors = [imdb_rating[3], douban_rating[3], trakt_rating[3]]
-            expected_score = scale.predict_user_score(regressors)[0]
-
-            if expected_score > self.RECOMMEND_CRITERION:
-                recommend_list.append([potential, expected_score])
-
-        return recommend_list
+    def _generate_recommend_seeds(self, user_pool):
+        """
+        given user watching history, generate similar
+        movies that may be recommended
+        :param user_pool: list
+        :return: list
+        """
+        user_list = []
+        for user_rating in user_pool:
+            movie_id, score = user_rating
+            if score >= self.USER_RATINGS_CRITERION:  # consider as favorable movie
+                user_list.append(movie_id)
+        return user_list
 
     def _generate_similar_movies(self, user_list):
         similar_list = []
@@ -134,16 +123,45 @@ class Recommender:
 
         return similar_list
 
-    def _generate_recommend_seeds(self, user_pool):
-        """
-        given user watching history, generate similar
-        movies that may be recommended
-        :param user_pool: list
-        :return: list
-        """
-        user_list = []
-        for user_rating in user_pool:
-            movie_id, score = user_rating
-            if score >= self.USER_RATINGS_CRITERION:  # consider as favorable movie
-                user_list.append(movie_id)
-        return user_list
+    def _generate_recommend_list(self, similar_list, user_id):
+        logging.debug("initialising predicting process ...")
+
+        scale = UserScale(user_id)
+
+        recommend_list = []
+
+        logging.debug("size of similar list: " + str(len(similar_list)))
+        for potential in similar_list:
+            public_ratings = self.db.get_public_rating_dict(potential)
+
+            if len(public_ratings) < 3:
+                logging.debug("Ratings are not sufficient for fitting the regression ...")
+                continue
+
+            # check rating relevancy, pick any updated date for one movie
+            if public_ratings[0]['updated_at'] < datetime.now() - timedelta(days=0):
+                logging.debug("rating may be outdated, re-extracting ratings ...")
+                self.controller.update_single_movie_rating(potential)
+                public_ratings = self.db.get_public_rating_dict(potential)
+
+            regressors = self._construct_regressors(public_ratings)
+
+            expected_score = scale.predict_user_score(regressors)[0]
+            if expected_score > self.RECOMMEND_CRITERION:
+                recommend_list.append([potential, expected_score])
+
+        return recommend_list
+
+    @staticmethod
+    def _construct_regressors(public_ratings):
+        regressors = [0, 0, 0]
+        for rating in public_ratings:
+            if rating['source_id'] == '1':
+                regressors[0] = rating['score']
+            elif rating['source_id'] == '2':
+                regressors[1] = rating['score']
+            elif rating['source_id'] == '3':
+                regressors[2] = rating['score']
+        return regressors
+
+
