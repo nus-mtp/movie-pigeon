@@ -1,5 +1,5 @@
 """
-    Main class for recommendation operations
+    main class for recommendation operations
 """
 from recommedation_algo.database import DatabaseHandler
 from public_data.controller import ETLController
