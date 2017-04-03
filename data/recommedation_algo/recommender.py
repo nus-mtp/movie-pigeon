@@ -33,6 +33,7 @@ class Recommender:
 
         for user in users:
             user_id = user['id']
+
             logging.info("initialise recommending process for user: " + str(user_id))
 
             recommender_list = self._get_single_user_recommendations(user_id)
@@ -134,21 +135,23 @@ class Recommender:
         for potential in similar_list:
             public_ratings = self.db.get_public_rating_dict(potential)
 
-            if len(public_ratings) < 3:
-                logging.debug("Ratings are not sufficient for fitting the regression ...")
-                continue
-
-            # check rating relevancy, pick any updated date for one movie
-            if public_ratings[0]['updated_at'] < datetime.now() - timedelta(days=0):
-                logging.debug("rating may be outdated, re-extracting ratings ...")
+            if len(public_ratings) == 0:
+                logging.debug("rating does not exist, extracting ratings ...")
                 self.controller.update_single_movie_rating(potential)
                 public_ratings = self.db.get_public_rating_dict(potential)
 
-            regressors = self._construct_regressors(public_ratings)
+            if len(public_ratings) == 3:
+                # check rating relevancy, pick any updated date for one movie
+                if public_ratings[0]['updated_at'] < datetime.now() - timedelta(days=1):
+                    logging.debug("rating may be outdated, re-extracting ratings ...")
+                    self.controller.update_single_movie_rating(potential)
+                    public_ratings = self.db.get_public_rating_dict(potential)
 
-            expected_score = scale.predict_user_score(regressors)[0]
-            if expected_score > self.RECOMMEND_CRITERION:
-                recommend_list.append([potential, expected_score])
+                regressors = self._construct_regressors(public_ratings)
+                expected_score = scale.predict_user_score(regressors)[0]
+
+                if expected_score > self.RECOMMEND_CRITERION:
+                    recommend_list.append([potential, expected_score])
 
         return recommend_list
 
