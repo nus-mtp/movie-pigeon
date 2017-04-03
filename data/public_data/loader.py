@@ -1,6 +1,6 @@
 """handles all interactions with database"""
 import public_data.config as config
-
+import datetime
 
 class Loader:
 
@@ -45,15 +45,17 @@ class Loader:
         self.conn.commit()
 
     def load_movie_rating(self, movie_ratings):
+        now = datetime.datetime.now()
         for movie_rating in movie_ratings:
             self.cursor.execute(
-                "INSERT INTO public_ratings (vote, score, movie_id, source_id) VALUES (%s, %s, %s, %s) "
+                "INSERT INTO public_ratings (vote, score, movie_id, source_id, updated_at) VALUES (%s, %s, %s, %s, %s) "
                 "ON CONFLICT (movie_id, source_id) "
-                "DO UPDATE SET (vote, score) = (%s, %s) "
+                "DO UPDATE SET (vote, score, updated_at) = (%s, %s, %s) "
                 "WHERE public_ratings.movie_id=%s AND public_ratings.source_id=%s",
                 (
-                    movie_rating['votes'], movie_rating['score'], movie_rating['movie_id'],
-                    movie_rating['source_id'], movie_rating['votes'], movie_rating['score'],
+                    movie_rating['votes'], movie_rating['score'], movie_rating['movie_id'], movie_rating['source_id'],
+                    now,
+                    movie_rating['votes'], movie_rating['score'], now,
                     movie_rating['movie_id'], movie_rating['source_id']
                 )
             )

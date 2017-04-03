@@ -2,23 +2,26 @@
 import recommedation_algo.config as config
 import datetime
 
+from psycopg2 import extras
+
 
 class DatabaseHandler:
 
     def __init__(self):
         self.cursor, self.conn = config.database_connection()
+        self.dict_cursor = self.conn.cursor(cursor_factory=extras.RealDictCursor)
 
     def get_users(self):
-        self.cursor.execute("SELECT id FROM users")
-        return self.cursor.fetchall()
+        self.dict_cursor.execute("SELECT id FROM users")
+        return self.dict_cursor.fetchall()
 
     def get_user_history(self, user_id):
         self.cursor.execute("SELECT movie_id, score FROM user_ratings WHERE user_id=%s", (user_id, ))
         return self.cursor.fetchall()
 
     def get_public_rating(self, movie_id):
-        self.cursor.execute("SELECT * FROM public_ratings WHERE movie_id=%s", (movie_id, ))
-        return self.cursor.fetchall()
+        self.dict_cursor.execute("SELECT * FROM public_ratings WHERE movie_id=%s", (movie_id, ))
+        return self.dict_cursor.fetchall()
 
     def get_movie_id_by_year(self, year):
         today = datetime.datetime.now().strftime("%m-%d")

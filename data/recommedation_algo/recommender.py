@@ -8,7 +8,6 @@ from recommedation_algo.scale import UserScale
 from recommedation_algo.similarity import MovieSimilarity
 
 import logging
-import warnings
 
 
 class Recommender:
@@ -33,9 +32,14 @@ class Recommender:
         users = self.db.get_users()
 
         for user in users:
-            user_id = user[0]
+            user_id = user['id']
+            logging.info("initialise recommending process for user: " + str(user_id))
+
             recommender_list = self.get_single_user_recommendations(user_id)
+
             self.db.save_recommendations(recommender_list, user_id)
+
+            logging.info(str(len(recommender_list)) + " movies stored.")
 
     def get_single_user_recommendations(self, user_id):
         """
@@ -53,16 +57,16 @@ class Recommender:
         :param user_id: string
         :return: list
         """
-        logging.warning("retrieving user watching history ...")
+        logging.debug("retrieving user watching history ...")
         user_history = self.db.get_user_history(user_id)
 
-        logging.warning("size of user ratings pool:" + str(len(user_history)))
+        logging.debug("size of user ratings pool:" + str(len(user_history)))
 
         similarity_seeds = self._generate_recommend_seeds(user_history)
 
         # no rating history found, directly return default list
         if len(similarity_seeds) == 0:
-            logging.warning("no user rating history found, recommending default list ...")
+            logging.debug("no user rating history found, recommending default list ...")
 
             popular_movies = self.db.get_10_popular_movies()
             popular_list = []
@@ -76,17 +80,18 @@ class Recommender:
         return recommend_list
 
     def _generate_recommend_list(self, similar_list, user_id):
-        logging.warning("initialising predicting process ...")
+        logging.debug("initialising predicting process ...")
 
         scale = UserScale(user_id)
         recommend_list = []
 
         for potential in similar_list:
             public_ratings = self.db.get_public_rating(potential)
+            print(public_ratings)
 
-            if not public_ratings:
-                self.controller.update_single_movie_rating(potential)
-                public_ratings = self.db.get_public_rating(potential)
+            break
+            self.controller.update_single_movie_rating(potential)
+            public_ratings = self.db.get_public_rating(potential)
 
             if any(None in element for element in public_ratings):  # skip if the data is invalid
                 continue
@@ -106,7 +111,7 @@ class Recommender:
 
         flag = True
         while flag:
-            logging.warning("initialising movie pool selection ...")
+            logging.debug("initialising movie pool selection ...")
             movie_pool = self.db.get_movie_id_by_year(current_year)
 
             logging.warning("size of pool:" + str(len(movie_pool)))
@@ -142,10 +147,3 @@ class Recommender:
             if score >= self.USER_RATINGS_CRITERION:  # consider as favorable movie
                 user_list.append(movie_id)
         return user_list
-
-
-if __name__ == '__main__':
-    warnings.filterwarnings(action="ignore", module="scipy", message="^internal gelsd")  # ignore lapack related warning
-    logging.basicConfig(level=logging.INFO)
-    recommender = Recommender()
-    recommender.run()
