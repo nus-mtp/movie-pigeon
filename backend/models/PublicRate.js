@@ -18,6 +18,9 @@ var Rates = sequelize.define('public_ratings', {
   },
   score: {
     type: DataTypes.FLOAT
+  },
+  updated_at: {
+    type: DataTypes.DATE
   }
 });
 
