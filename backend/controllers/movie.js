@@ -96,24 +96,3 @@ exports.getMovieScheduleById = function (req, res) {
       console.log(err);
   })
 };
-
-// Create endpoint /api/movies/id for GET
-exports.getMoviesById = function (req, res) {
-  // Use the Client model to find all clients
-  Movie.find({where: {id: req.headers.id}}).then(function (movies) {
-    res.json(movies);
-  }).catch(function (err) {
-    res.send(err);
-  });
-};
-
-// Create endpoint /api/movies/productionYear for GET
-exports.getMoviesByProductionYear = function (req, res) {
-  // Use the Client model to find all clients
-  Movie.find({where: {productionYear: req.headers.productionYear}})
-    .then(function (movies) {
-      res.json(movies);
-    }).catch(function (err) {
-    res.send(err);
-  });
-};

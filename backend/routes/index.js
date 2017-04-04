@@ -33,8 +33,7 @@ router.post('/users/login', authController.isAuthenticated, function (req, res) 
 
 // Create endpoint handlers for /clients
 router.route('/clients')
-  .post(authController.isAuthenticated, clientController.postClients)
-  .get(authController.isAuthenticated, clientController.getClients);
+  .post(authController.isAuthenticated, clientController.postClients);
 
 // Create endpoint handlers for oauth2 authorize
 router.route('/oauth2/authorize')
@@ -48,12 +47,8 @@ router.route('/oauth2/authorize/transactionId')
 router.route('/oauth2/token')
   .post(authController.isClientAuthenticated, oauth2Controller.token);
 
-router.route('/movies/id')
-  .get(authController.isAuthenticated, movieController.getMoviesById);
 router.route('/movies/title')
   .get(authController.isAuthenticated, movieController.getMoviesByTitle);
-router.route('/movies/year')
-  .get(authController.isAuthenticated, movieController.getMoviesByProductionYear);
 router.route('/movies/showing')
   .get(authController.isAuthenticated, movieController.getShowingMovieByTitle);
 router.route('/movies/schedule')
