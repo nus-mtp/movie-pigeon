@@ -90,3 +90,50 @@ class DatabaseHandler:
                 )
             )
         self.conn.commit()
+
+    def get_similarity_of_movies(self, target_movie, source_movie):
+        self.cursor.execute("SELECT value FROM similarity WHERE id_1=%s AND id_2=%s", (target_movie, source_movie))
+        return self.cursor.fetchone()[0]
+
+    def get_user_history_object(self):
+        self.dict_cursor.execute(
+            "SELECT DISTINCT(u.movie_id), m.genre, m.actors, m.runtime "
+            "FROM user_ratings u, movies m "
+            "WHERE u.movie_id = m.movie_id "
+            "AND m.genre IS NOT NULL "
+            "AND m.actors IS NOT NULL "
+            "AND m.runtime IS NOT NULL "
+            "AND m.runtime <> ''"
+        )
+        return self.dict_cursor.fetchall()
+
+    def get_movie_pool_object(self):
+        self.dict_cursor.execute(
+            "SELECT movie_id, genre, actors, runtime "
+            "FROM movies "
+            "WHERE genre IS NOT NULL "
+            "AND actors IS NOT NULL "
+            "AND runtime IS NOT NULL "
+            "AND runtime <> '' "
+            "AND actors <> '' "
+            "AND genre <> '' "
+            "AND released IS NOT NULL "
+            "AND released < now() "
+            "ORDER BY released DESC LIMIT 10000"
+        )
+        return self.dict_cursor.fetchall()
+
+    def load_similarity(self, movie_id_1, movie_id_2, similarity):
+        self.cursor.execute(
+            "INSERT INTO similarity (id_1, id_2, similarity_value) VALUES (%s, %s, %s)",
+            (
+                movie_id_1, movie_id_2, similarity
+            )
+        )
+        self.cursor.execute(
+            "INSERT INTO similarity (id_1, id_2, similarity_value) VALUES (%s, %s, %s)",
+            (
+                movie_id_2, movie_id_1, similarity
+            )
+        )
+        self.conn.commit()

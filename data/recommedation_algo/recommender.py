@@ -38,9 +38,11 @@ class Recommender:
 
             recommender_list = self._get_single_user_recommendations(user_id)
 
-            self.db.save_recommendations(recommender_list, user_id)
+            # self.db.save_recommendations(recommender_list, user_id)
 
-            logging.info(str(len(recommender_list)) + " movies stored and recommended.")
+            # logging.info(str(len(recommender_list)) + " movies stored and recommended.")
+
+            break
 
     def _get_single_user_recommendations(self, user_id):
         """
@@ -58,28 +60,29 @@ class Recommender:
         :param user_id: string
         :return: list
         """
-        logging.debug("retrieving user watching history ...")
-
+        logging.debug("STEP 1: get user favorite movies")
         user_history = self.db.get_user_history(user_id)
-
-        logging.debug("size of user ratings pool: " + str(len(user_history)))
-
         similarity_seeds = self._generate_recommend_seeds(user_history)
+        logging.debug(str(len(similarity_seeds)) + " favorite movies found.")
 
-        # no rating history found, directly return default list
-        if len(similarity_seeds) == 0:
-            logging.debug("no user rating history found, recommending default list ...")
+        logging.debug("STEP 2: get similar movies")
+        similar_list = self._generate_similar_movies_new(similarity_seeds)
+        #logging.debug(str(len(similar_list)) + " favorite movies found.")
 
-            popular_movies = self.db.get_10_popular_movies()
-            popular_list = []
-            for popular in popular_movies:
-                popular_list.append([popular[0], popular[1]])
-
-            return popular_list
-
-        similar_list = self._generate_similar_movies(similarity_seeds)
+        return
         recommend_list = self._generate_recommend_list(similar_list, user_id)
         return recommend_list
+
+    def _generate_similar_movies_new(self, user_list):
+        """
+        given a list of user's favorite movies,
+        return a list of similar movies
+        :param user_list: list
+        :return: list
+        """
+        print(self.db.get_similarity_of_movies("1", "2"))
+
+
 
     def _generate_recommend_seeds(self, user_pool):
         """

@@ -1,89 +1,113 @@
 import recommedation_algo.database as database
+import logging
+
 
 
 class MovieSimilarity:
+    """
+        this class handles operations related to the calculation
+        of similarity between movies
+
+        It will select all distinct movies from user histories,
+        and calculate each one of them against every movie in time descending
+        order, and stored in databases for recommendation use.
+    """
 
     # pre-set weights for each similarity
     GENRE_WEIGHT = 0.5
     ACTOR_WEIGHT = 0.25
     RUNTIME_WEIGHT = 0.25
 
-    def __init__(self, target, source):
-        """
-        :param target: list
-        :param source: string
-        """
-        self.target = target
-        self.source = source
-
+    def __init__(self):
         self.db = database.DatabaseHandler()
-        self.target_data_list = [self.db.get_movie_data_by_id(element) for element in self.target]
-        self.source_data = self.db.get_movie_data_by_id(self.source)
 
-    def get_highest_similarity(self):
+    def calculate_similarity_table(self):
+        user_history_objects = self._get_user_histories()
+        movie_objects = self._get_compared_movies()
+
+        for user_history_object in user_history_objects:
+            for movie_object in movie_objects:
+                first_movie_id = user_history_object['movie_id']
+                second_movie_id = movie_object['movie_id']
+                if first_movie_id != second_movie_id:
+                    current_similarity = self._calculate_similarity(user_history_object, movie_object)
+                    self.db.load_similarity(first_movie_id, second_movie_id, current_similarity)
+            break
+
+    def _get_user_histories(self):
+        logging.debug("generating user histories ...")
+        user_histories = self.db.get_user_history_object()
+        logging.debug(str(len(user_histories)) + " movies are found.")
+        return user_histories
+
+    def _get_compared_movies(self):
+        logging.debug("generating movie pool ...")
+        movie_pool = self.db.get_movie_pool_object()
+        logging.debug(str(len(movie_pool)) + " movies are found.")
+        return movie_pool
+
+    def _calculate_similarity(self, first_movie_object, second_movie_object):
         """
-        calculate similarity of two movies based
-        on different fields
-        :return: float
+        1. get a list of existing pairs, check repetition, skip repetition
+        2. calculate
+        3. return
+        :param first_movie_object:
+        :param second_movie_object:
+        :return:
         """
-        similarity_list = []
-        for current_data in self.target_data_list:
-            self.target_data = current_data
-            genre_sim = self._calculate_genre_similarity()
-            actor_sim = self._calculate_actor_similarity()
-            runtime_sim = self._calculate_runtime_similarity()
+        genre_similarity = self._calculate_genre_similarity(first_movie_object['genre'],
+                                                            second_movie_object['genre'])
 
-            final_similarity = genre_sim * self.GENRE_WEIGHT + \
-                               actor_sim * self.ACTOR_WEIGHT + \
-                               runtime_sim * self.RUNTIME_WEIGHT
-            similarity_list.append(final_similarity)
+        actor_similarity = self._calculate_genre_similarity(first_movie_object['actors'],
+                                                            second_movie_object['actors'])
 
-        return max(similarity_list)
+        runtime_similarity = self._calculate_genre_similarity(first_movie_object['runtime'],
+                                                              second_movie_object['runtime'])
 
-    def _calculate_genre_similarity(self):
+        return genre_similarity + actor_similarity + runtime_similarity
+
+    def _calculate_genre_similarity(self, first_genre, second_genre):
         """
         calculate similarity of genres between two movies
         :return: float
         """
-        similarity = self._calculate_common_separated_string_similarity(5)
-        return similarity
+        targets = self._tokenize_string(first_genre)
+        sources = self._tokenize_string(second_genre)
+        average_count = (len(targets) + len(sources)) / 2
+        similarity = len(set(sources).intersection(targets)) / average_count
+        return self.GENRE_WEIGHT * similarity
 
-    def _calculate_actor_similarity(self):
+    def _calculate_actor_similarity(self, first_actor, second_actor):
         """
         calculate similarity of actors between two movies
         :return:
         """
-        similarity = self._calculate_common_separated_string_similarity(3)
-        return similarity
+        targets = self._tokenize_string(first_actor)
+        sources = self._tokenize_string(second_actor)
+        average_count = (len(targets) + len(sources)) / 2
+        similarity = len(set(sources).intersection(targets)) / average_count
+        return self.ACTOR_WEIGHT * similarity
 
-    def _calculate_runtime_similarity(self):
+    def _calculate_runtime_similarity(self, first_runtime, second_runtime):
         """
         calculate similarity of runtime between two movies
         based on the difference in runtime as a percentage
         of the source movie
         :return: float
         """
-        target_runtime = int(self.target_data[6])
-        source_runtime = int(self.source_data[6])
+        target_runtime = int(first_runtime)
+        source_runtime = int(second_runtime)
         difference = abs(target_runtime - source_runtime)
         similarity = 1 - (difference / source_runtime)
-        return similarity
-
-    def _calculate_common_separated_string_similarity(self, index):
-        """
-        calculate similarity for string separated by comma,
-        identified by data object index
-        :param index: integer
-        :return: float
-        """
-        targets = self._tokenize_genre(self.target_data[index])
-        sources = self._tokenize_genre(self.source_data[index])
-        average_count = (len(targets) + len(sources)) / 2
-        similarity = len(set(sources).intersection(targets)) / average_count
-        return similarity
+        return self.RUNTIME_WEIGHT * similarity
 
     @staticmethod
-    def _tokenize_genre(genre):
+    def _tokenize_string(genre):
         tokens = genre.split(",")
         return [token.strip() for token in tokens]
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+    ms = MovieSimilarity()
+    ms.calculate_similarity_table()
 
