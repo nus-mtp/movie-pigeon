@@ -46,6 +46,8 @@ describe('Movie controller test', function () {
         ]).then(function () {
           showing.bulkCreate([
             {cinema_id: 1, movie_id: 'test000001', type: 'type1', schedule: '2017-03-03 12:51:11+08'},
+            {cinema_id: 1, movie_id: 'test000001', type: 'type1', schedule: '2017-03-03 13:51:11+08'},
+            {cinema_id: 1, movie_id: 'test000001', type: 'type1', schedule: '2017-03-03 14:51:11+08'},
             {cinema_id: 1, movie_id: 'test000002', type: 'type2', schedule: '2017-03-03 13:13:11+08'}
           ]);
           done();
@@ -230,20 +232,18 @@ describe('Movie controller test', function () {
         });
     });
 
-  // it('should not get movie from the db by its title substring',
-  //   function (done) {
-  //     request(server)
-  //       .get('/api/movies/title')
-  //       .set('Content-Type', 'application/x-www-form-urlencoded')
-  //       .auth('testemailmovietest', 'pass')
-  //       .set('Title', 'pid')
-  //       .expect(200)
-  //       .end(function (err, res) {
-  //         res.status.should.equal(200);
-  //         res.body.raw.length.should.equal(1);
-  //         var data = res.body.raw;
-  //         getObjects(data, 'movie_id', 'test000005').should.not.equal([]);
-  //         done();
-  //       });
-  //   });
+  it('should get movie schedule by its id',
+    function (done) {
+      request(server)
+        .get('/api/movies/schedule')
+        .set('Content-Type', 'application/x-www-form-urlencoded')
+        .auth('testemailmovietest', 'pass')
+        .set('movie_id', 'test000001')
+        .expect(200)
+        .end(function (err, res) {
+          res.status.should.equal(200);
+          res.body.length.should.equal(3);
+          done();
+        });
+    });
 });

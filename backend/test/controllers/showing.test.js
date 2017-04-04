@@ -118,5 +118,18 @@ describe('Showing controller test', function () {
       });
   });
 
-
+  it('should get all now showing movie', function (done) {
+    request(server)
+      .get('/api/showing/all')
+      .set('Content-Type', 'application/x-www-form-urlencoded')
+      .auth('testemailmovietest', 'pass')
+      .set('cinema_id', '2')
+      .expect(200)
+      .end(function (err, res) {
+        res.status.should.equal(200);
+        var data = res.body;
+        data.length.should.equal(4);
+        done();
+      });
+  });
 });
