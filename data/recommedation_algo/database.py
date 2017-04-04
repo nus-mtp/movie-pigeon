@@ -97,29 +97,34 @@ class DatabaseHandler:
 
     def get_user_history_object(self):
         self.dict_cursor.execute(
-            "SELECT DISTINCT(u.movie_id), m.genre, m.actors, m.runtime "
+            "SELECT DISTINCT(u.movie_id), m.genre, m.actors, m.runtime, m.director "
             "FROM user_ratings u, movies m "
             "WHERE u.movie_id = m.movie_id "
             "AND m.genre IS NOT NULL "
             "AND m.actors IS NOT NULL "
             "AND m.runtime IS NOT NULL "
-            "AND m.runtime <> ''"
+            "AND m.director IS NOT NULL "
+            "AND m.genre <> '' "
+            "AND m.actors <> '' "
+            "AND m.runtime <> '' "
+            "AND m.director <> '' "
         )
         return self.dict_cursor.fetchall()
 
     def get_movie_pool_object(self):
         self.dict_cursor.execute(
-            "SELECT movie_id, genre, actors, runtime "
+            "SELECT movie_id, genre, actors, director, runtime "
             "FROM movies "
             "WHERE genre IS NOT NULL "
             "AND actors IS NOT NULL "
             "AND runtime IS NOT NULL "
-            "AND runtime <> '' "
-            "AND actors <> '' "
+            "AND director IS NOT NULL "
             "AND genre <> '' "
-            "AND released IS NOT NULL "
+            "AND actors <> '' "
+            "AND runtime <> '' "
+            "AND director <> '' "
             "AND released < now() "
-            "ORDER BY released DESC LIMIT 10000"
+            "ORDER BY released DESC LIMIT 5000"
         )
         return self.dict_cursor.fetchall()
 
@@ -137,3 +142,7 @@ class DatabaseHandler:
             )
         )
         self.conn.commit()
+
+    def get_similarity_matrix_pair(self):
+        self.cursor.execute("SELECT id_1, id_2 FROM similarity")
+        return self.cursor.fetchall()

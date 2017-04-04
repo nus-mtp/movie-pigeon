@@ -2,7 +2,6 @@ import recommedation_algo.database as database
 import logging
 
 
-
 class MovieSimilarity:
     """
         this class handles operations related to the calculation
@@ -14,9 +13,10 @@ class MovieSimilarity:
     """
 
     # pre-set weights for each similarity
-    GENRE_WEIGHT = 0.5
-    ACTOR_WEIGHT = 0.25
-    RUNTIME_WEIGHT = 0.25
+    GENRE_WEIGHT = 0.30
+    ACTOR_WEIGHT = 0.30
+    DIRECTOR_WEIGHT = 0.30
+    RUNTIME_WEIGHT = 0.10
 
     def __init__(self):
         self.db = database.DatabaseHandler()
@@ -24,15 +24,23 @@ class MovieSimilarity:
     def calculate_similarity_table(self):
         user_history_objects = self._get_user_histories()
         movie_objects = self._get_compared_movies()
+        existing_pairs = self.db.get_similarity_matrix_pair()
 
         for user_history_object in user_history_objects:
             for movie_object in movie_objects:
                 first_movie_id = user_history_object['movie_id']
                 second_movie_id = movie_object['movie_id']
+
+                if (first_movie_id, second_movie_id) in existing_pairs:
+                    continue
+
                 if first_movie_id != second_movie_id:
                     current_similarity = self._calculate_similarity(user_history_object, movie_object)
                     self.db.load_similarity(first_movie_id, second_movie_id, current_similarity)
-            break
+
+                    # track to avoid repetition
+                    existing_pairs.append((first_movie_id, second_movie_id))
+                    existing_pairs.append((second_movie_id, first_movie_id))
 
     def _get_user_histories(self):
         logging.debug("generating user histories ...")
@@ -61,10 +69,13 @@ class MovieSimilarity:
         actor_similarity = self._calculate_genre_similarity(first_movie_object['actors'],
                                                             second_movie_object['actors'])
 
+        director_similarity = self._calculate_genre_similarity(first_movie_object['director'],
+                                                            second_movie_object['director'])
+
         runtime_similarity = self._calculate_genre_similarity(first_movie_object['runtime'],
                                                               second_movie_object['runtime'])
 
-        return genre_similarity + actor_similarity + runtime_similarity
+        return genre_similarity + actor_similarity + runtime_similarity + director_similarity
 
     def _calculate_genre_similarity(self, first_genre, second_genre):
         """
@@ -87,6 +98,17 @@ class MovieSimilarity:
         average_count = (len(targets) + len(sources)) / 2
         similarity = len(set(sources).intersection(targets)) / average_count
         return self.ACTOR_WEIGHT * similarity
+
+    def _calculate_director_similarity(self, first_director, second_director):
+        """
+        calculate similarity of actors between two movies
+        :return:
+        """
+        targets = self._tokenize_string(first_director)
+        sources = self._tokenize_string(second_director)
+        average_count = (len(targets) + len(sources)) / 2
+        similarity = len(set(sources).intersection(targets)) / average_count
+        return self.DIRECTOR_WEIGHT * similarity
 
     def _calculate_runtime_similarity(self, first_runtime, second_runtime):
         """
