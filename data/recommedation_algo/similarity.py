@@ -22,6 +22,12 @@ class MovieSimilarity:
         self.db = database.DatabaseHandler()
 
     def calculate_similarity_table(self):
+        """
+        main logic for calculating similarity and
+        storing the results
+        :return:
+        """
+        logging.info("initialise similarity matrix calculation ...")
         user_history_objects = self._get_user_histories()
         movie_objects = self._get_compared_movies()
         existing_pairs = self.db.get_similarity_matrix_pair()
@@ -31,7 +37,7 @@ class MovieSimilarity:
                 first_movie_id = user_history_object['movie_id']
                 second_movie_id = movie_object['movie_id']
 
-                if (first_movie_id, second_movie_id) in existing_pairs:
+                if (first_movie_id, second_movie_id) in existing_pairs:  # exists, skip
                     continue
 
                 if first_movie_id != second_movie_id:
@@ -41,6 +47,8 @@ class MovieSimilarity:
                     # track to avoid repetition
                     existing_pairs.append((first_movie_id, second_movie_id))
                     existing_pairs.append((second_movie_id, first_movie_id))
+
+        logging.info("current iteration complete.")
 
     def _get_user_histories(self):
         logging.debug("generating user histories ...")
@@ -128,8 +136,4 @@ class MovieSimilarity:
         tokens = genre.split(",")
         return [token.strip() for token in tokens]
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-    ms = MovieSimilarity()
-    ms.calculate_similarity_table()
 
