@@ -42,7 +42,7 @@ class MovieSimilarity:
 
                 if first_movie_id != second_movie_id:
                     current_similarity = self._calculate_similarity(user_history_object, movie_object)
-                    self.db.load_similarity(first_movie_id, second_movie_id, current_similarity)
+                    self.db.save_similarity(first_movie_id, second_movie_id, current_similarity)
 
                     # track to avoid repetition
                     existing_pairs.append((first_movie_id, second_movie_id))

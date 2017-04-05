@@ -128,7 +128,7 @@ class DatabaseHandler:
         )
         return self.dict_cursor.fetchall()
 
-    def load_similarity(self, movie_id_1, movie_id_2, similarity):
+    def save_similarity(self, movie_id_1, movie_id_2, similarity):
         self.cursor.execute(
             "INSERT INTO similarity (id_1, id_2, similarity_value) VALUES (%s, %s, %s)",
             (
