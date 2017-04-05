@@ -146,3 +146,7 @@ class DatabaseHandler:
     def get_similarity_matrix_pair(self):
         self.cursor.execute("SELECT id_1, id_2 FROM similarity")
         return self.cursor.fetchall()
+
+    def get_similar_movies_by_id(self, movie_id):
+        self.cursor.execute("SELECT id_2 FROM similarity WHERE similarity_value >= 0.4 AND id_1=%s", (movie_id, ))
+        return self.cursor.fetchall()
