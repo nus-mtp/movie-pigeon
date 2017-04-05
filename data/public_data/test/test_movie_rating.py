@@ -1,5 +1,5 @@
 import unittest
-from movie import MovieRating
+from public_data.movie import MovieRating
 
 
 class TestMovieRating(unittest.TestCase):

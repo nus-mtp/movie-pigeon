@@ -1,10 +1,54 @@
 from enum import Enum
 from datetime import datetime, timedelta
 from pytz import timezone
-from urllib import request
+from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
+from selenium import webdriver
 
 import time
+import json
+
+
+def get_geocode(address):
+    """
+    return the latitude and longtitude of an address,
+    given by google geocode api
+    :param address: string
+    :return: float, float
+    """
+    address = _parse_special_cinema(address)
+
+    time.sleep(1)  # important to avoid violating google api limit
+
+    web_result = _get_json_result_from_google_geocode(address)
+    location = web_result['results'][0]['geometry']['location']
+    latitude = location['lat']
+    longitude = location['lng']
+    return latitude, longitude
+
+
+def _parse_special_cinema(address):
+    """
+    parse the name of special cinemas, so it
+    can be used for google API
+    :param address: string
+    :return: string
+    """
+    if ',' in address:
+        address = address.split(",")[-1].strip()  # special cinema will be determined by their location
+    if '(' in address:
+        address = address.split('(')[0].strip()  # remove stalls
+    address = address.replace(" ", '%20')  # replace space for html encoding
+    return address
+
+
+def _get_json_result_from_google_geocode(address):
+    address += ",Singapore"  # ensure the search is in Singapore
+    GOOGLE_GEOCODE_API = 'http://maps.google.com/maps/api/geocode/json?address={}&components=country:SG'
+    url = GOOGLE_GEOCODE_API.format(address)
+    json_content = urlopen(url).read().decode('utf-8')
+    web_result = json.loads(json_content)
+    return web_result
 
 
 class UrlFormatter(Enum):
@@ -128,7 +172,8 @@ def get_movie_rating_dict(score, votes, imdb_id, rating_source):
 
 
 def build_soup_from_url(url):
-    web_content = request.urlopen(url).read().decode("utf-8")
+    req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    web_content = urlopen(req).read().decode("utf-8")
     soup = BeautifulSoup(web_content, "lxml")
     return soup
 
@@ -137,6 +182,13 @@ def build_soup_from_file(directory):
     io_wrapper = open(directory, encoding="utf8")
     soup = BeautifulSoup(io_wrapper, "lxml")
     io_wrapper.close()
+    return soup
+
+
+def build_soup_from_selenium(url):
+    driver = webdriver.PhantomJS()
+    driver.get(url)
+    soup = BeautifulSoup(driver.page_source, "lxml")
     return soup
 
 

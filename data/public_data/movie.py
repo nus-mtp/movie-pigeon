@@ -37,7 +37,7 @@ class MovieData:
         self.imdb_id = imdb_id
 
         if test:
-            self.soup = utils.build_soup_from_file("test/data_movie_data/{}.html".format(imdb_id))
+            self.soup = utils.build_soup_from_file("public_data/test/data_movie_data/{}.html".format(imdb_id))
         else:
             self.soup = utils.build_soup_from_url(self.IMDB_URL_FORMAT.format(imdb_id))
 

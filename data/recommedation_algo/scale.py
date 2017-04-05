@@ -27,7 +27,7 @@ class UserScale:
         a linear regression model
         :return: None
         """
-        user_rating_records = self.db.get_user_history(self.user_id)  # join public rating remove None
+        user_rating_records = self.db.get_user_history(self.user_id)
 
         if len(user_rating_records) == 0:  # no previous watching history
             return
@@ -40,6 +40,9 @@ class UserScale:
 
             # regressors
             public_rating_records = self.db.get_public_rating(current_movie_id)
+
+            if len(public_rating_records) < 3:
+                continue
 
             if not public_rating_records:  # rating not available
                 self.controller.update_single_movie_rating(current_movie_id)  # update rating
@@ -58,7 +61,6 @@ class UserScale:
             # response
             user_rating = record[1]
             responses.append(user_rating)
-
         self.model.fit(regressors, responses)
 
     def predict_user_score(self, public_ratings):
@@ -73,6 +75,5 @@ class UserScale:
             self.model.predict([public_ratings])
         except exceptions.NotFittedError:
             return numpy.mean(public_ratings)
+
         return self.model.predict([public_ratings])
-
-

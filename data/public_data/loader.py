@@ -1,6 +1,6 @@
 """handles all interactions with database"""
 import public_data.config as config
-
+import datetime
 
 class Loader:
 
@@ -45,15 +45,17 @@ class Loader:
         self.conn.commit()
 
     def load_movie_rating(self, movie_ratings):
+        now = datetime.datetime.now()
         for movie_rating in movie_ratings:
             self.cursor.execute(
-                "INSERT INTO public_ratings (vote, score, movie_id, source_id) VALUES (%s, %s, %s, %s) "
+                "INSERT INTO public_ratings (vote, score, movie_id, source_id, updated_at) VALUES (%s, %s, %s, %s, %s) "
                 "ON CONFLICT (movie_id, source_id) "
-                "DO UPDATE SET (vote, score) = (%s, %s) "
+                "DO UPDATE SET (vote, score, updated_at) = (%s, %s, %s) "
                 "WHERE public_ratings.movie_id=%s AND public_ratings.source_id=%s",
                 (
-                    movie_rating['votes'], movie_rating['score'], movie_rating['movie_id'],
-                    movie_rating['source_id'], movie_rating['votes'], movie_rating['score'],
+                    movie_rating['votes'], movie_rating['score'], movie_rating['movie_id'], movie_rating['source_id'],
+                    now,
+                    movie_rating['votes'], movie_rating['score'], now,
                     movie_rating['movie_id'], movie_rating['source_id']
                 )
             )
@@ -61,18 +63,25 @@ class Loader:
 
     def load_cinema_list(self, cinema_list):
         for cinema in cinema_list:
+            cinema_name = cinema['cinema_name']
+            cinema_provider = cinema['provider']
+            location_x = str(cinema['location_x'])
+            location_y = str(cinema['location_y'])
+            displayed_name = cinema['displayed_name']
             self.cursor.execute(
-                "INSERT INTO cinemas (cinema_name, url, provider, location_x, location_y) VALUES (%s, %s, %s, %s, %s) "
+                "INSERT INTO cinemas (cinema_name, provider, location_x, location_y, displayed_name) "
+                "VALUES (%s, %s, %s, %s, %s) "
                 "ON CONFLICT (cinema_name) "
-                "DO UPDATE SET (url, provider, location_x, location_y) = (%s, %s, %s, %s)"
+                "DO UPDATE SET (provider, location_x, location_y, displayed_name) = (%s, %s, %s, %s)"
                 "WHERE cinemas.cinema_name=%s",
+
                 (
-                    cinema['cinema_name'], cinema['url'], cinema['provider'], str(cinema['location_x']),
-                    str(cinema['location_y']),
-                    cinema['url'], cinema['provider'], str(cinema['location_x']), str(cinema['location_y']),
-                    cinema['cinema_name']
+                    cinema_name, cinema_provider, location_x, location_y, displayed_name,
+                    cinema_provider, location_x, location_y, displayed_name,
+                    cinema_name
                 )
             )
+
             self.conn.commit()
 
     def load_cinema_schedule(self, cinema_schedule):
@@ -120,7 +129,10 @@ class Loader:
         return data_object
 
     def get_movie_id_list_without_rating(self):
-        self.cursor.execute("SELECT movie_id FROM movies WHERE movie_id NOT IN (SELECT movie_id FROM public_ratings)")
+        self.cursor.execute("SELECT movie_id FROM movies WHERE movie_id NOT IN (SELECT movie_id FROM public_ratings) "
+                            "AND released IS NOT NULL "
+                            "AND released <= now() "
+                            "ORDER BY released DESC")
         data_object = self.cursor.fetchall()
         id_list = []
         for item in data_object:
