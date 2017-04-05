@@ -124,7 +124,7 @@ class DatabaseHandler:
             "AND runtime <> '' "
             "AND director <> '' "
             "AND released < now() "
-            "ORDER BY released DESC LIMIT 5000"
+            "ORDER BY released DESC LIMIT 10000"
         )
         return self.dict_cursor.fetchall()
 

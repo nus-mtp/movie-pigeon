@@ -5,12 +5,8 @@ import logging
 
 
 def run():
-    scheduler = BlockingScheduler()
     ms = similarity.MovieSimilarity()
-
-    # cron for similarity matrix, run at interval of 1 mins
-    scheduler.add_job(ms.calculate_similarity_table, trigger='interval', minutes=1)
-    scheduler.start()
+    ms.calculate_similarity_table()
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)

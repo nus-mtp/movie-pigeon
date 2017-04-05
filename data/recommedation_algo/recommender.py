@@ -5,7 +5,6 @@ from recommedation_algo.database import DatabaseHandler
 from public_data.controller import ETLController
 from datetime import datetime, timedelta
 from recommedation_algo.scale import UserScale
-from recommedation_algo.similarity import MovieSimilarity
 
 import logging
 
@@ -16,11 +15,11 @@ class Recommender:
 
     SIMILARITY_CRITERION = 0.5  # similarity index above 0.5 means roughly more than one similar feature
 
-    RECOMMEND_CRITERION = 7.0  # user ratings are limited, a relatively lower criterion is good to generate more recom
+    RECOMMEND_CRITERION = 6.5  # user ratings are limited, a relatively lower criterion is good to generate more recom
 
     SIMILAR_MOVIE_POOL_SIZE = 50  # iteration wise, 50 similar movies will be selected and subjected to recommendation
 
-    ANOMALY_CRITERION = 20
+    ANOMALY_CRITERION = 20  # prevent anomaly in regression results
 
     def __init__(self):
         self.controller = ETLController()
