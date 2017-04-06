@@ -43,3 +43,12 @@ module.exports.getAllRecommendation = function (userId) {
     ]
   })
 };
+
+module.exports.deleteRecommendation = function (userId, movieId) {
+  recommendation.destroy({
+    where: {
+      user_id: userId,
+      movie_id: movieId
+    }
+  });
+};

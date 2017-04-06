@@ -16,14 +16,3 @@ exports.postClients = function (req, res) {
       });
     });
 };
-
-// Create endpoint /api/clients for GET
-exports.getClients = function (req, res) {
-  // Use the Client model to find all clients
-  Client.find({userId: req.user._id}, function (err, clients) {
-    if (err) {
-      return res.send(err);
-    }
-    res.json(clients);
-  });
-};

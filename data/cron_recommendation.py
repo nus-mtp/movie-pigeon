@@ -10,7 +10,8 @@ def run():
     recommender = Recommender()
 
     # cron for cinema schedule, run at 0:00 everyday
-    scheduler.add_job(recommender.update_user_recommendations, trigger='interval', minutes=10, start_date='2017-04-06 19:55:00')
+    scheduler.add_job(recommender.update_user_recommendations,
+                      trigger='interval', seconds=30)
     scheduler.start()
 
 

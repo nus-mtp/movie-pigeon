@@ -10,8 +10,7 @@ def run():
     scheduler = BlockingScheduler()
 
     # cron for cinema schedule, run at 0:00 everyday
-    scheduler.add_job(ms.calculate_similarity_table, trigger='interval', days=1,
-                      start_date='2017-04-06 19:57:00')
+    scheduler.add_job(ms.calculate_similarity_table, trigger='interval', days=1)
     scheduler.start()
 
 if __name__ == '__main__':
