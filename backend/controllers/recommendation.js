@@ -56,7 +56,7 @@ module.exports.getRecommendation = function (req, res) {
             }
           })
       } else {
-        sequelize.query('SELECT m.*, ' +
+        sequelize.query('SELECT DISTINCT(m.title), m.*, ' +
           'r.vote as imdb_vote,' +
           'r.score as imdb_score, ' +
           'r1.vote as douban_vote, ' +
