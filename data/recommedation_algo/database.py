@@ -1,6 +1,7 @@
 """handles all interactions with database"""
 import recommedation_algo.config as config
 import datetime
+import psycopg2
 
 from psycopg2 import extras
 
@@ -124,24 +125,28 @@ class DatabaseHandler:
             "AND runtime <> '' "
             "AND director <> '' "
             "AND released < now() "
-            "ORDER BY released DESC LIMIT 10000"
+            "ORDER BY released DESC"
         )
         return self.dict_cursor.fetchall()
 
     def save_similarity(self, movie_id_1, movie_id_2, similarity):
-        self.cursor.execute(
-            "INSERT INTO similarity (id_1, id_2, similarity_value) VALUES (%s, %s, %s)",
-            (
-                movie_id_1, movie_id_2, similarity
+        try:
+            self.cursor.execute(
+                "INSERT INTO similarity (id_1, id_2, similarity_value) VALUES (%s, %s, %s)",
+                (
+                    movie_id_1, movie_id_2, similarity
+                )
             )
-        )
-        self.cursor.execute(
-            "INSERT INTO similarity (id_1, id_2, similarity_value) VALUES (%s, %s, %s)",
-            (
-                movie_id_2, movie_id_1, similarity
+            self.cursor.execute(
+                "INSERT INTO similarity (id_1, id_2, similarity_value) VALUES (%s, %s, %s)",
+                (
+                    movie_id_2, movie_id_1, similarity
+                )
             )
-        )
-        self.conn.commit()
+            self.conn.commit()
+        except psycopg2.IntegrityError:
+            self.conn.commit()
+            return
 
     def get_similarity_matrix_pair(self):
         self.cursor.execute("SELECT id_1, id_2 FROM similarity")
