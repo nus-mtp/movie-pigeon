@@ -69,7 +69,7 @@ module.exports.getRecommendation = function (req, res) {
           'AND r.source_id = \'1\' AND r1.source_id = \'2\' AND r2.source_id = \'3\' ' +
           'AND r.movie_id = m.movie_id AND r.vote is not NULL ' +
           'AND r.score > 8.0 ' +
-          'ORDER BY imdb_vote DESC', { type: sequelize.QueryTypes.SELECT})
+          'ORDER BY imdb_vote DESC LIMIT 10', { type: sequelize.QueryTypes.SELECT})
           .then(function (defaults) {
             if (defaults) {
               defaults = processResult(defaults);
