@@ -63,9 +63,10 @@ module.exports.getRecommendation = function (req, res) {
           'r1.score as douban_score, ' +
           'r2.vote as trakt_vote, ' +
           'r2.score as trakt_score, ' +
-          'bookmarks.movie_id as bookmarks_movie_id ' +
-          'FROM public_ratings r, public_ratings r1, public_ratings r2, movies m LEFT OUTER JOIN bookmarks ON m.movie_id = bookmarks.movie_id and bookmarks.user_id = '+ userId +
-          ' WHERE ' +
+          'CASE WHEN EXISTS (SELECT movie_id FROM bookmarks WHERE user_id=' +  userId + ' AND m.movie_id=bookmarks.movie_id) THEN TRUE ELSE FALSE END AS is_bookedmarked, ' +
+          'CASE WHEN EXISTS (SELECT movie_id FROM showings WHERE m.movie_id=showings.movie_id) THEN TRUE ELSE FALSE END AS is_showing ' +
+          'FROM public_ratings r, public_ratings r1, public_ratings r2, movies m ' +
+          'WHERE ' +
           'r.movie_id = r1.movie_id AND r1.movie_id = r2.movie_id AND r2.movie_id = r.movie_id'+
           ' AND r.source_id = \'1\' AND r1.source_id = \'2\' AND r2.source_id = \'3\' ' +
           'AND r.movie_id = m.movie_id AND r.vote is not NULL ' +
@@ -87,13 +88,13 @@ function processResult(results, userId) {
                 {movie_id: results[i].movie_id, source_id: 2, vote: results[i].douban_vote, score: results[i].douban_score},
                 {movie_id: results[i].movie_id, source_id: 3, vote: results[i].trakt_vote, score: results[i].trakt_score}];
     results[i].public_ratings= data;
-    if (results[i].bookmarks != null) {
+    if (results[i].is_bookedmarked != false) {
       results[i].bookmarks = [{user_id: userId, movie_id: results[i].movie_id}];
     } else {
       results[i].bookmarks = [];
     }
     results[i].user_ratings = [];
-    results[i].isShowing = false;
+    results[i].isShowing = results[i].is_showing;
   }
   return results;
 }
