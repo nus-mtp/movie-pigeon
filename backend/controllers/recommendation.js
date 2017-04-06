@@ -87,7 +87,11 @@ function processResult(results, userId) {
                 {movie_id: results[i].movie_id, source_id: 2, vote: results[i].douban_vote, score: results[i].douban_score},
                 {movie_id: results[i].movie_id, source_id: 3, vote: results[i].trakt_vote, score: results[i].trakt_score}];
     results[i].public_ratings= data;
-    results[i].bookmarks = [{user_id: userId, movie_id: results[i].movie_id}];
+    if (results[i].bookmarks != null) {
+      results[i].bookmarks = [{user_id: userId, movie_id: results[i].movie_id}];
+    } else {
+      results[i].bookmarks = [];
+    }
     results[i].user_ratings = [];
     results[i].isShowing = false;
   }
