@@ -82,9 +82,10 @@ module.exports.getRecommendation = function (req, res) {
 
 function processResult(results) {
   for (var i in results) {
-    var data = [{score: results[i].imdb_score},{score: results[i].douban_score},{score: results[i].trakt_score}];
+    var data = [{movie_id: results[i].movie_id, source_id: 1, vote: results[i].imdb_vote, score: results[i].imdb_score},
+                {movie_id: results[i].movie_id, source_id: 2, vote: results[i].douban_vote, score: results[i].douban_score},
+                {movie_id: results[i].movie_id, source_id: 3, vote: results[i].trakt_vote, score: results[i].trakt_score}];
     results[i].public_ratings= data;
-    console.log(results[i]);
   }
   return results;
 }
