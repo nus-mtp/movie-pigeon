@@ -1,6 +1,7 @@
 // Load required packages
 var rate = require('../proxy/rate.js');
 var movie = require('../proxy/movie.js');
+var recommendation = require('../proxy/recommendation');
 var utils = require('./utils');
 // Create endpoint /api/ratings for POST
 exports.postRates = function (req, res) {
@@ -39,6 +40,7 @@ exports.postRates = function (req, res) {
                 });
             }
           });
+        recommendation.deleteRecommendation(userId, movieId);
       } else {
         res.json({
           status: 'fail',
