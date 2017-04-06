@@ -30,23 +30,17 @@ class MovieSimilarity:
         logging.info("initialise similarity matrix calculation ...")
         user_history_objects = self._get_user_histories()
         movie_objects = self._get_compared_movies()
-        existing_pairs = self.db.get_similarity_matrix_pair()
+        logging.info("user history object count: " + str(len(user_history_objects)))
+        logging.info("movie objects count: " + str(len(movie_objects)))
 
         for user_history_object in user_history_objects:
             for movie_object in movie_objects:
                 first_movie_id = user_history_object['movie_id']
                 second_movie_id = movie_object['movie_id']
 
-                if (first_movie_id, second_movie_id) in existing_pairs:  # exists, skip
-                    continue
-
                 if first_movie_id != second_movie_id:
                     current_similarity = self._calculate_similarity(user_history_object, movie_object)
                     self.db.save_similarity(first_movie_id, second_movie_id, current_similarity)
-
-                    # track to avoid repetition
-                    existing_pairs.append((first_movie_id, second_movie_id))
-                    existing_pairs.append((second_movie_id, first_movie_id))
 
         logging.info("current iteration complete.")
 
