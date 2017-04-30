@@ -35,7 +35,7 @@ install:
   - cd backend
   - npm install
 script:
-  - npm coverage
+  - npm run coverage
   - cd ..
   - cd data
   - python3 -m unittest movie_id_matcher/test/test_matcher.py
