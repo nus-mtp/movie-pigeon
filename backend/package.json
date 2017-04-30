@@ -40,7 +40,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "mocha --recursive",
-	"coverage": "nyc mocha --recursive",
+	"coverage": "nyc --reporter=lcov mocha --recursive",
     "sync": "cd models & node sync.js"
   },
   "repostory": {

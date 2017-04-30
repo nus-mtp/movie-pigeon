@@ -1,3 +1,10 @@
+[![Build
+Status](https://travis-ci.org/nus-mtp/movie-pigeon.svg?branch=master)](https://travis-ci.org/nus-mtp/movie-pigeon)
+[![Test
+Coverage](https://codeclimate.com/github/nus-mtp/movie-pigeon/badges/coverage.svg)](https://codeclimate.com/github/nus-mtp/movie-pigeon/coverage)
+[![Code
+Climate](https://codeclimate.com/github/nus-mtp/movie-pigeon/badges/gpa.svg)](https://codeclimate.com/github/nus-mtp/movie-pigeon)
+
 # Movie Pigeon
 
 Backend REST server using Nodejs, Expressjs and PostgreSQL

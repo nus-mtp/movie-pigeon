@@ -39,3 +39,7 @@ backend/database.json
 
 #Email credentials
 backend/config.json
+
+# Coverage data
+backend/coverage/
+backend/.nyc_output/
