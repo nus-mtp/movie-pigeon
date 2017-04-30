@@ -35,7 +35,7 @@ install:
   - cd backend
   - npm install
 script:
-  - npm run coverage && cd ../data && python3 -m unittest movie_id_matcher/test/test_matcher.py && python3 -m unittest public_data/test/test_movie_data.py && cd ...
+  - npm run coverage && cd ../data && python3 -m unittest movie_id_matcher/test/test_matcher.py && python3 -m unittest public_data/test/test_movie_data.py && cd ..
 after_script:
   - npm install -g codeclimate-test-reporter
   - codeclimate-test-reporter < backend/coverage/lcov.info
